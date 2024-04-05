@@ -84,14 +84,12 @@ def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # E
     return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel', excluyendo la fecha
 
 
-# Emina (antiguo EMINA sumatorio resultados)
-def sumar_emina(data: pd.DataFrame,
-                nombre_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
+# EMINA sumatorios comparados
+def sumar_emina(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
     # que toma un DataFrame data, el nombre de una columna nombre_columna y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
-    data['EMINA_sumatorios_comparados'] = data[nombre_columna].apply(
-        suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
+    data[nueva_columna] = data[nombre_columna].apply(suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
@@ -107,8 +105,7 @@ def suma_sin_ultimas_claves(diccionarios):
     for diccionario in diccionarios:  # Itera sobre cada diccionario en la lista de diccionarios
         if diccionario:  # Verifica si el diccionario está vacío
             for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario
-                if clave not in ['dataValoracio',
-                                 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
+                if clave not in ['dataValoracio', 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
                     if valor.replace('.', '', 1).isdigit():  # Verifica si el valor es un número
                         suma_parcial += float(valor)  # Suma el valor al sumatorio parcial
 
@@ -140,8 +137,6 @@ def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_colum
     data[nueva_columna] = data[nombre_columna].apply(obtener_ultimo)
 
     return data  # Devolver el DataFrame modificado
-
-
 @staticmethod  # Para crear funciones estaticas
 def obtener_ultimo(diccionarios):
     """
@@ -176,8 +171,6 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     data['promedio_pes'] = data[nombre_columna].apply(calcular_promedio)
 
     return data
-
-
 @staticmethod
 def calcular_promedio(diccionarios):
     """
@@ -201,3 +194,59 @@ def calcular_promedio(diccionarios):
         return np.nanmean(valores)  # Calcula el promedio de los valores y lo devuelve
     else:
         return None  # Devuelve None si no hay valores válidos
+
+
+# Canadenca
+def canadenca_comparada(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+    """
+    Función para comparar el sumatorio de ciertas claves con el valor de 'total' en una lista de diccionarios.
+
+    Parámetros:
+        - data: DataFrame de pandas que contiene los datos.
+        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+
+    Devuelve:
+        - DataFrame modificado con una nueva columna que contiene el resultado deseado.
+    """
+    # Aplicar la función calcular_sumatorio_y_comparar a la columna especificada del DataFrame
+    data['Canadenca_sumatorios_comparados'] = data[nombre_columna].apply(lambda x: calcular_sumatorio_y_comparar(x[0]) if isinstance(x, list) and len(x) > 0 else None)
+
+    return data  # Devolver el DataFrame modificado
+
+def calcular_sumatorio_y_comparar(diccionario):
+    """
+    Función interna para calcular el sumatorio y compararlo con el valor de 'total' en un diccionario.
+
+    Parámetros:
+        - diccionario: Diccionario que contiene los datos.
+
+    Devuelve:
+        - Sumatorio calculado si coincide con 'total', None en caso contrario.
+    """
+    if not isinstance(diccionario, dict):  # Verificar si el diccionario no es válido
+        return None
+
+    sumatorio = 0  # Inicializar el sumatorio
+    keys_to_exclude = ['total', 'dataValoracio', 'horaValoracio']
+
+    # Calcular el sumatorio de las claves numéricas válidas en el diccionario
+    for clave, valor in diccionario.items():
+        if clave not in keys_to_exclude and valor.strip():  # Excluir claves no deseadas y valores vacíos
+            try:
+                # Convertir coma a punto para parsear a float
+                valor_float = float(valor.replace(',', '.'))
+                sumatorio += valor_float
+            except ValueError:
+                pass  # Ignorar valores no numéricos
+
+    # Obtener el valor de 'total' del diccionario
+    total = diccionario.get('total')
+
+    # Comparar el sumatorio con 'total' y devolver el resultado adecuado
+    if total is not None and sumatorio == float(total):
+        return sumatorio
+    else:
+        return None
+
+
+#TODO: quedan por "hacer codigos" de: labs, atcs.

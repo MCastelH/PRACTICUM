@@ -1,11 +1,11 @@
-# cadena de text --> diccionari --> data.frame
 # usar diccionarios mejor envez de convertir a df
 
 import json
 import pandas as pd
 from datetime import datetime
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
-                                 sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio)
+                                 sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
+                                 canadenca_comparada)
 from listas import PA_list, P_list, disfagia_list
 
 if __name__ == "__main__":
@@ -39,8 +39,8 @@ if __name__ == "__main__":
     # Función que hace un sumatorio de todos los ítems del test emina, sin tener en cuenta las últimas 2 claves
     # 'dataValoració' y 'resultat'. Además compara si el sumatorio es el mismo que el valor de la columna 'resultat', y
     # si es así, introduce el sumatorio. Si la lista está vacia (tiene longitud=0) o los valores del sumatorio
-    # i 'resultat' no son los mismos, devuelve None (NaN)
-    data = sumar_emina(data, 'emina')
+    # i 'resultat' no son los mismos, devuelve None (por ahora devuelve NaN)
+    data = sumar_emina(data, 'emina', 'EMINA_sumatorios_comparados')
 
     # Función que extrae la última clave del test emina llamada 'resultats'
     data = obtener_ultimo_resultat(data, 'emina', 'emina_resultats')
@@ -51,6 +51,12 @@ if __name__ == "__main__":
     # Funcion que proporciona el promedio de los todos los pesos (en caso de que haya más de un valor de peso) o el
     # único valor de peso que tenga el paciente registrado
     data = obtener_valor_promedio(data, 'pes')
+
+    # Función que compara el sumatorio de determinados ítems del test canadenca con la clave 'total', y si es igual te
+    # devuelve el sumatorio. Para hacer el sumatorio no tiene en cuenta las claves: 'total', 'dataValoracio' y
+    # 'horaValoracio'. Si la fila está vacia (no hay diccionario) devuelve NaN.
+    data = canadenca_comparada(data, 'canadenca')
+
 
 
 
