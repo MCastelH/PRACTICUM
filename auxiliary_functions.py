@@ -68,7 +68,8 @@ def asignar_intervalo_edad(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
 # Valores barthel
 def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
     # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame modificado.
-    def suma_sin_fecha(diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
+    def suma_sin_fecha(
+            diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
         suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores, comenzando en 0.
         for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario.
             if clave != 'data':  # Verifica si la clave actual es diferente de 'fecha'
@@ -77,20 +78,24 @@ def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # E
         return suma_parcial  # Devuelve la suma parcial de los valores, excluyendo la fecha.
 
     # Aplicar la función a la columna 'barthel' para obtener la suma de los valores, excluyendo la clave 'data'
-    data['Barthel_resultados'] = data[nombre_columna].apply(suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
+    data['Barthel_resultados'] = data[nombre_columna].apply(
+        suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
     # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total Barthel'.
     return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel', excluyendo la fecha
 
 
 # Emina (antiguo EMINA sumatorio resultados)
-def sumar_emina(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
+def sumar_emina(data: pd.DataFrame,
+                nombre_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
     # que toma un DataFrame data, el nombre de una columna nombre_columna y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
-    data['EMINA_sumatorios_comparados'] = data[nombre_columna].apply(suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
+    data['EMINA_sumatorios_comparados'] = data[nombre_columna].apply(
+        suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
+
 
 def suma_sin_ultimas_claves(diccionarios):
     if not diccionarios:  # Verifica si la lista de diccionarios está vacía
@@ -102,7 +107,8 @@ def suma_sin_ultimas_claves(diccionarios):
     for diccionario in diccionarios:  # Itera sobre cada diccionario en la lista de diccionarios
         if diccionario:  # Verifica si el diccionario está vacío
             for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario
-                if clave not in ['dataValoracio', 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
+                if clave not in ['dataValoracio',
+                                 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
                     if valor.replace('.', '', 1).isdigit():  # Verifica si el valor es un número
                         suma_parcial += float(valor)  # Suma el valor al sumatorio parcial
 
@@ -135,7 +141,8 @@ def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_colum
 
     return data  # Devolver el DataFrame modificado
 
-@staticmethod # Para crear funciones estaticas
+
+@staticmethod  # Para crear funciones estaticas
 def obtener_ultimo(diccionarios):
     """
     Función interna para obtener el último valor de la clave 'resultat' en la lista de diccionarios.
@@ -169,6 +176,8 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     data['promedio_pes'] = data[nombre_columna].apply(calcular_promedio)
 
     return data
+
+
 @staticmethod
 def calcular_promedio(diccionarios):
     """
@@ -193,4 +202,4 @@ def calcular_promedio(diccionarios):
     else:
         return None  # Devuelve None si no hay valores válidos
 
-#ejemplo cambio
+# ejemplo cambio
