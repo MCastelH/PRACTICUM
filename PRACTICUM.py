@@ -52,9 +52,9 @@ if __name__ == "__main__":
     # único valor de peso que tenga el paciente registrado
     data = obtener_valor_promedio(data, 'pes')
 
-    # Función que compara el sumatorio de determinados ítems del test canadenca con la clave 'total', y si es igual te
-    # devuelve el sumatorio. Para hacer el sumatorio no tiene en cuenta las claves: 'total', 'dataValoracio' y
-    # 'horaValoracio'. Si la fila está vacia (no hay diccionario) devuelve NaN.
+    # Función que compara el sumatorio de determinados ítems de la escala canadenca con la clave 'total',
+    # y si es igual te devuelve el sumatorio. Para hacer el sumatorio no tiene en cuenta las claves: 'total',
+    # 'dataValoracio' y 'horaValoracio'. Si la fila está vacia (no hay diccionario) devuelve NaN.
     data = canadenca_comparada(data, 'canadenca')
 
 
