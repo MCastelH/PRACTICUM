@@ -201,6 +201,3 @@ def calcular_promedio(diccionarios):
         return np.nanmean(valores)  # Calcula el promedio de los valores y lo devuelve
     else:
         return None  # Devuelve None si no hay valores válidos
-
-# ejemplo cambio
-# ejemplo cambio 2
