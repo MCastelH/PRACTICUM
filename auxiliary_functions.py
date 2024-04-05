@@ -203,3 +203,4 @@ def calcular_promedio(diccionarios):
         return None  # Devuelve None si no hay valores válidos
 
 # ejemplo cambio
+# ejemplo cambio 2
