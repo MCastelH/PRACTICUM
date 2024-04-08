@@ -367,8 +367,7 @@ def obtener_valor_clave(diccionarios, clave):
             if clave in dic:
                 valor = dic[clave]
                 break  # Salir del bucle si se encuentra la clave en el diccionario
-    if valor is None:
-        return None
+
     # Transformar valores 'SI' o 'S' en 1 y 'NO' o 'N' en 0
     if valor is not None:
         if valor.strip().upper() == 'SI' or valor.strip().upper() == 'S':
