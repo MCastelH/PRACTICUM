@@ -68,20 +68,19 @@ def asignar_intervalo_edad(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
 # Valores barthel
 def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
     # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame modificado.
-    def suma_sin_fecha(
-            diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
-        suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores, comenzando en 0.
-        for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario.
-            if clave != 'data':  # Verifica si la clave actual es diferente de 'fecha'
-                suma_parcial += int(
-                    valor)  # Si la clave no es 'fecha', suma el valor correspondiente al total, convirtiéndolo primero a entero.
-        return suma_parcial  # Devuelve la suma parcial de los valores, excluyendo la fecha.
 
     # Aplicar la función a la columna 'barthel' para obtener la suma de los valores, excluyendo la clave 'data'
-    data['Barthel_resultados'] = data[nombre_columna].apply(
-        suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
+    data['Barthel_resultados'] = data[nombre_columna].apply(suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
     # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total Barthel'.
     return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel', excluyendo la fecha
+
+def suma_sin_fecha(diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
+    suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores, comenzando en 0.
+    for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario.
+        if clave != 'data':  # Verifica si la clave actual es diferente de 'fecha'
+            suma_parcial += int(
+                valor)  # Si la clave no es 'fecha', suma el valor correspondiente al total, convirtiéndolo primero a entero.
+    return suma_parcial  # Devuelve la suma parcial de los valores, excluyendo la fecha.
 
 
 # EMINA sumatorios comparados
@@ -93,7 +92,6 @@ def sumar_emina(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> 
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
-
 
 def suma_sin_ultimas_claves(diccionarios):
     if not diccionarios:  # Verifica si la lista de diccionarios está vacía
@@ -137,7 +135,7 @@ def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_colum
     data[nueva_columna] = data[nombre_columna].apply(obtener_ultimo)
 
     return data  # Devolver el DataFrame modificado
-@staticmethod  # Para crear funciones estaticas
+
 def obtener_ultimo(diccionarios):
     """
     Función interna para obtener el último valor de la clave 'resultat' en la lista de diccionarios.
@@ -171,29 +169,39 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     data['promedio_pes'] = data[nombre_columna].apply(calcular_promedio)
 
     return data
-@staticmethod
-def calcular_promedio(diccionarios):
+
+def calcular_promedio(lista_diccionarios):
     """
-    Método estático para calcular el promedio de los valores de la clave 'valor' en los diccionarios de una lista.
+    Método estático para calcular el promedio de los valores de la clave 'valor' en una lista de diccionarios.
 
     Parámetros:
-        - diccionarios: Lista de diccionarios.
+        - lista_diccionarios: Lista de diccionarios.
 
     Devuelve:
-        - Promedio de los valores de la clave 'valor'.
+        - Promedio de los valores de la clave 'valor', o None si no se pueden calcular.
     """
-    if not diccionarios:
-        return None  # Devuelve None si la lista de diccionarios está vacía
+    if not isinstance(lista_diccionarios, list) or len(lista_diccionarios) == 0:
+        return None  # Devuelve None si la lista de diccionarios no es válida o está vacía
 
-    valores = []  # Lista para almacenar los valores de la clave 'valor'
-    for d in diccionarios:
-        if isinstance(d, dict) and 'valor' in d and d['valor'].strip():
-            valores.append(float(d['valor']))  # Añade el valor de 'valor' como un número flotante a la lista
+    suma_valores = 0  # Variable para almacenar la suma de los valores de 'valor'
+    cantidad_valores = 0  # Contador para llevar el número de valores válidos
 
-    if valores:
-        return np.nanmean(valores)  # Calcula el promedio de los valores y lo devuelve
+    for diccionario in lista_diccionarios:
+        if isinstance(diccionario, dict) and 'valor' in diccionario:
+            valor = diccionario['valor']
+            try:
+                valor_float = float(valor)  # Intenta convertir el valor a float
+                suma_valores += valor_float
+                cantidad_valores += 1
+            except ValueError:
+                pass  # Ignora el valor si no se puede convertir a float
+
+    if cantidad_valores > 0:
+        promedio = suma_valores / cantidad_valores
+        return promedio
     else:
-        return None  # Devuelve None si no hay valores válidos
+        return None  # Devuelve None si no hay valores válidos para calcular el promedio
+
 
 
 # Canadenca
@@ -250,3 +258,7 @@ def calcular_sumatorio_y_comparar(diccionario):
 
 
 #TODO: quedan por "hacer codigos" de: labs, atcs.
+#TODO: descriptiva, distribuciones i test categoricos. edad, sexo...
+#Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
+# pes es lista de diccionarios []
+#hacer sumatorio de la lista i dividir entre su longitud
