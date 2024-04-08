@@ -70,7 +70,8 @@ def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # E
     # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'barthel' para obtener la suma de los valores, excluyendo la clave 'data'
-    data['Barthel_resultados'] = data[nombre_columna].apply(suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
+    data['Barthel_resultados'] = data[nombre_columna].apply(
+        suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
     # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total Barthel'.
     return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel', excluyendo la fecha
 
@@ -84,11 +85,13 @@ def suma_sin_fecha(diccionario):  # Esto define una función interna llamada sum
 
 
 # EMINA sumatorios comparados
-def sumar_emina(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
+def sumar_emina(data: pd.DataFrame, nombre_columna: str,
+                nueva_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
     # que toma un DataFrame data, el nombre de una columna nombre_columna y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
-    data[nueva_columna] = data[nombre_columna].apply(suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
+    data[nueva_columna] = data[nombre_columna].apply(
+        suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
@@ -103,7 +106,8 @@ def suma_sin_ultimas_claves(diccionarios):
     for diccionario in diccionarios:  # Itera sobre cada diccionario en la lista de diccionarios
         if diccionario:  # Verifica si el diccionario está vacío
             for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario
-                if clave not in ['dataValoracio', 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
+                if clave not in ['dataValoracio',
+                                 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
                     if valor.replace('.', '', 1).isdigit():  # Verifica si el valor es un número
                         suma_parcial += float(valor)  # Suma el valor al sumatorio parcial
 
@@ -172,35 +176,104 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
 
 def calcular_promedio(lista_diccionarios):
     """
-    Método estático para calcular el promedio de los valores de la clave 'valor' en una lista de diccionarios.
+    Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
 
     Parámetros:
         - lista_diccionarios: Lista de diccionarios.
 
     Devuelve:
-        - Promedio de los valores de la clave 'valor', o None si no se pueden calcular.
+        - Promedio de los valores numéricos de la clave 'valor' o el valor único si solo hay un diccionario,
+          None si la lista está vacía.
     """
-    if not isinstance(lista_diccionarios, list) or len(lista_diccionarios) == 0:
-        return None  # Devuelve None si la lista de diccionarios no es válida o está vacía
+    print("Iniciando cálculo del promedio...")
 
-    suma_valores = 0  # Variable para almacenar la suma de los valores de 'valor'
-    cantidad_valores = 0  # Contador para llevar el número de valores válidos
+    if not lista_diccionarios:
+        print("La lista de diccionarios no es válida o está vacía.")
+        return None
 
-    for diccionario in lista_diccionarios:
-        if isinstance(diccionario, dict) and 'valor' in diccionario:
+    # Filtrar diccionarios vacíos
+    diccionarios_no_vacios = [d for d in lista_diccionarios if d]
+
+    if not diccionarios_no_vacios:
+        print("La lista de diccionarios no contiene diccionarios válidos.")
+        return None
+
+    valores = []
+    for diccionario in diccionarios_no_vacios:
+        if 'valor' in diccionario:
             valor = diccionario['valor']
             try:
-                valor_float = float(valor)  # Intenta convertir el valor a float
-                suma_valores += valor_float
-                cantidad_valores += 1
+                valor_numerico = float(valor)
+                valores.append(valor_numerico)
             except ValueError:
-                pass  # Ignora el valor si no se puede convertir a float
+                # Ignorar si el valor no es numérico
+                print(f"Valor no válido en el diccionario: {valor}")
 
-    if cantidad_valores > 0:
-        promedio = suma_valores / cantidad_valores
+    if valores:
+        if len(valores) == 1:
+            # Si solo hay un valor, devolver ese valor directamente
+            print(f"Solo hay un valor en la lista: {valores[0]}")
+            return valores[0]
+        else:
+            # Calcular el promedio de los valores numéricos
+            valores_numericos = [v for v in valores if isinstance(v, (int, float))]
+            if valores_numericos:
+                promedio = sum(valores_numericos) / len(valores_numericos)
+                print(f"Promedio calculado: {promedio}")
+                return promedio
+            else:
+                print("No se encontraron valores numéricos válidos para calcular el promedio.")
+                return None
+    else:
+        print("No se encontraron valores numéricos en los diccionarios.")
+        return None
+
+def calcular_promedio(lista_diccionarios):
+    """
+    Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
+
+    Parámetros:
+        - lista_diccionarios: Lista de diccionarios.
+
+    Devuelve:
+        - Promedio de los valores numéricos de la clave 'valor' o el valor único si solo hay un diccionario,
+          None si la lista está vacía o no contiene valores válidos.
+    """
+    print("Iniciando cálculo del promedio...")
+
+    if not lista_diccionarios or not any(lista_diccionarios):
+        print("La lista de diccionarios no es válida o está vacía.")
+        return None
+
+    valores = []
+    for diccionario in lista_diccionarios:
+        if diccionario and 'valor' in diccionario:
+            valor = diccionario['valor']
+            try:
+                valor_numerico = float(valor)
+                valores.append(valor_numerico)
+            except ValueError:
+                # Ignorar si el valor no es numérico
+                print(f"Valor no válido en el diccionario: {valor}")
+
+    if not valores:
+        print("No se encontraron valores numéricos en los diccionarios.")
+        return None
+
+    if len(valores) == 1:
+        # Si solo hay un valor, devolver ese valor directamente
+        print(f"Solo hay un valor en la lista: {valores[0]}")
+        return valores[0]
+
+    # Calcular el promedio de los valores numéricos
+    valores_numericos = [v for v in valores if isinstance(v, (int, float))]
+    if valores_numericos:
+        promedio = sum(valores_numericos) / len(valores_numericos)
+        print(f"Promedio calculado: {promedio}")
         return promedio
     else:
-        return None  # Devuelve None si no hay valores válidos para calcular el promedio
+        print("No se encontraron valores numéricos válidos para calcular el promedio.")
+        return None
 
 
 
@@ -217,9 +290,11 @@ def canadenca_comparada(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame
         - DataFrame modificado con una nueva columna que contiene el resultado deseado.
     """
     # Aplicar la función calcular_sumatorio_y_comparar a la columna especificada del DataFrame
-    data['Canadenca_sumatorios_comparados'] = data[nombre_columna].apply(lambda x: calcular_sumatorio_y_comparar(x[0]) if isinstance(x, list) and len(x) > 0 else None)
+    data['Canadenca_sumatorios_comparados'] = data[nombre_columna].apply(
+        lambda x: calcular_sumatorio_y_comparar(x[0]) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Devolver el DataFrame modificado
+
 
 def calcular_sumatorio_y_comparar(diccionario):
     """
@@ -256,9 +331,8 @@ def calcular_sumatorio_y_comparar(diccionario):
     else:
         return None
 
-
-#TODO: quedan por "hacer codigos" de: labs, atcs.
-#TODO: descriptiva, distribuciones i test categoricos. edad, sexo...
-#Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
+# TODO: quedan por "hacer codigos" de: labs, atcs.
+# TODO: descriptiva, distribuciones i test categoricos. edad, sexo...
+# Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es lista de diccionarios []
-#hacer sumatorio de la lista i dividir entre su longitud
+# hacer sumatorio de la lista i dividir entre su longitud
