@@ -62,8 +62,8 @@ if __name__ == "__main__":
     # diccionarios mecvvs y que devuelve 1 o 0 si el paciente tiene respectivamente un si o un no en dichas claves
     data = disfagia_mecvvs(data, 'mecvvs')
 
-    # Función que itera hasta encontrar el ultimo diccionario con la clave de interes y que devuelve sus valores,
-    # respectivamente 1 si es si, y 0 si es no
+    # Función que itera hasta encontrar el ultimo diccionario con la clave de interes y que devuelve sus valores
+    # sinedo estos: 1 si es SI, y 0 si es NO
     data = extraer_valor_clave(data, 'mecvvs', 'alteracioEficacia',
                                'alteracioEficacia_mecvvs')
     data = extraer_valor_clave(data, 'mecvvs', 'alteracioSeguretat',
