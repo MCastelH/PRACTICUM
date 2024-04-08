@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 
+
 # PA i DO
 def valores_codigos(data: pd.DataFrame, lista: list, nombre_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
@@ -73,7 +74,9 @@ def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # E
     # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total Barthel'.
     return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel', excluyendo la fecha
 
-def suma_sin_fecha(diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
+
+def suma_sin_fecha(
+        diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
     suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores, comenzando en 0.
     for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario.
         if clave != 'data':  # Verifica si la clave actual es diferente de 'fecha'
@@ -88,7 +91,8 @@ def sumar_emina(data: pd.DataFrame, nombre_columna: str,
     # que toma un DataFrame data, el nombre de una columna nombre_columna y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
-    data[nueva_columna] = data[nombre_columna].apply(suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
+    data[nueva_columna] = data[nombre_columna].apply(
+        suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
@@ -103,7 +107,8 @@ def suma_sin_ultimas_claves(diccionarios):
     for diccionario in diccionarios:  # Itera sobre cada diccionario en la lista de diccionarios
         if diccionario:  # Verifica si el diccionario está vacío
             for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario
-                if clave not in ['dataValoracio', 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
+                if clave not in ['dataValoracio',
+                                 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
                     if valor.replace('.', '', 1).isdigit():  # Verifica si el valor es un número
                         suma_parcial += float(valor)  # Suma el valor al sumatorio parcial
 
@@ -135,6 +140,7 @@ def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_colum
     data[nueva_columna] = data[nombre_columna].apply(obtener_ultimo)
 
     return data  # Devolver el DataFrame modificado
+
 
 def obtener_ultimo(diccionarios):
     """
@@ -170,6 +176,7 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
 
     return data
 
+
 def calcular_promedio(diccionarios):
     """
     Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
@@ -179,10 +186,10 @@ def calcular_promedio(diccionarios):
 
     Devuelve:
         - Promedio de los valores numéricos de la clave 'valor'.
-          Devuelve None si la lista de diccionarios está vacía o no es válida.
+          Devuelve None si la lista de diccionarios está vacía, no es válida o contiene una lista vacía.
     """
-    # Verificar si la entrada no es válida
-    if not diccionarios or not isinstance(diccionarios, list):
+    # Verificar si la entrada no es válida o si es una lista vacía
+    if not diccionarios or not isinstance(diccionarios, list) or (len(diccionarios) == 1 and not diccionarios[0]):
         return None
 
     valores = []  # Lista para almacenar los valores numéricos de 'valor'
@@ -206,8 +213,6 @@ def calcular_promedio(diccionarios):
         return promedio
     else:
         return None
-
-
 
 
 # Canadenca
@@ -263,6 +268,166 @@ def calcular_sumatorio_y_comparar(diccionario):
         return sumatorio
     else:
         return None
+
+
+# Disfagia y disfagia conocida identificada con mecvvs
+def disfagia_mecvvs(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+    """
+    Función para comparar el valor de 'disfagia' en el último diccionario con 'SI' o 'S' en una lista de diccionarios.
+
+    Parámetros:
+        - data: DataFrame de pandas que contiene los datos.
+        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+
+    Devuelve:
+        - DataFrame modificado con una nueva columna que contiene el resultado deseado.
+    """
+    # Aplicar la función obtener_ultima_disfagia a la columna especificada del DataFrame
+    data['Disfagia_mecvvs'] = data[nombre_columna].apply(
+        lambda x: obtener_ultima_disfagia(x) if isinstance(x, list) and len(x) > 0 else None)
+
+    return data  # Devolver el DataFrame modificado
+
+def obtener_ultima_disfagia(diccionarios):
+    """
+    Obtiene el valor de la clave 'disfagia' o 'disfagiaConeguda' del último diccionario válido que contiene esta clave.
+
+    Parámetros:
+        - diccionarios: Lista de diccionarios.
+
+    Devuelve:
+        - 1 si el valor de 'disfagia' es 'SI' o 'S'.
+        - 0 si el valor de 'disfagia' es 'NO' o 'N'.
+        - None si la clave 'disfagia' no se encuentra en ningún diccionario válido.
+    """
+    if not isinstance(diccionarios, list) or not diccionarios:
+        return None  # Devolver None si la entrada no es una lista válida o está vacía
+
+    valor_disfagia = None  # Valor por defecto
+
+    # Iterar hacia atrás en la lista de diccionarios
+    for dic in reversed(diccionarios):
+        if isinstance(dic, dict):
+            # Buscar la clave 'disfagia' o 'disfagiaConeguda'
+            if 'disfagia' in dic:
+                valor_disfagia = dic['disfagia'].strip().upper()
+            elif 'disfagiaConeguda' in dic:
+                valor_disfagia = dic['disfagiaConeguda'].strip().upper()
+
+            # Evaluar el valor de 'disfagia' normalizado
+            if valor_disfagia is not None:
+                if valor_disfagia == 'SI' or valor_disfagia == 'S':
+                    return 1
+                elif valor_disfagia == 'NO' or valor_disfagia == 'N':
+                    return 0
+
+    return None  # Devolver None si no se encuentra la clave 'disfagia' en ningún diccionario válido
+
+# MECVVS para eficacia y seguridad
+def extraer_valor_clave(data: pd.DataFrame, nombre_columna: str, clave: str, nueva_columna: str) -> pd.DataFrame:
+    """
+    Función para extraer el valor de una clave específica en el último diccionario de una lista de diccionarios.
+
+    Parámetros:
+        - data: DataFrame de pandas que contiene los datos.
+        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - clave: Clave cuyo valor se desea extraer de cada diccionario.
+        - nueva_columna: Nombre de la nueva columna donde se almacenarán los valores extraídos.
+
+    Devuelve:
+        - DataFrame modificado con una nueva columna que contiene los valores extraídos.
+    """
+    # Aplicar la función para extraer el valor de la clave a la columna especificada del DataFrame
+    data[nueva_columna] = data[nombre_columna].apply(
+        lambda x: obtener_valor_clave(x, clave) if isinstance(x, list) and len(x) > 0 else None)
+
+    return data  # Devolver el DataFrame modificado
+
+
+def obtener_valor_clave(diccionarios, clave):
+    """
+    Obtiene el valor de una clave específica del último diccionario válido que contiene esta clave.
+
+    Parámetros:
+        - diccionarios: Lista de diccionarios.
+        - clave: Clave cuyo valor se desea extraer de cada diccionario.
+
+    Devuelve:
+        - Valor de la clave especificada si se encuentra en el último diccionario válido.
+        - None si la clave no se encuentra en ningún diccionario válido.
+    """
+    if not isinstance(diccionarios, list) or not diccionarios:
+        return None  # Devolver None si la entrada no es una lista válida o está vacía
+
+    valor = None  # Valor por defecto
+
+    # Iterar hacia atrás en la lista de diccionarios
+    for dic in reversed(diccionarios):
+        if isinstance(dic, dict):
+            if clave in dic:
+                valor = dic[clave]
+                break  # Salir del bucle si se encuentra la clave en el diccionario
+    if valor is None:
+        return None
+    # Transformar valores 'SI' o 'S' en 1 y 'NO' o 'N' en 0
+    if valor is not None:
+        if valor.strip().upper() == 'SI' or valor.strip().upper() == 'S':
+            return 1
+        elif valor.strip().upper() == 'NO' or valor.strip().upper() == 'N':
+            return 0
+
+
+    return valor  # Devolver el valor encontrado o None si la clave no se encontró
+
+
+# MECVVS para viscolidad i volumen
+# Esta funcion se podria usar tambien para extraer los resultados de mna y emina
+def extraer_valor_clave_simple(data: pd.DataFrame, nombre_columna: str, clave: str, nueva_columna: str) -> pd.DataFrame:
+    """
+    Función para extraer el valor de una clave específica en el último diccionario de una lista de diccionarios.
+
+    Parámetros:
+        - data: DataFrame de pandas que contiene los datos.
+        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - clave: Clave cuyo valor se desea extraer de cada diccionario.
+        - nueva_columna: Nombre de la nueva columna donde se almacenarán los valores extraídos.
+
+    Devuelve:
+        - DataFrame modificado con una nueva columna que contiene los valores extraídos.
+    """
+    # Aplicar la función para extraer el valor de la clave a la columna especificada del DataFrame
+    data[nueva_columna] = data[nombre_columna].apply(
+        lambda x: obtener_valor(x, clave) if isinstance(x, list) and len(x) > 0 else None)
+
+    return data  # Devolver el DataFrame modificado
+
+def obtener_valor(diccionarios, clave):
+    """
+    Obtiene el valor de una clave específica del último diccionario válido que contiene esta clave.
+
+    Parámetros:
+        - diccionarios: Lista de diccionarios.
+        - clave: Clave cuyo valor se desea extraer de cada diccionario.
+
+    Devuelve:
+        - Valor de la clave especificada si se encuentra en el último diccionario válido.
+        - None si la clave no se encuentra en ningún diccionario válido.
+    """
+    if not isinstance(diccionarios, list) or not diccionarios:
+        return None  # Devolver None si la entrada no es una lista válida o está vacía
+
+    valor = None  # Valor por defecto
+
+    # Iterar hacia atrás en la lista de diccionarios
+    for dic in reversed(diccionarios):
+        if isinstance(dic, dict):
+            if clave in dic:
+                valor = dic[clave]
+                break  # Salir del bucle si se encuentra la clave en el diccionario
+
+    return valor  # Devolver el valor encontrado o None si la clave no se encontró
+
+
 
 # TODO: quedan por "hacer codigos" de: labs, atcs.
 # TODO: descriptiva, distribuciones i test categoricos. edad, sexo...

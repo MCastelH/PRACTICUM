@@ -5,7 +5,8 @@ import pandas as pd
 from datetime import datetime
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
                                  sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
-                                 canadenca_comparada)
+                                 canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
+                                 extraer_valor_clave_simple)
 from listas import PA_list, P_list, disfagia_list
 
 if __name__ == "__main__":
@@ -57,6 +58,22 @@ if __name__ == "__main__":
     # 'dataValoracio' y 'horaValoracio'. Si la fila está vacia (no hay diccionario) devuelve NaN.
     data = canadenca_comparada(data, 'canadenca')
 
+    # Función que itera hasta encontrar la última vez que apareció disfagia o disfagia coneguda en la lista de
+    # diccionarios mecvvs y que devuelve 1 o 0 si el paciente tiene respectivamente un si o un no en dichas claves
+    data = disfagia_mecvvs(data, 'mecvvs')
+
+    # Función que itera hasta encontrar el ultimo diccionario con la clave de interes y que devuelve sus valores,
+    # respectivamente 1 si es si, y 0 si es no
+    data = extraer_valor_clave(data, 'mecvvs', 'alteracioEficacia',
+                               'alteracioEficacia_mecvvs')
+    data = extraer_valor_clave(data, 'mecvvs', 'alteracioSeguretat',
+                               'alteracioSeguretat_mecvvs')
+
+    # Función que itera hasta encontrar el último diccionario con la clave de interés y devuelve su valor talcual
+    data = extraer_valor_clave_simple(data, 'mecvvs', 'viscositat',
+                                      'viscositat_mecvvs')
+    data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
+                                      'volumn_mecvvs')
 
 
 
