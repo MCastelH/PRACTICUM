@@ -183,66 +183,9 @@ def calcular_promedio(lista_diccionarios):
 
     Devuelve:
         - Promedio de los valores numéricos de la clave 'valor' o el valor único si solo hay un diccionario,
-          None si la lista está vacía.
-    """
-    print("Iniciando cálculo del promedio...")
-
-    if not lista_diccionarios:
-        print("La lista de diccionarios no es válida o está vacía.")
-        return None
-
-    # Filtrar diccionarios vacíos
-    diccionarios_no_vacios = [d for d in lista_diccionarios if d]
-
-    if not diccionarios_no_vacios:
-        print("La lista de diccionarios no contiene diccionarios válidos.")
-        return None
-
-    valores = []
-    for diccionario in diccionarios_no_vacios:
-        if 'valor' in diccionario:
-            valor = diccionario['valor']
-            try:
-                valor_numerico = float(valor)
-                valores.append(valor_numerico)
-            except ValueError:
-                # Ignorar si el valor no es numérico
-                print(f"Valor no válido en el diccionario: {valor}")
-
-    if valores:
-        if len(valores) == 1:
-            # Si solo hay un valor, devolver ese valor directamente
-            print(f"Solo hay un valor en la lista: {valores[0]}")
-            return valores[0]
-        else:
-            # Calcular el promedio de los valores numéricos
-            valores_numericos = [v for v in valores if isinstance(v, (int, float))]
-            if valores_numericos:
-                promedio = sum(valores_numericos) / len(valores_numericos)
-                print(f"Promedio calculado: {promedio}")
-                return promedio
-            else:
-                print("No se encontraron valores numéricos válidos para calcular el promedio.")
-                return None
-    else:
-        print("No se encontraron valores numéricos en los diccionarios.")
-        return None
-
-def calcular_promedio(lista_diccionarios):
-    """
-    Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
-
-    Parámetros:
-        - lista_diccionarios: Lista de diccionarios.
-
-    Devuelve:
-        - Promedio de los valores numéricos de la clave 'valor' o el valor único si solo hay un diccionario,
           None si la lista está vacía o no contiene valores válidos.
     """
-    print("Iniciando cálculo del promedio...")
-
     if not lista_diccionarios or not any(lista_diccionarios):
-        print("La lista de diccionarios no es válida o está vacía.")
         return None
 
     valores = []
@@ -251,30 +194,24 @@ def calcular_promedio(lista_diccionarios):
             valor = diccionario['valor']
             try:
                 valor_numerico = float(valor)
-                valores.append(valor_numerico)
+                if not pd.isna(valor_numerico):  # Verificar si el valor no es NaN
+                    valores.append(valor_numerico)
             except ValueError:
-                # Ignorar si el valor no es numérico
-                print(f"Valor no válido en el diccionario: {valor}")
+                pass  # Ignorar si el valor no es numérico
 
     if not valores:
-        print("No se encontraron valores numéricos en los diccionarios.")
         return None
 
     if len(valores) == 1:
-        # Si solo hay un valor, devolver ese valor directamente
-        print(f"Solo hay un valor en la lista: {valores[0]}")
         return valores[0]
 
     # Calcular el promedio de los valores numéricos
-    valores_numericos = [v for v in valores if isinstance(v, (int, float))]
+    valores_numericos = [v for v in valores if isinstance(v, (int, float)) and not pd.isna(v)]
     if valores_numericos:
         promedio = sum(valores_numericos) / len(valores_numericos)
-        print(f"Promedio calculado: {promedio}")
         return promedio
     else:
-        print("No se encontraron valores numéricos válidos para calcular el promedio.")
         return None
-
 
 
 # Canadenca
