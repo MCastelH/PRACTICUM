@@ -1,7 +1,5 @@
 import pandas as pd
 from datetime import datetime
-import numpy as np
-
 
 # PA i DO
 def valores_codigos(data: pd.DataFrame, lista: list, nombre_columna: str) -> pd.DataFrame:
@@ -90,8 +88,7 @@ def sumar_emina(data: pd.DataFrame, nombre_columna: str,
     # que toma un DataFrame data, el nombre de una columna nombre_columna y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
-    data[nueva_columna] = data[nombre_columna].apply(
-        suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
+    data[nueva_columna] = data[nombre_columna].apply(suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
@@ -106,8 +103,7 @@ def suma_sin_ultimas_claves(diccionarios):
     for diccionario in diccionarios:  # Itera sobre cada diccionario en la lista de diccionarios
         if diccionario:  # Verifica si el diccionario está vacío
             for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario
-                if clave not in ['dataValoracio',
-                                 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
+                if clave not in ['dataValoracio', 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
                     if valor.replace('.', '', 1).isdigit():  # Verifica si el valor es un número
                         suma_parcial += float(valor)  # Suma el valor al sumatorio parcial
 
@@ -174,44 +170,44 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
 
     return data
 
-def calcular_promedio(lista_diccionarios):
+def calcular_promedio(diccionarios):
     """
     Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
 
     Parámetros:
-        - lista_diccionarios: Lista de diccionarios.
+        - diccionarios: Lista de diccionarios con claves 'valor' y 'data'.
 
     Devuelve:
-        - Promedio de los valores numéricos de la clave 'valor' o el valor único si solo hay un diccionario,
-          None si la lista está vacía o no contiene valores válidos.
+        - Promedio de los valores numéricos de la clave 'valor'.
+          Devuelve None si la lista de diccionarios está vacía o no es válida.
     """
-    if not lista_diccionarios or not any(lista_diccionarios):
+    # Verificar si la entrada no es válida
+    if not diccionarios or not isinstance(diccionarios, list):
         return None
 
-    valores = []
-    for diccionario in lista_diccionarios:
-        if diccionario and 'valor' in diccionario:
-            valor = diccionario['valor']
-            try:
-                valor_numerico = float(valor)
-                if not pd.isna(valor_numerico):  # Verificar si el valor no es NaN
-                    valores.append(valor_numerico)
-            except ValueError:
-                pass  # Ignorar si el valor no es numérico
+    valores = []  # Lista para almacenar los valores numéricos de 'valor'
 
-    if not valores:
-        return None
+    # Iterar sobre cada diccionario en la lista
+    for dic in diccionarios:
+        if isinstance(dic, dict) and 'valor' in dic:
+            valor = dic['valor']
+            if isinstance(valor, (int, float)):
+                valores.append(valor)
+            elif isinstance(valor, str):
+                try:
+                    valor_float = float(valor)
+                    valores.append(valor_float)
+                except ValueError:
+                    pass  # Ignorar valores no numéricos o conversiones fallidas
 
-    if len(valores) == 1:
-        return valores[0]
-
-    # Calcular el promedio de los valores numéricos
-    valores_numericos = [v for v in valores if isinstance(v, (int, float)) and not pd.isna(v)]
-    if valores_numericos:
-        promedio = sum(valores_numericos) / len(valores_numericos)
+    # Calcular el promedio si se encontraron valores numéricos
+    if valores:
+        promedio = sum(valores) / len(valores)
         return promedio
     else:
         return None
+
+
 
 
 # Canadenca
@@ -273,3 +269,4 @@ def calcular_sumatorio_y_comparar(diccionario):
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es lista de diccionarios []
 # hacer sumatorio de la lista i dividir entre su longitud
+# float num enteros, int para decimales con punto
