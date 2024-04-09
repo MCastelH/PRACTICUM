@@ -75,6 +75,3 @@ if __name__ == "__main__":
     data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
                                       'volumn_mecvvs')
 
-
-
-

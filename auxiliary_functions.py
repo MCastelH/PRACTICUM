@@ -432,5 +432,4 @@ def obtener_valor(diccionarios, clave):
 # TODO: descriptiva, distribuciones i test categoricos. edad, sexo...
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es lista de diccionarios []
-# hacer sumatorio de la lista i dividir entre su longitud
 # float num enteros, int para decimales con punto
