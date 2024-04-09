@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime
 
 
-# PA i DO
+# PA, P i DO
 def valores_codigos(data: pd.DataFrame, lista: list, nombre_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
         for ingreso in fila['ingressos']:  # Iterar sobre cada ingreso en 'ingressos'
