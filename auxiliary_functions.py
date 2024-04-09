@@ -140,8 +140,7 @@ def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_colum
     data[nueva_columna] = data[nombre_columna].apply(obtener_ultimo)
 
     return data  # Devolver el DataFrame modificado
-
-
+@staticmethod  # Para crear funciones estaticas
 def obtener_ultimo(diccionarios):
     """
     Función interna para obtener el último valor de la clave 'resultat' en la lista de diccionarios.
@@ -175,8 +174,7 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     data['promedio_pes'] = data[nombre_columna].apply(calcular_promedio)
 
     return data
-
-
+@staticmethod
 def calcular_promedio(diccionarios):
     """
     Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
