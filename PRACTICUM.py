@@ -22,6 +22,10 @@ if __name__ == "__main__":
     # lista llamada 'codiDiagnostics' en la fila
     data = valores_codigos(data=data, lista=disfagia_list, nombre_columna='DO_diagnosticada')
 
+    # Función que verifica si alguno de los valores a buscar de la lista P_list está en alguna
+    # lista llamada 'codiDiagnostics' en la fila
+    data = valores_codigos(data=data, lista=P_list, nombre_columna='P_diagnosticada')
+
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos'
     data = contar_diccionarios(data, 'ingressos')
