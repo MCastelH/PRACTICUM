@@ -2,7 +2,6 @@
 
 import json
 import pandas as pd
-from datetime import datetime
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
                                  sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
@@ -75,3 +74,5 @@ if __name__ == "__main__":
     data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
                                       'volumn_mecvvs')
 
+    # DF
+    data.to_pickle('dataframe.pkl')
