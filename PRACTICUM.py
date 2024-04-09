@@ -78,5 +78,5 @@ if __name__ == "__main__":
     data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
                                       'volumn_mecvvs')
 
-    # DF
+    # DF para usar en jupyter
     data.to_pickle('./data/processed/dataframe.pkl')
