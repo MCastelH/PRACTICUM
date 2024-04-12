@@ -100,8 +100,8 @@ if __name__ == "__main__":
     data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
                                       'volumn_mecvvs')
 
-    # Función para obtener de la lista de diccionarios 'labs', el valor de las diferentes pruebas realizadas,
-    # mediante el uso del parametro nombre_interes, que permite extraerlo de la clave que se requiera
+    # Función que permite obtener de la lista de diccionarios 'labs', el valor de las diferentes pruebas realizadas,
+    # mediante el uso del parametro 'nombre_interes', que permite extraer este valor de interés de la clave requerida
     data = extraer_name_value_to_column(data, 'labs', 'ALBÚMINA Sèrum', 'albumina')
 
     data = extraer_name_value_to_column(data, 'labs', 'PROTEÏNES TOTALS Sèrum',
@@ -125,8 +125,13 @@ if __name__ == "__main__":
     data = extraer_name_value_to_column(data, 'labs', 'UREA Sèrum',
                                         'urea')
 
-    data = extraer_name_value_to_column(data, 'labs', 'F.G.ESTIMAT(CKD - EPI) Sèrum',
-                                        'FGE')
+    data = extraer_name_value_to_column(data, 'labs', 'F. G. ESTIMAT (MDRD) Sèrum',
+                                        'FGE MDRD')
+
+    data = extraer_name_value_to_column(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
+                                        'FGE CDK-EPI')
+
+
 
 
     # DF para usar en jupyter
