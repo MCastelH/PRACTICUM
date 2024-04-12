@@ -6,7 +6,9 @@ from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingr
                                  sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
                                  extraer_valor_clave_simple)
-from listas import PA_list, P_list, disfagia_list
+from listas import PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list, Pulmonary_fibrosis_fibrotorax_list
+
+
 
 if __name__ == "__main__":
     with open('./data/origin/bbdd_pneumonia_aspirativa.json') as archivo:
@@ -14,17 +16,34 @@ if __name__ == "__main__":
 
     data = pd.DataFrame(datos)
 
-    # Función que verifica si alguno de los valores a buscar de la lista PA_list está en alguna
-    # lista llamada 'codiDiagnostics' en la fila
+    # Función que verifica si alguno de los valores a buscar de la lista PA_list están en la
+    # lista llamada 'codiDiagnostics'
     data = valores_codigos(data=data, lista=PA_list, nombre_columna='PA_diagnosticada')
 
-    # Función que verifica si alguno de los valores a buscar de la lista disfagia_list está en alguna
-    # lista llamada 'codiDiagnostics' en la fila
+    # Función que verifica si alguno de los valores a buscar de la lista disfagia_list están en la
+    # lista llamada 'codiDiagnostics'
     data = valores_codigos(data=data, lista=disfagia_list, nombre_columna='DO_diagnosticada')
 
-    # Función que verifica si alguno de los valores a buscar de la lista P_list está en alguna
-    # lista llamada 'codiDiagnostics' en la fila
+    # Función que verifica si alguno de los valores a buscar de la lista P_list están en la
+    # lista llamada 'codiDiagnostics'
     data = valores_codigos(data=data, lista=P_list, nombre_columna='P_diagnosticada')
+
+    # Función que verifica si alguno de los valores a buscar de la lista Main_respiratory_infections_list están en la
+    # lista llamada 'codiDiagnostics'
+    data = valores_codigos(data=data, lista = Main_respiratory_infections_list,
+                           nombre_columna= 'Main_respiratory_infections_diagnosticada')
+
+    # Función que verifica si alguno de los valores a buscar de la lista LRTI_list están en la
+    # lista llamada 'codiDiagnostics'
+    data = valores_codigos(data=data, lista = LRTI_list, nombre_columna='LRTI_diagnosticada')
+
+    # Función que verifica si alguno de los valores a buscar de la lista COPD_exacerbations_list están en la
+    # lista llamada 'codiDiagnostics'
+    data = valores_codigos(data=data, lista= COPD_exacerbations_list, nombre_columna='COPD_exacerbations_diagnosticada')
+
+    # Función que verifica si alguno de los valores a buscar de la lista Pulmonary_fibrosis_fibrotorax_list están en la
+    # lista llamada 'codiDiagnostics'
+    data = valores_codigos(data=data, lista= Pulmonary_fibrosis_fibrotorax_list, nombre_columna= 'Pulmonary_fibrosis_fibrotorax_diagnosticada')
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos'
