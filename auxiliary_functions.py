@@ -424,6 +424,47 @@ def obtener_valor(diccionarios, clave):
 
     return valor  # Devolver el valor encontrado o None si la clave no se encontró
 
+# Valores del lab
+def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre_interes: str, nueva_columna: str) -> pd.DataFrame:
+    """
+    Función para extraer los valores de la clave 'value' de una lista de diccionarios en una columna, filtrando por un nombre de interés.
+
+    Parámetros:
+        - data: DataFrame de pandas que contiene los datos.
+        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - nombre_interes: Nombre de interés para filtrar la extracción de valores.
+        - nueva_columna: Nombre para la nueva columna que contendrá los valores extraídos.
+
+    Devuelve:
+        - DataFrame con una nueva columna que contiene los valores de 'value' filtrados por el nombre de interés.
+    """
+    # Crear una lista para almacenar los valores extraídos
+    valores_extraidos = []
+
+    # Iterar sobre cada fila de la columna de diccionarios
+    for lista_diccionarios in data[nombre_columna]:
+        if isinstance(lista_diccionarios, list) and lista_diccionarios:
+            valor_extraido = None
+            for diccionario in lista_diccionarios:
+                # Verificar si el diccionario contiene el nombre de interés
+                if 'name' in diccionario and diccionario['name'] == nombre_interes:
+                    # Extraer el valor de 'value'
+                    valor_extraido = diccionario.get('value')
+                    break  # Salir del bucle una vez encontrado el nombre de interés
+            # Agregar el valor extraído a la lista de valores
+            valores_extraidos.append(valor_extraido)
+        else:
+            # Si la lista de diccionarios es vacía o no válida, agregar None
+            valores_extraidos.append(None)
+
+    # Verificar si la longitud de valores extraídos coincide con la longitud del DataFrame original
+    if len(valores_extraidos) != len(data):
+        raise ValueError("La longitud de valores extraídos no coincide con la longitud del DataFrame original.")
+
+    # Agregar los valores extraídos como una nueva columna al DataFrame original
+    data[nueva_columna] = valores_extraidos
+
+    return data
 
 
 # TODO: quedan por "hacer codigos" de: labs, atcs.

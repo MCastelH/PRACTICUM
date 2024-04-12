@@ -5,8 +5,9 @@ import pandas as pd
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
                                  sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
-                                 extraer_valor_clave_simple)
-from listas import PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list, Pulmonary_fibrosis_fibrotorax_list
+                                 extraer_valor_clave_simple, extraer_name_value_to_column)
+from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list,
+                    Pulmonary_fibrosis_fibrotorax_list)
 
 
 
@@ -43,7 +44,8 @@ if __name__ == "__main__":
 
     # Función que verifica si alguno de los valores a buscar de la lista Pulmonary_fibrosis_fibrotorax_list están en la
     # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista= Pulmonary_fibrosis_fibrotorax_list, nombre_columna= 'Pulmonary_fibrosis_fibrotorax_diagnosticada')
+    data = valores_codigos(data=data, lista= Pulmonary_fibrosis_fibrotorax_list,
+                           nombre_columna= 'Pulmonary_fibrosis_fibrotorax_diagnosticada')
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos'
@@ -94,8 +96,38 @@ if __name__ == "__main__":
     # Función que itera hasta encontrar el último diccionario con la clave de interés y devuelve su valor talcual
     data = extraer_valor_clave_simple(data, 'mecvvs', 'viscositat',
                                       'viscositat_mecvvs')
+
     data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
                                       'volumn_mecvvs')
+
+    # Función para obtener de la lista de diccionarios 'labs', el valor de las diferentes pruebas realizadas,
+    # mediante el uso del parametro nombre_interes, que permite extraerlo de la clave que se requiera
+    data = extraer_name_value_to_column(data, 'labs', 'ALBÚMINA Sèrum', 'albumina')
+
+    data = extraer_name_value_to_column(data, 'labs', 'PROTEÏNES TOTALS Sèrum',
+                                        'proteinas totales')
+
+    data = extraer_name_value_to_column(data, 'labs', 'HEMOGLOBINA',
+                                       'Hb')
+
+    data = extraer_name_value_to_column(data, 'labs', 'COLESTEROL Sèrum',
+                                        'colesterol total')
+
+    data = extraer_name_value_to_column(data, 'labs', 'LEUCÒCITS',
+                                        'leucos')
+
+    data = extraer_name_value_to_column(data, 'labs', 'LIMFÒCITS %',
+                                       'limfos')
+
+    data = extraer_name_value_to_column(data, 'labs', 'PROTEÏNA C REACTIVA Sèrum',
+                                        'prot C react')
+
+    data = extraer_name_value_to_column(data, 'labs', 'UREA Sèrum',
+                                        'urea')
+
+    data = extraer_name_value_to_column(data, 'labs', 'F.G.ESTIMAT(CKD - EPI) Sèrum',
+                                        'FGE')
+
 
     # DF para usar en jupyter
     data.to_pickle('./data/processed/dataframe.pkl')
