@@ -26,6 +26,7 @@ COPD_exacerbations_list = ['J43.0', 'J43.1', 'J43.2', 'J43.8', 'J43.9', 'J44', '
 
 Pulmonary_fibrosis_fibrotorax_list = ['J84.10', 'J84.112', 'J94.1']
 
+
 # Sindromes geriatricos
 priorfalls_list = ['Z91.81', 'R29.6']
 delirium_list = ['F05', 'R41.0']
@@ -66,16 +67,17 @@ pressulc_list = ['L89.000', 'L89.001', 'L89.002', 'L89.003', 'L89.004', 'L89.006
                  'L89.621', 'L89.622', 'L89.623', 'L89.624', 'L89.626', 'L89.629', 'L89.810', 'L89.811', 'L89.812', 'L89.813',
                  'L89.814', 'L89.816', 'L89.819', 'L89.890', 'L89.891', 'L89.892', 'L89.893', 'L89.894', 'L89.896', 'L89.899',
                  'L89.90', 'L89.91', 'L89.92', 'L89.93', 'L89.94', 'L89.95']
-#immobilidad_list = FALTAN LOS ICD EN EL WORD
-#confusion_list = FALTAN LOS ICD EN EL WORD
+#immob_list = FALTAN LOS ICD EN EL WORD
+#conf_list = FALTAN LOS ICD EN EL WORD
 osteopor_list = ['M81']
 sarcopenia_list = ['M62.84']
-sleepdisturb = ['G47', 'F51']
-chrpain = ['G89']
-iatrog = ['E71.43']
-constipation = ['K59']
+sleepdisturb_list = ['G47', 'F51']
+chrpain_list = ['G89']
+iatrog_list = ['E71.43']
+constipation_list = ['K59']
 
-# Historial medico/ comorbididades
+
+# Historial medico/ comorbilidades
 CVdisease_list = ['I60.00', 'I60.01', 'I60.02', 'I60.10', 'I60.11', 'I60.12', 'I60.2', 'I60.3', 'I60.30', 'I60.31', 'I60.32',
            'I60.4', 'I60.5', 'I60.50', 'I60.51', 'I60.52', 'I60.6', 'I60.7', 'I60.8', 'I60.9', 'I61.0', 'I61.1', 'I61.2',
            'I61.3', 'I61.4', 'I61.5', 'I61.6', 'I61.8', 'I61.9', 'I62.0', 'I62.00', 'I62.01', 'I62.02', 'I62.03', 'I62.1',
@@ -339,7 +341,7 @@ AcuteRenalF_list = ['N17.0', 'N17.1', 'N17.2', 'N17.8', 'N17.9']
 dizsyn_list = ['R42', 'R55', 'T67']
 VIH_list = ['Z71.7', 'B20']
 psicosis_list = ['F31', 'F20']
-Nutridef_list = ['E55']
+nutridef_list = ['E55']
 
 
 
