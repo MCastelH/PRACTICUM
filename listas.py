@@ -69,12 +69,12 @@ pressulc_list = ['L89.000', 'L89.001', 'L89.002', 'L89.003', 'L89.004', 'L89.006
                  'L89.90', 'L89.91', 'L89.92', 'L89.93', 'L89.94', 'L89.95']
 #immob_list = FALTAN LOS ICD EN EL WORD
 #conf_list = FALTAN LOS ICD EN EL WORD
-osteopor_list = ['M81']
-sarcopenia_list = ['M62.84']
-sleepdisturb_list = ['G47', 'F51']
-chrpain_list = ['G89']
-iatrog_list = ['E71.43']
-constipation_list = ['K59']
+osteopor = ['M81']
+sarcopenia = ['M62.84']
+sleepdisturb = ['G47', 'F51']
+chrpain = ['G89']
+iatrog = ['E71.43']
+constipation = ['K59']
 
 
 # Historial medico/ comorbilidades

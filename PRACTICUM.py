@@ -8,9 +8,9 @@ from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingr
                                  extraer_valor_clave_simple, extraer_name_value_to_column)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
-                    uriincont_list, fecincont_list, pressulc_list, osteopor_list, sarcopenia_list, sleepdisturb_list,
-                    chrpain_list,iatrog_list, constipation_list, CVdisease_list, heartdisease_list, ND_list, DM_list,
-                    hepatopat_list, neopl_list, AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list, nutridef_list)
+                    uriincont_list, fecincont_list, pressulc_list, osteopor, sarcopenia, sleepdisturb, chrpain, iatrog,
+                    constipation, CVdisease_list, heartdisease_list, ND_list, DM_list, hepatopat_list, neopl_list,
+                    AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list, nutridef_list)
 
 
 
@@ -59,12 +59,12 @@ if __name__ == "__main__":
     data = valores_codigos(data, uriincont_list, 'incont_uri')
     data = valores_codigos(data, fecincont_list, 'incont_fec')
     data = valores_codigos(data, pressulc_list, 'ulceras_presion')
-    data = valores_codigos(data, osteopor_list, 'osteoporosis')
-    data = valores_codigos(data, sarcopenia_list, 'sarcopenia')
-    data = valores_codigos(data, sleepdisturb_list, 'problsueño')
-    data = valores_codigos(data, chrpain_list, 'dolor_cron')
-    data = valores_codigos(data, iatrog_list, 'iatrogenico')
-    data = valores_codigos(data, constipation_list, 'estreñimiento')
+    data = valores_codigos(data, osteopor, 'osteoporosis')
+    data = valores_codigos(data, sarcopenia, 'sarcopenia')
+    data = valores_codigos(data, sleepdisturb, 'problsueño')
+    data = valores_codigos(data, chrpain, 'dolor_cron')
+    data = valores_codigos(data, iatrog, 'iatrogenico')
+    data = valores_codigos(data, constipation, 'estreñimiento')
 
 
 
@@ -157,6 +157,8 @@ if __name__ == "__main__":
 
     # DF para usar en jupyter
     data.to_pickle('./data/processed/dataframe.pkl')
+
+
 
 
 
