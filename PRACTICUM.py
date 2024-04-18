@@ -78,7 +78,7 @@ if __name__ == "__main__":
     data = valores_codigos(data, psicosis_list, 'psicosis')
     data = valores_codigos(data, nutridef_list, 'def_nutri')
     # Funcion para hacer columna de chronic renal disease: con esta funcion obtengo todos los valores del parametro
-    # nombre_interes
+    # indicado en nombre_interes
     data = extraer_name_value_to_column(data, 'labs', 'CREATININA Sèrum',
                                         'creatinina')
 
@@ -87,8 +87,8 @@ if __name__ == "__main__":
     data = contar_diccionarios(data, 'ingressos')
 
     # Función que devuelve un sumatorio de los dias en total que ha estado ingresado el paciente, en base a hacer un
-    # sumatorio con el resultado de la resta de las claves 'dataAlta' i 'dataIngres', generando la nueva columna
-    # Dias_totales_ingresado
+    # sumatorio con el resultado de la resta de las claves 'dataAlta' i 'dataIngres' (situadas en la columna
+    # 'ingressos', i generando la nueva columna Dias_totales_ingresado
     data = dias_ingreso_total(data, 'ingressos')
 
     # Función que clasifica usando un intervalo de 10 en 10 años, a las edades de los pacientes de la columna edat
