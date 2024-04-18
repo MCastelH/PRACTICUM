@@ -22,33 +22,33 @@ if __name__ == "__main__":
 
     # Función que verifica si alguno de los valores a buscar de la lista PA_list están en la
     # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista=PA_list, nombre_columna='PA_diagnosticada')
+    data = valores_codigos(data=data, lista=PA_list, nueva_columna='PA_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de la lista disfagia_list están en la
     # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista=disfagia_list, nombre_columna='DO_diagnosticada')
+    data = valores_codigos(data=data, lista=disfagia_list, nueva_columna='DO_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de la lista P_list están en la
     # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista=P_list, nombre_columna='P_diagnosticada')
+    data = valores_codigos(data=data, lista=P_list, nueva_columna='P_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de la lista Main_respiratory_infections_list están en la
     # lista llamada 'codiDiagnostics'
     data = valores_codigos(data=data, lista = Main_respiratory_infections_list,
-                           nombre_columna= 'Main_respiratory_infections_diagnosticada')
+                           nueva_columna= 'Main_respiratory_infections_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de la lista LRTI_list están en la
     # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista = LRTI_list, nombre_columna='LRTI_diagnosticada')
+    data = valores_codigos(data=data, lista = LRTI_list, nueva_columna='LRTI_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de la lista COPD_exacerbations_list están en la
     # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista= COPD_exacerbations_list, nombre_columna='COPD_exacerbations_diagnosticada')
+    data = valores_codigos(data=data, lista= COPD_exacerbations_list, nueva_columna='COPD_exacerbations_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de la lista Pulmonary_fibrosis_fibrotorax_list están en la
     # lista llamada 'codiDiagnostics'
     data = valores_codigos(data=data, lista= Pulmonary_fibrosis_fibrotorax_list,
-                           nombre_columna= 'Pulmonary_fibrosis_fibrotorax_diagnosticada')
+                           nueva_columna= 'Pulmonary_fibrosis_fibrotorax_diagnosticada')
 
     # Función que verifica si alguno de los valores a buscar de las siguientes listas están en la
     # lista llamada 'codiDiagnostics'
@@ -77,15 +77,18 @@ if __name__ == "__main__":
     data = valores_codigos(data, VIH_list, 'VIH')
     data = valores_codigos(data, psicosis_list, 'psicosis')
     data = valores_codigos(data, nutridef_list, 'def_nutri')
-
-    # Funcion para hacer columna de chronic renal disease: detecta si en el valor creatinina hay un valor >1.5
+    # Funcion para hacer columna de chronic renal disease: con esta funcion obtengo todos los valores del parametro
+    # nombre_interes
+    data = extraer_name_value_to_column(data, 'labs', 'CREATININA Sèrum',
+                                        'creatinina')
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
-    # en 'ingressos'
+    # en 'ingressos', generando la nueva columna Num_ingresos
     data = contar_diccionarios(data, 'ingressos')
 
     # Función que devuelve un sumatorio de los dias en total que ha estado ingresado el paciente, en base a hacer un
-    # sumatorio con el resultado de la resta de las claves 'dataAlta' i 'dataIngres'
+    # sumatorio con el resultado de la resta de las claves 'dataAlta' i 'dataIngres', generando la nueva columna
+    # Dias_totales_ingresado
     data = dias_ingreso_total(data, 'ingressos')
 
     # Función que clasifica usando un intervalo de 10 en 10 años, a las edades de los pacientes de la columna edat

@@ -3,16 +3,16 @@ from datetime import datetime
 
 
 # PA, P i DO
-def valores_codigos(data: pd.DataFrame, lista: list, nombre_columna: str) -> pd.DataFrame:
+def valores_codigos(data: pd.DataFrame, lista: list, nueva_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
         for ingreso in fila['ingressos']:  # Iterar sobre cada ingreso en 'ingressos'
             for valor in ingreso['codiDiagnostics']:  # Iterar sobre cada valor en 'codiDiagnostics'
                 if valor in lista:  # Verificar si el valor está en la lista de valores a buscar
-                    data.at[indice, nombre_columna] = 1  # Asignar 1 si el valor está presente
+                    data.at[indice, nueva_columna] = 1  # Asignar 1 si el valor está presente
                     break  # Romper el bucle si se encuentra el valor para esta fila
                 else:
-                    data.at[indice, nombre_columna] = 0  # Asignar 0 si el valor no está presente
-            if data.at[indice, nombre_columna] == 1:  # Verificar si el valor está en la lista de valores a buscar
+                    data.at[indice, nueva_columna] = 0  # Asignar 0 si el valor no está presente
+            if data.at[indice, nueva_columna] == 1:  # Verificar si el valor está en la lista de valores a buscar
                 break  # Romper el bucle si se encuentra el valor para esta fila
     return data
 

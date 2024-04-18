@@ -336,7 +336,8 @@ neopl_list = ['C00.0', 'C00.1', 'C00.2', 'C00.3', 'C00.4', 'C00.5', 'C00.6', 'C0
               'D05.91', 'D05.92', 'D06.0', 'D06.1', 'D06.7', 'D06.9', 'D07.0', 'D07.1', 'D07.2', 'D07.30', 'D07.39',
               'D07.4', 'D07.5', 'D07.60', 'D07.61', 'D07.69', 'D09.0', 'D09.10', 'D09.19', 'D09.20', 'D09.21', 'D09.22',
               'D09.3', 'D09.8', 'D09.9']
-#ChronicRenalD_list NO TIENE ICD, son valores ((creatinine >1.5mg/dL), hacerla con funcion dif
+# ChronicRenalD_list NO TIENE ICD, el valor es creatinina >1.5mg/dL. Primero hago columna con todos los valores de
+# creatinina serum, después en el analisis filtro por los que tengan valores >1.5
 AcuteRenalF_list = ['N17.0', 'N17.1', 'N17.2', 'N17.8', 'N17.9']
 dizsyn_list = ['R42', 'R55', 'T67']
 VIH_list = ['Z71.7', 'B20']
