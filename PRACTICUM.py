@@ -8,9 +8,9 @@ from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingr
                                  extraer_valor_clave_simple, extraer_name_value_to_column)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
-                    uriincont_list, fecincont_list, pressulc_list, osteopor, sarcopenia, sleepdisturb, chrpain, iatrog,
-                    constipation, CVdisease_list, heartdisease_list, ND_list, DM_list, hepatopat_list, neopl_list,
-                    AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list, nutridef_list)
+                    uriincont_list, fecincont_list, pressulc_list, osteopor_list, sarcopenia_list, sleepdisturb_list,
+                    chrpain_list, iatrog_list, constipation_list, CVdisease_list, heartdisease_list, ND_list, DM_list,
+                    hepatopat_list, neopl_list, AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list, nutridef_list)
 
 
 
@@ -59,14 +59,26 @@ if __name__ == "__main__":
     data = valores_codigos(data, uriincont_list, 'incont_uri')
     data = valores_codigos(data, fecincont_list, 'incont_fec')
     data = valores_codigos(data, pressulc_list, 'ulceras_presion')
-    data = valores_codigos(data, osteopor, 'osteoporosis')
-    data = valores_codigos(data, sarcopenia, 'sarcopenia')
-    data = valores_codigos(data, sleepdisturb, 'problsueño')
-    data = valores_codigos(data, chrpain, 'dolor_cron')
-    data = valores_codigos(data, iatrog, 'iatrogenico')
-    data = valores_codigos(data, constipation, 'estreñimiento')
+    data = valores_codigos(data, osteopor_list, 'osteoporosis')
+    data = valores_codigos(data, sarcopenia_list, 'sarcopenia')
+    data = valores_codigos(data, sleepdisturb_list, 'problsueño')
+    data = valores_codigos(data, chrpain_list, 'dolor_cron')
+    data = valores_codigos(data, iatrog_list, 'iatrogenico')
+    data = valores_codigos(data, constipation_list, 'estreñimiento')
 
+    data = valores_codigos(data, CVdisease_list, 'CV')
+    data = valores_codigos(data, heartdisease_list, 'probl_corazon')
+    data = valores_codigos(data, ND_list, 'neurodegenerativas')
+    data = valores_codigos(data, DM_list, 'DM')
+    data = valores_codigos(data, hepatopat_list, 'hepatopatias')
+    data = valores_codigos(data, neopl_list, 'neoplasias')
+    data = valores_codigos(data, AcuteRenalF_list, 'ARF')
+    data = valores_codigos(data, dizsyn_list, 'mareos')
+    data = valores_codigos(data, VIH_list, 'VIH')
+    data = valores_codigos(data, psicosis_list, 'psicosis')
+    data = valores_codigos(data, nutridef_list, 'def_nutri')
 
+    # Funcion para hacer columna de chronic renal disease: detecta si en el valor creatinina hay un valor >1.5
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos'
