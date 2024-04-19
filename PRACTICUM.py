@@ -168,8 +168,6 @@ if __name__ == "__main__":
                                         'FGE CDK-EPI')
 
 
-
-
     # DF para usar en jupyter
     data.to_pickle('./data/processed/dataframe.pkl')
 
