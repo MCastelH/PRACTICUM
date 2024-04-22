@@ -77,7 +77,7 @@ if __name__ == "__main__":
     data = valores_codigos(data, VIH_list, 'VIH')
     data = valores_codigos(data, psicosis_list, 'psicosis')
     data = valores_codigos(data, nutridef_list, 'def_nutri')
-    # Funcion para hacer columna de chronic renal disease: con esta funcion obtengo todos los valores del parametro
+    # Función para hacer columna de chronic renal disease (creatinina): con esta función obtengo todos los valores del parametro
     # indicado en nombre_interes
     data = extraer_name_value_to_column(data, 'labs', 'CREATININA Sèrum',
                                         'creatinina')
