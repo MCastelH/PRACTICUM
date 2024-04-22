@@ -98,6 +98,7 @@ def sumar_emina(data: pd.DataFrame, nombre_columna: str,
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
 
+
 def suma_sin_ultimas_claves(diccionarios):
     if not diccionarios:  # Verifica si la lista de diccionarios está vacía
         return None  # Devuelve None si la lista de diccionarios está vacía. None detiene la ejecución de la función
@@ -141,6 +142,8 @@ def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_colum
     data[nueva_columna] = data[nombre_columna].apply(obtener_ultimo)
 
     return data  # Devolver el DataFrame modificado
+
+
 @staticmethod  # Para crear funciones estaticas
 def obtener_ultimo(diccionarios):
     """
@@ -175,6 +178,8 @@ def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     data['promedio_pes'] = data[nombre_columna].apply(calcular_promedio)
 
     return data
+
+
 @staticmethod
 def calcular_promedio(diccionarios):
     """
@@ -287,6 +292,7 @@ def disfagia_mecvvs(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
 
     return data  # Devolver el DataFrame modificado
 
+
 def obtener_ultima_disfagia(diccionarios):
     """
     Obtiene el valor de la clave 'disfagia' o 'disfagiaConeguda' del último diccionario válido que contiene esta clave.
@@ -321,6 +327,7 @@ def obtener_ultima_disfagia(diccionarios):
                     return 0
 
     return None  # Devolver None si no se encuentra la clave 'disfagia' en ningún diccionario válido
+
 
 # MECVVS para eficacia y seguridad
 def extraer_valor_clave(data: pd.DataFrame, nombre_columna: str, clave: str, nueva_columna: str) -> pd.DataFrame:
@@ -374,7 +381,6 @@ def obtener_valor_clave(diccionarios, clave):
         elif valor.strip().upper() == 'NO' or valor.strip().upper() == 'N':
             return 0
 
-
     return valor  # Devolver el valor encontrado o None si la clave no se encontró
 
 
@@ -398,6 +404,7 @@ def extraer_valor_clave_simple(data: pd.DataFrame, nombre_columna: str, clave: s
         lambda x: obtener_valor(x, clave) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Devolver el DataFrame modificado
+
 
 def obtener_valor(diccionarios, clave):
     """
@@ -425,8 +432,10 @@ def obtener_valor(diccionarios, clave):
 
     return valor  # Devolver el valor encontrado o None si la clave no se encontró
 
+
 # Valores del lab
-def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre_interes: str, nueva_columna: str) -> pd.DataFrame:
+def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre_interes: str,
+                                 nueva_columna: str) -> pd.DataFrame:
     """
     Función para extraer los valores de la clave 'value' de una lista de diccionarios en una columna, filtrando por un nombre de interés.
 
@@ -466,6 +475,95 @@ def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre
     data[nueva_columna] = valores_extraidos
 
     return data
+
+
+# Función para calcular el valor Charlson para un paciente
+def cci(ingressos):
+    charlson_value = 0
+
+    # Recorremos cada entrada en la lista 'ingressos'
+    for diagnostic in ingressos:
+        codigos_diagnosticos = diagnostic.get('codiDiagnostics')  # Obtener la lista de códigos de diagnóstico
+
+        # Verificar si codigos_diagnosticos es None o una lista vacía
+        if codigos_diagnosticos is None:
+            continue  # Saltar a la siguiente entrada si no hay códigos de diagnóstico
+
+        # Iterar sobre cada código de diagnóstico en la lista
+        for codigo_diagnostico in codigos_diagnosticos:
+            # Verificar si codigo_diagnostico es una cadena válida
+            if isinstance(codigo_diagnostico, str) and codigo_diagnostico:
+                # Buscar el código en el diccionario de Charlson (charlson_dict)
+                for value, codes in charlson_dict.items():
+                    if any(codigo_diagnostico.startswith(code) for code in codes):
+                        charlson_value += value
+                        break  # Salir del bucle una vez que se encuentra la coincidencia
+
+    return charlson_value
+
+
+# Funcion para calcular la perdida de peso que ha habido desde la primera vez que aparece un dato de peso, hasta que
+# se le realiza un MECVV y sale positivo
+def calcular_diferencia_peso(pes, mecvvs):
+    def limpiar_fecha(fecha_str):
+        # Eliminar caracteres no numéricos de la cadena de fecha
+        fecha_str = ''.join(filter(str.isdigit, fecha_str))
+
+        # Asegurar que la cadena tenga al menos 8 caracteres (AAAAMMDD)
+        if len(fecha_str) >= 8:
+            fecha_str = fecha_str[:8]  # Tomar solo los primeros 8 caracteres (AAAAMMDD)
+
+            try:
+                # Convertir fecha a datetime
+                fecha_dt = datetime.strptime(fecha_str, '%Y%m%d')
+                return fecha_dt
+            except ValueError as e:
+                print(f"Error al convertir fecha {fecha_str}: {e}")
+                return None
+        else:
+            return None
+
+    def obtener_fecha_peso_mas_antigua():
+        peso_mas_antiguo = None
+        fecha_mas_antigua = None
+
+        for item in pes:
+            peso = item.get('valor')
+            fecha = limpiar_fecha(item.get('data'))  # Limpiar y formatear la fecha
+
+            if peso is not None and fecha is not None:
+                if fecha_mas_antigua is None or fecha < fecha_mas_antigua:
+                    peso_mas_antiguo = peso
+                    fecha_mas_antigua = fecha
+
+        return peso_mas_antiguo, fecha_mas_antigua
+
+    def obtener_fecha_peso_cercana_si_s():
+        peso_mas_cercano = None
+        fecha_mecvvs_si_s = None
+
+        for item in mecvvs:
+            fecha = limpiar_fecha(item.get('data'))  # Limpiar y formatear la fecha
+
+            si_o_s = any(item.get(key, '') in {'SI', 'S'} for key in
+                         ['disfagia', 'disfagiaConeguda', 'alteracioEficacia', 'alteracioSeguretat'])
+
+            if fecha is not None and si_o_s:
+                if fecha_mecvvs_si_s is None or fecha < fecha_mecvvs_si_s:
+                    peso_mas_cercano = item.get('peso')
+                    fecha_mecvvs_si_s = fecha
+
+        return peso_mas_cercano, fecha_mecvvs_si_s
+
+    peso_antiguo, fecha_antigua = obtener_fecha_peso_mas_antigua()
+    peso_cercano_si_s, fecha_si_s = obtener_fecha_peso_cercana_si_s()
+
+    if peso_antiguo is not None and peso_cercano_si_s is not None:
+        diferencia_peso = peso_antiguo - peso_cercano_si_s
+        return diferencia_peso
+    else:
+        return None
+
 
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es lista de diccionarios []

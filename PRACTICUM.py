@@ -5,7 +5,7 @@ import pandas as pd
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
                                  sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
-                                 extraer_valor_clave_simple, extraer_name_value_to_column, cci)
+                                 extraer_valor_clave_simple, extraer_name_value_to_column, cci, calcular_diferencia_peso)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
                     uriincont_list, fecincont_list, pressulc_list, immob_list, conf_list ,osteopor_list, sarcopenia_list,
@@ -80,14 +80,15 @@ if __name__ == "__main__":
     data = valores_codigos(data, VIH_list, 'VIH')
     data = valores_codigos(data, psicosis_list, 'psicosis')
     data = valores_codigos(data, nutridef_list, 'def_nutri')
-    # Función para hacer columna de chronic renal disease (creatinina): con esta función obtengo todos los valores del parametro
-    # indicado en nombre_interes
+
+    # Función para hacer columna de chronic renal disease (creatinina): con esta función te devuelve todos los valores
+    # del parametro indicado en nombre_interes
     data = extraer_name_value_to_column(data, 'labs', 'CREATININA Sèrum',
                                         'creatinina')
 
-    # Funcion para hacer la columna de Charlson, que al detectar determinados codigos, da un valor u otro, teniendo en
-    # cuenta que pueden irse acumulando
-    data = cci()
+    # Función para calcular los respectos indices de charlson de cada paciente, a partir del diccionario charlson_dict
+    # que contiene los codigos con sus respectivos valores
+    data['charlson'] = data['ingressos'].apply(cci)
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos', generando la nueva columna Num_ingresos
@@ -173,6 +174,9 @@ if __name__ == "__main__":
 
     data = extraer_name_value_to_column(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
                                         'FGE CDK-EPI')
+
+    # Funcion para calcular la perdida de peso entre el primer ingreso y la primera vez que salió un MECVV positivo
+    data['diferencia_pes'] = data.apply(lambda row: calcular_diferencia_peso(row['pes'], row['mecvvs']), axis=1)
 
 
     # DF para usar en jupyter
