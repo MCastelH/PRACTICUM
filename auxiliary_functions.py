@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime
+from listas import charlson_dict
 
 
 # PA, P i DO
@@ -466,9 +467,6 @@ def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre
 
     return data
 
-
-# TODO: quedan por "hacer codigos" de: labs, atcs.
-# TODO: descriptiva, distribuciones i test categoricos. edad, sexo...
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es lista de diccionarios []
 # float num enteros, int para decimales con punto

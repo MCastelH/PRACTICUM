@@ -5,12 +5,13 @@ import pandas as pd
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
                                  sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
-                                 extraer_valor_clave_simple, extraer_name_value_to_column)
+                                 extraer_valor_clave_simple, extraer_name_value_to_column, cci)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
-                    uriincont_list, fecincont_list, pressulc_list, osteopor_list, sarcopenia_list, sleepdisturb_list,
-                    chrpain_list, iatrog_list, constipation_list, CVdisease_list, heartdisease_list, ND_list, DM_list,
-                    hepatopat_list, neopl_list, AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list, nutridef_list)
+                    uriincont_list, fecincont_list, pressulc_list, immob_list, conf_list ,osteopor_list, sarcopenia_list,
+                    sleepdisturb_list, chrpain_list, iatrog_list, constipation_list, CVdisease_list, heartdisease_list,
+                    ND_list, DM_list, hepatopat_list, neopl_list, AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list,
+                    nutridef_list)
 
 
 
@@ -59,6 +60,8 @@ if __name__ == "__main__":
     data = valores_codigos(data, uriincont_list, 'incont_uri')
     data = valores_codigos(data, fecincont_list, 'incont_fec')
     data = valores_codigos(data, pressulc_list, 'ulceras_presion')
+    data = valores_codigos(data, immob_list, 'immobilitat')
+    data = valores_codigos(data, conf_list, 'confusio')
     data = valores_codigos(data, osteopor_list, 'osteoporosis')
     data = valores_codigos(data, sarcopenia_list, 'sarcopenia')
     data = valores_codigos(data, sleepdisturb_list, 'problsueño')
@@ -81,6 +84,10 @@ if __name__ == "__main__":
     # indicado en nombre_interes
     data = extraer_name_value_to_column(data, 'labs', 'CREATININA Sèrum',
                                         'creatinina')
+
+    # Funcion para hacer la columna de Charlson, que al detectar determinados codigos, da un valor u otro, teniendo en
+    # cuenta que pueden irse acumulando
+    data = cci()
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos', generando la nueva columna Num_ingresos
