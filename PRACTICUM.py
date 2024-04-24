@@ -3,15 +3,19 @@
 import json
 import pandas as pd
 from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
-                                 sumar_barthel, sumar_emina, obtener_ultimo_resultat, obtener_valor_promedio,
+                                 sumar_barthel, sumar_emina, obtenir_ultim_resultat, obtenir_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
-                                 extraer_valor_clave_simple, extraer_name_value_to_column, cci, calcular_diferencia_peso)
-from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list, COPD_exacerbations_list,
+                                 extraer_valor_clave_simple, extraer_name_value_to_column, cci, obtenir_pes_mes_antic,
+                                 obtenir_pes_mes_nou, obtenir_fecha_mes_antiga, obtenir_primera_fecha_mecvv,
+                                 obtenir_pes_per_rang_de_fecha, restar_columnas)
+from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list,
+                    COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
-                    uriincont_list, fecincont_list, pressulc_list, immob_list, conf_list ,osteopor_list, sarcopenia_list,
+                    uriincont_list, fecincont_list, pressulc_list, immob_list, conf_list, osteopor_list,
+                    sarcopenia_list,
                     sleepdisturb_list, chrpain_list, iatrog_list, constipation_list, CVdisease_list, heartdisease_list,
-                    ND_list, DM_list, hepatopat_list, neopl_list, AcuteRenalF_list, dizsyn_list, VIH_list, psicosis_list,
-                    nutridef_list)
+                    ND_list, DM_list, hepatopat_list, neopl_list, AcuteRenalF_list, dizsyn_list, VIH_list,
+                    psicosis_list, nutridef_list, charlson_dict)
 
 
 
@@ -88,7 +92,7 @@ if __name__ == "__main__":
 
     # Función para calcular los respectos indices de charlson de cada paciente, a partir del diccionario charlson_dict
     # que contiene los codigos con sus respectivos valores
-    data['charlson'] = data['ingressos'].apply(cci)
+    data = cci(data, 'ingressos', 'charlson', charlson_dict)
 
     # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
     # en 'ingressos', generando la nueva columna Num_ingresos
@@ -112,14 +116,14 @@ if __name__ == "__main__":
     data = sumar_emina(data, 'emina', 'EMINA_sumatorios_comparados')
 
     # Función que extrae la última clave del test emina llamada 'resultats'
-    data = obtener_ultimo_resultat(data, 'emina', 'emina_resultats')
+    data = obtenir_ultim_resultat(data, 'emina', 'emina_resultats')
 
     # Función que extrae la última clave del test mna llamada 'resultats'
-    data = obtener_ultimo_resultat(data, 'mna', 'mna_resultats')
+    data = obtenir_ultim_resultat(data, 'mna', 'mna_resultats')
 
     # Funcion que proporciona el promedio de los todos los pesos (en caso de que haya más de un valor de peso) o el
     # único valor de peso que tenga el paciente registrado
-    data = obtener_valor_promedio(data, 'pes')
+    data = obtenir_valor_promedio(data, 'pes')
 
     # Función que compara el sumatorio de determinados ítems de la escala canadenca con la clave 'total',
     # y si es igual te devuelve el sumatorio. Para hacer el sumatorio no tiene en cuenta las claves: 'total',
@@ -175,9 +179,29 @@ if __name__ == "__main__":
     data = extraer_name_value_to_column(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
                                         'FGE CDK-EPI')
 
-    # Funcion para calcular la perdida de peso entre el primer ingreso y la primera vez que salió un MECVV positivo
-    data['diferencia_pes'] = data.apply(lambda row: calcular_diferencia_peso(row['pes'], row['mecvvs']), axis=1)
+    # Función que devuelve el peso más antiguo registrado de la columna 'pes'
+    data = obtenir_pes_mes_antic(data, 'pes més antic')
 
+    # Función que devuelve el peso más actual
+    data = obtenir_pes_mes_nou(data, 'pes més nou')
+
+    # Función que devuelve la fecha de dicho peso
+    data = obtenir_fecha_mes_antiga(data,'data pes més antic')
+
+    # Función que devuelve la fecha en la que el mecvv dio positivo (disfagia + alteracion seguridad o eficacia)
+    data = obtenir_primera_fecha_mecvv(data, 'data primer mecvv')
+
+    # Función que devuelve el peso si su fecha se encuentra en un rango de 3 días antes o despues de la fecha de
+    # 'data primer mecvv'
+    data = obtenir_pes_per_rang_de_fecha(data, 'pes coincident primer mecvv')
+
+    # Función que obtiene la perdida de peso al restar el peso más antiguo ('pes més antic') menos el peso en el que
+    # aproximadamente el mecvv salió positivo ('pes coindicent primer mecvv)
+    data = restar_columnas(data, 'pes més antic', 'pes coincident primer mecvv',
+                           'perdua pes entre ingressos')
+
+    # Función que obtiene la perdida de peso total al restar 'pes més antic' i 'pes més nou'
+    data = restar_columnas(data, 'pes més antic', 'pes més nou', 'perdua pes total')
 
     # DF para usar en jupyter
     data.to_pickle('./data/processed/dataframe.pkl')

@@ -1,6 +1,5 @@
 import pandas as pd
-from datetime import datetime
-from listas import charlson_dict
+from datetime import datetime, timedelta
 
 
 # PA, P i DO
@@ -126,7 +125,7 @@ def suma_sin_ultimas_claves(diccionarios):
 
 # Emina funcion alternativa (coge solo la ultima clave 'resultats' teniendo en cuenta que none != 0,
 # ademas usada tmb en mna, al haber agregado nueva_columna: str y convertir la funcion en estatica)
-def obtener_ultimo_resultat(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> pd.DataFrame:
+def obtenir_ultim_resultat(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> pd.DataFrame:
     """
     Función para obtener el último valor de la clave 'resultat' en una columna de tipo lista de diccionarios.
 
@@ -163,7 +162,7 @@ def obtener_ultimo(diccionarios):
 
 
 # pes
-def obtener_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def obtenir_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
     """
     Función para calcular el promedio de los valores de la clave 'valor' en los diccionarios de una lista.
 
@@ -478,91 +477,273 @@ def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre
 
 
 # Función para calcular el valor Charlson para un paciente
-def cci(ingressos):
-    charlson_value = 0
+def cci(data: pd.DataFrame, columna_entrada: str, nueva_columna: str, charlson_dict: dict) -> pd.DataFrame:
+    """
+    Calcula el índice de Charlson para cada entrada en la lista de diagnósticos en la columna especificada
+    y agrega el resultado a una nueva columna en el DataFrame.
 
-    # Recorremos cada entrada en la lista 'ingressos'
-    for diagnostic in ingressos:
-        codigos_diagnosticos = diagnostic.get('codiDiagnostics')  # Obtener la lista de códigos de diagnóstico
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - columna_entrada: Nombre de la columna que contiene la lista de diagnósticos.
+        - nueva_columna: Nombre de la nueva columna donde se almacenarán los resultados.
+        - charlson_dict: Diccionario que mapea los valores de Charlson a listas de códigos de diagnóstico.
 
-        # Verificar si codigos_diagnosticos es None o una lista vacía
-        if codigos_diagnosticos is None:
-            continue  # Saltar a la siguiente entrada si no hay códigos de diagnóstico
+    Devuelve:
+        - DataFrame modificado con la nueva columna de índice de Charlson.
+    """
+    data[nueva_columna] = 0  # Inicializar la nueva columna con valores predeterminados
 
-        # Iterar sobre cada código de diagnóstico en la lista
-        for codigo_diagnostico in codigos_diagnosticos:
-            # Verificar si codigo_diagnostico es una cadena válida
-            if isinstance(codigo_diagnostico, str) and codigo_diagnostico:
-                # Buscar el código en el diccionario de Charlson (charlson_dict)
-                for value, codes in charlson_dict.items():
-                    if any(codigo_diagnostico.startswith(code) for code in codes):
-                        charlson_value += value
-                        break  # Salir del bucle una vez que se encuentra la coincidencia
+    # Recorrer cada fila del DataFrame
+    for index, row in data.iterrows():
+        charlson_value = 0  # Inicializar el valor de Charlson para esta fila
 
-    return charlson_value
+        # Obtener la lista de diagnósticos de la entrada actual
+        diagnosticos_lista = row[columna_entrada]
+
+        if diagnosticos_lista is None or not isinstance(diagnosticos_lista, list):
+            continue  # Saltar a la siguiente fila si no hay lista de diagnósticos válida
+
+        # Iterar sobre cada diccionario en la lista de diagnósticos
+        for diagnostico_dic in diagnosticos_lista:
+            # Obtener la lista de códigos de diagnóstico de este diccionario
+            codigos_diagnosticos = diagnostico_dic.get('codiDiagnostics', [])
+
+            # Iterar sobre cada código de diagnóstico en la lista
+            for codigo_diagnostico in codigos_diagnosticos:
+                if isinstance(codigo_diagnostico, str) and codigo_diagnostico:
+                    # Buscar el código en el diccionario de Charlson (charlson_dict)
+                    for value, codes in charlson_dict.items():
+                        if any(codigo_diagnostico.startswith(code) for code in codes):
+                            charlson_value += value
+                            break  # Salir del bucle una vez que se encuentra la coincidencia
+
+        # Asignar el valor calculado a la nueva columna en el DataFrame
+        data.loc[index, nueva_columna] = charlson_value
+
+    return data
 
 
-# Funcion para calcular la perdida de peso que ha habido desde la primera vez que aparece un dato de peso, hasta que
-# se le realiza un MECVV y sale positivo
-def calcular_diferencia_peso(pes, mecvvs):
-    def limpiar_fecha(fecha_str):
-        # Eliminar caracteres no numéricos de la cadena de fecha
-        fecha_str = ''.join(filter(str.isdigit, fecha_str))
+# Funcion que devuelve el peso más antiguo
+def obtenir_pes_mes_antic(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+    """
+    Encuentra el peso más antiguo en la lista de diccionarios 'pes' de cada fila y lo guarda en una nueva columna.
 
-        # Asegurar que la cadena tenga al menos 8 caracteres (AAAAMMDD)
-        if len(fecha_str) >= 8:
-            fecha_str = fecha_str[:8]  # Tomar solo los primeros 8 caracteres (AAAAMMDD)
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - nueva_columna: Nombre de la nueva columna donde se almacenará el peso más antiguo.
 
-            try:
-                # Convertir fecha a datetime
-                fecha_dt = datetime.strptime(fecha_str, '%Y%m%d')
-                return fecha_dt
-            except ValueError as e:
-                print(f"Error al convertir fecha {fecha_str}: {e}")
-                return None
-        else:
-            return None
+    Devuelve:
+        - DataFrame modificado con la nueva columna del peso más antiguo.
+    """
+    # Inicializar la nueva columna con None
+    data[nueva_columna] = None
 
-    def obtener_fecha_peso_mas_antigua():
-        peso_mas_antiguo = None
-        fecha_mas_antigua = None
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        pes_data = row['pes']
 
-        for item in pes:
-            peso = item.get('valor')
-            fecha = limpiar_fecha(item.get('data'))  # Limpiar y formatear la fecha
+        if not pes_data or len(pes_data) == 0:
+            continue  # Saltar a la siguiente fila si 'pes_data' está vacío
 
-            if peso is not None and fecha is not None:
-                if fecha_mas_antigua is None or fecha < fecha_mas_antigua:
-                    peso_mas_antiguo = peso
-                    fecha_mas_antigua = fecha
+        # Encontrar el diccionario con la fecha más antigua en la clave 'data'
+        try:
+            oldest_pes_data = min(pes_data, key=lambda x: datetime.strptime(x['data'], '%Y-%m-%d'))
+            oldest_pes_weight = oldest_pes_data['valor']
+            data.loc[index, nueva_columna] = oldest_pes_weight
+        except ValueError:
+            # En caso de error al parsear la fecha, continuar con la siguiente fila
+            continue
 
-        return peso_mas_antiguo, fecha_mas_antigua
+    return data
 
-    def obtener_fecha_peso_cercana_si_s():
-        peso_mas_cercano = None
-        fecha_mecvvs_si_s = None
+# Funcion que devuelve el peso más actual
+def obtenir_pes_mes_nou(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+    """
+    Encuentra el peso más nuevo en la lista de diccionarios 'pes' de cada fila y lo guarda en una nueva columna.
 
-        for item in mecvvs:
-            fecha = limpiar_fecha(item.get('data'))  # Limpiar y formatear la fecha
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - nueva_columna: Nombre de la nueva columna donde se almacenará el peso más nuevo.
 
-            si_o_s = any(item.get(key, '') in {'SI', 'S'} for key in
-                         ['disfagia', 'disfagiaConeguda', 'alteracioEficacia', 'alteracioSeguretat'])
+    Devuelve:
+        - DataFrame modificado con la nueva columna del peso más nuevo.
+    """
+    # Inicializar la nueva columna con None
+    data[nueva_columna] = None
 
-            if fecha is not None and si_o_s:
-                if fecha_mecvvs_si_s is None or fecha < fecha_mecvvs_si_s:
-                    peso_mas_cercano = item.get('peso')
-                    fecha_mecvvs_si_s = fecha
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        pes_data = row['pes']
 
-        return peso_mas_cercano, fecha_mecvvs_si_s
+        if not pes_data or len(pes_data) == 0:
+            continue  # Saltar a la siguiente fila si 'pes_data' está vacío
 
-    peso_antiguo, fecha_antigua = obtener_fecha_peso_mas_antigua()
-    peso_cercano_si_s, fecha_si_s = obtener_fecha_peso_cercana_si_s()
+        # Encontrar el diccionario con la fecha más nueva en la clave 'data'
+        try:
+            newest_pes_data = max(pes_data, key=lambda x: datetime.strptime(x['data'], '%Y-%m-%d'))
+            newest_pes_weight = newest_pes_data['valor']
+            data.loc[index, nueva_columna] = newest_pes_weight
+        except ValueError:
+            # En caso de error al parsear la fecha, continuar con la siguiente fila
+            continue
 
-    if peso_antiguo is not None and peso_cercano_si_s is not None:
-        diferencia_peso = peso_antiguo - peso_cercano_si_s
-        return diferencia_peso
-    else:
-        return None
+    return data
+
+# Funcion que devuelve la fecha del peso más antiguo
+def obtenir_fecha_mes_antiga(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
+    """
+    Encuentra la fecha más antigua en la lista de diccionarios 'pes' de cada fila y la guarda en una nueva columna.
+
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - nova_columna: Nombre de la nueva columna donde se almacenará la fecha más antigua.
+
+    Devuelve:
+        - DataFrame modificado con la nueva columna de la fecha más antigua.
+    """
+    # Inicializar la nueva columna con None
+    data[nova_columna] = None
+
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        pes_data = row['pes']
+
+        if not pes_data or len(pes_data) == 0:
+            continue  # Saltar a la siguiente fila si 'pes_data' está vacío
+
+        # Encontrar el diccionario con la fecha más antigua en la clave 'data'
+        try:
+            oldest_pes_data = min(pes_data, key=lambda x: datetime.strptime(x['data'], '%Y-%m-%d'))
+            oldest_pes_date = oldest_pes_data['data']
+            data.loc[index, nova_columna] = oldest_pes_date
+        except ValueError:
+            # En caso de error al parsear la fecha, continuar con la siguiente fila
+            continue
+
+    return data
+
+
+# Funcion que devuelve la primera fecha en la que se cumple que hay un test mecvv positivo
+def obtenir_primera_fecha_mecvv(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+    """
+    Encuentra la fecha en la lista de diccionarios 'mecvvs' cuando se cumplen ciertas condiciones y la guarda en una nueva columna.
+
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - nueva_columna: Nombre de la nueva columna donde se almacenará la fecha.
+
+    Devuelve:
+        - DataFrame modificado con la nueva columna de la fecha que cumple las condiciones.
+    """
+    # Inicializar la nueva columna con None
+    data[nueva_columna] = None
+
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        mecvvs_data = row['mecvvs']
+
+        if not mecvvs_data or len(mecvvs_data) == 0:
+            continue  # Saltar a la siguiente fila si 'mecvvs_data' está vacío
+
+        # Buscar la primera fecha que cumpla las condiciones
+        for mec_data in mecvvs_data:
+            if ('disfagia' in mec_data and mec_data['disfagia'] in ['SI', 'S']) or \
+               ('disfagiaConeguda' in mec_data and mec_data['disfagiaConeguda'] in ['SI', 'S']):
+                if ('alteracioSeguretat' in mec_data and mec_data['alteracioSeguretat'] in ['SI', 'S']) or \
+                   ('alteracioEficacia' in mec_data and mec_data['alteracioEficacia'] in ['SI', 'S']):
+                    fecha_primera_condicion = datetime.strptime(mec_data['data'][:8], '%Y%m%d').strftime('%Y-%m-%d')
+                    data.loc[index, nueva_columna] = fecha_primera_condicion
+                    break  # Detener la búsqueda una vez que se encuentra la fecha
+
+    return data
+
+# Funcion que devuelve el peso, teniendo en cuenta la fecha del primer mecvv positivo. Para que devuelva el peso, su
+# fecha debe coincidir con la fecha que hay en 'data primer mecvv', con un intervalo de una semana de margen
+def obtenir_pes_per_rang_de_fecha(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+    """
+    Encuentra el peso en la lista de diccionarios 'pes' que coincide con la fecha de 'data primer mecvv' dentro de un rango de ±7 días
+    y guarda el peso correspondiente en una nueva columna.
+
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - nueva_columna: Nombre de la nueva columna donde se almacenará el peso encontrado.
+
+    Devuelve:
+        - DataFrame modificado con la nueva columna del peso correspondiente al rango de fecha.
+    """
+    # Inicializar la nueva columna con None
+    data[nueva_columna] = None
+
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        mecvv_date_str = row['data primer mecvv']
+        pes_data = row['pes']
+
+        if not mecvv_date_str or not pes_data or len(pes_data) == 0:
+            continue  # Saltar a la siguiente fila si no hay fecha en 'data_primer_mecvv' o 'pes_data' está vacío
+
+        try:
+            # Convertir la fecha de 'data_primer_mecvv' al formato datetime
+            mecvv_date = datetime.strptime(mecvv_date_str, '%Y-%m-%d')
+
+            # Definir los límites del rango de fechas (±3 días)
+            date_start = mecvv_date - timedelta(days=3)
+            date_end = mecvv_date + timedelta(days=3)
+
+            # Buscar el peso en 'pes_data' que corresponde al rango de fechas
+            for pes_entry in pes_data:
+                pes_date_str = pes_entry.get('data')
+                if pes_date_str:
+                    pes_date = datetime.strptime(pes_date_str, '%Y-%m-%d')
+                    if date_start <= pes_date <= date_end:
+                        data.loc[index, nueva_columna] = pes_entry.get('valor')
+                        break  # Detener la búsqueda después de encontrar la primera coincidencia
+        except ValueError:
+            # En caso de error al parsear la fecha, continuar con la siguiente fila
+            continue
+
+    return data
+
+
+# Función para obtener la resta de 2 columnas que contienen valores tipo object
+import pandas as pd
+
+def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_columna: str) -> pd.DataFrame:
+    """
+    Resta los valores de dos columnas en un DataFrame y almacena el resultado en una nueva columna.
+
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - columna1: Nombre de la primera columna para restar.
+        - columna2: Nombre de la segunda columna para restar.
+        - nueva_columna: Nombre de la nueva columna donde se almacenará el resultado de la resta.
+
+    Devuelve:
+        - DataFrame modificado con la nueva columna del resultado de la resta.
+    """
+    # Inicializar la nueva columna con None
+    data[nueva_columna] = None
+
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        valor1 = row[columna1]
+        valor2 = row[columna2]
+
+        try:
+            # Intentar convertir los valores a tipos numéricos (flotantes o enteros)
+            valor1 = float(valor1)
+            valor2 = float(valor2)
+
+            # Realizar la resta y almacenar el resultado en la nueva columna
+            data.loc[index, nueva_columna] = valor1 - valor2
+        except (ValueError, TypeError):
+            # En caso de error al convertir o restar, almacenar None en la nueva columna
+            data.loc[index, nueva_columna] = None
+
+    return data
+
+
+
 
 
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
