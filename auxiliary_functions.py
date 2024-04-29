@@ -754,7 +754,7 @@ def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Da
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
-        mecvv_date_str = row['data primer MECVV']
+        mecvv_date_str = row['Data primer MECVV']
         pes_data = row['pes']
 
         if not mecvv_date_str or not pes_data or len(pes_data) == 0:

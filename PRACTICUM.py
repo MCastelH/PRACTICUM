@@ -30,11 +30,11 @@ if __name__ == "__main__":
     data = codis_ICD(data, disfagia_list, 'DO diagnosticada')
     data = codis_ICD(data, P_list, 'P diagnosticada')
     data = codis_ICD(data, Main_respiratory_infections_list,
-                           'Infeccions respiratòries principals diagnosticada')
+                           'Infeccions respiratòries principals diagnosticades')
     data = codis_ICD(data, LRTI_list, 'LRTI diagnosticada')
-    data = codis_ICD(data, COPD_exacerbations_list, 'Exacerbacions de COPD diagnosticada')
+    data = codis_ICD(data, COPD_exacerbations_list, 'Exacerbacions de COPD diagnosticades')
     data = codis_ICD(data, Pulmonary_fibrosis_fibrotorax_list,
-                             'Fibrosi pulmonar i fibrotòrax diagnosticada')
+                             'Fibrosi pulmonar i fibrotòrax diagnosticades')
 
     data = codis_ICD(data, priorfalls_list, 'Caigudes prèvies')
     data = codis_ICD(data, delirium_list, 'Deliris')
