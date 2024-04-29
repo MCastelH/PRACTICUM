@@ -1,13 +1,12 @@
-# usar diccionarios mejor envez de convertir a df
-
 import json
 import pandas as pd
-from auxiliary_functions import (obtenir_fecha_por_codigo, restar_fechas,valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
-                                 sumar_barthel, sumar_emina, obtenir_ultim_resultat, obtenir_valor_promedio,
-                                 canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
-                                 extraer_valor_clave_simple, extraer_name_value_to_column, cci, obtenir_pes_mes_antic,
-                                 obtenir_pes_mes_nou, obtenir_fecha_mes_antiga, obtenir_primera_fecha_mecvv,
-                                 obtenir_pes_per_rang_de_fecha, restar_columnas)
+from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
+                                 dies_ingressat_total, interval_10_edat,
+                                 sumar_barthel, sumar_emina, obtenir_ultim_resultat, obtenir_pes_o_mitjana,
+                                 canadenca_comparada, disfagia_mecvvs, extreure_valors_claus,
+                                 extreure_valors_claus_simple, obtenir_valors_clau_interes, index_charlson, obtenir_pes_mes_antic,
+                                 obtenir_pes_mes_nou, obtenir_data_mes_antiga, obtenir_primera_data_mecvv,
+                                 obtenir_pes_coincident_mecvv, restar_columnes)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list,
                     COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
@@ -21,199 +20,179 @@ from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_
 
 if __name__ == "__main__":
     with open('./data/origin/bbdd_pneumonia_aspirativa.json') as archivo:
-        datos = json.load(archivo)
+        dades = json.load(archivo)
 
-    data = pd.DataFrame(datos)
+    data = pd.DataFrame(dades)
 
-    # Función que verifica si alguno de los valores a buscar de la lista PA_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista=PA_list, nueva_columna='PA_diagnosticada')
+    # Funció que verifica a la clau 'codiDiagnostics', de la llista de diccionaris 'ingressos', si hi ha algun codi
+    # de la llista introduïda, i retorna 1 o 0 si l'ha trobat o no
+    data = codis_ICD(data, PA_list, 'PA diagnosticada')
+    data = codis_ICD(data, disfagia_list, 'DO diagnosticada')
+    data = codis_ICD(data, P_list, 'P diagnosticada')
+    data = codis_ICD(data, Main_respiratory_infections_list,
+                           'Infeccions respiratòries principals diagnosticada')
+    data = codis_ICD(data, LRTI_list, 'LRTI diagnosticada')
+    data = codis_ICD(data, COPD_exacerbations_list, 'Exacerbacions de COPD diagnosticada')
+    data = codis_ICD(data, Pulmonary_fibrosis_fibrotorax_list,
+                             'Fibrosi pulmonar i fibrotòrax diagnosticada')
 
-    # Función que verifica si alguno de los valores a buscar de la lista disfagia_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista=disfagia_list, nueva_columna='DO_diagnosticada')
+    data = codis_ICD(data, priorfalls_list, 'Caigudes prèvies')
+    data = codis_ICD(data, delirium_list, 'Deliris')
+    data = codis_ICD(data, dementia_list, 'Demència')
+    data = codis_ICD(data, depresyndr_list, 'Síndrome depressiu')
+    data = codis_ICD(data, uriincont_list, 'Incont.uri')
+    data = codis_ICD(data, fecincont_list, 'Incont.fec')
+    data = codis_ICD(data, pressulc_list, 'Úlceres pressió')
+    data = codis_ICD(data, immob_list, 'Immobilitat')
+    data = codis_ICD(data, conf_list, 'Confusió')
+    data = codis_ICD(data, osteopor_list, 'Osteoporosi')
+    data = codis_ICD(data, sarcopenia_list, 'Sarcopènia')
+    data = codis_ICD(data, sleepdisturb_list, 'Problson')
+    data = codis_ICD(data, chrpain_list, 'Dolor crònic')
+    data = codis_ICD(data, iatrog_list, 'Iatrogènic')
+    data = codis_ICD(data, constipation_list, 'Restrenyiment')
 
-    # Función que verifica si alguno de los valores a buscar de la lista P_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista=P_list, nueva_columna='P_diagnosticada')
+    data = codis_ICD(data, CVdisease_list, 'CV')
+    data = codis_ICD(data, heartdisease_list, 'Probl.cor')
+    data = codis_ICD(data, ND_list, 'Neurodegeneratives')
+    data = codis_ICD(data, DM_list, 'DM')
+    data = codis_ICD(data, hepatopat_list, 'Hepatopaties')
+    data = codis_ICD(data, neopl_list, 'Neoplàsies')
+    data = codis_ICD(data, AcuteRenalF_list, 'ARF')
+    data = codis_ICD(data, dizsyn_list, 'Marejos')
+    data = codis_ICD(data, VIH_list, 'VIH')
+    data = codis_ICD(data, psicosis_list, 'Psicosi')
+    data = codis_ICD(data, nutridef_list, 'Def.nutri')
 
-    # Función que verifica si alguno de los valores a buscar de la lista Main_respiratory_infections_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista = Main_respiratory_infections_list,
-                           nueva_columna= 'Main_respiratory_infections_diagnosticada')
+    # Funció que et retorna tots els valors de la clau que introdueixis, en aquest cas, de la clau 'CREATININA Sèrum'
+    data = obtenir_valors_clau_interes(data, 'labs', 'CREATININA Sèrum',
+                                        'Creatinina')
 
-    # Función que verifica si alguno de los valores a buscar de la lista LRTI_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista = LRTI_list, nueva_columna='LRTI_diagnosticada')
+    # Funció per calcular els índexs de Charlson de cada pacient, a partir del diccionari 'charlson_dict'
+    # que conté els codis amb els valors corresponents
+    data = index_charlson(data, 'ingressos', 'Charlson', charlson_dict)
 
-    # Función que verifica si alguno de los valores a buscar de la lista COPD_exacerbations_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista= COPD_exacerbations_list, nueva_columna='COPD_exacerbations_diagnosticada')
+    # Funció que indica quants cops ha ingressat el pacient. Aixó ho fa comptant el nombre de diccionaris que hi ha a la
+    # columna 'ingressos'
+    data = nombre_ingressos(data, 'ingressos')
 
-    # Función que verifica si alguno de los valores a buscar de la lista Pulmonary_fibrosis_fibrotorax_list están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data=data, lista= Pulmonary_fibrosis_fibrotorax_list,
-                           nueva_columna= 'Pulmonary_fibrosis_fibrotorax_diagnosticada')
+    # Funció que retorna la suma dels dies totals que ha estat ingressat el pacient, basant-se en fer una suma amb el
+    # resultat de la resta de les claus 'dataAlta' i 'dataIngres' (que es troben a la columna 'ingressos'), i creant la
+    # nova columna 'Dias_totals_ingressat'
+    data = dies_ingressat_total(data, 'ingressos')
 
-    # Función que verifica si alguno de los valores a buscar de las siguientes listas están en la
-    # lista llamada 'codiDiagnostics'
-    data = valores_codigos(data, priorfalls_list, 'caidas_previas')
-    data = valores_codigos(data, delirium_list, 'delirios')
-    data = valores_codigos(data, dementia_list, 'demencia')
-    data = valores_codigos(data, depresyndr_list, 'sindrome_depresivo')
-    data = valores_codigos(data, uriincont_list, 'incont_uri')
-    data = valores_codigos(data, fecincont_list, 'incont_fec')
-    data = valores_codigos(data, pressulc_list, 'ulceras_presion')
-    data = valores_codigos(data, immob_list, 'immobilitat')
-    data = valores_codigos(data, conf_list, 'confusio')
-    data = valores_codigos(data, osteopor_list, 'osteoporosis')
-    data = valores_codigos(data, sarcopenia_list, 'sarcopenia')
-    data = valores_codigos(data, sleepdisturb_list, 'problsueño')
-    data = valores_codigos(data, chrpain_list, 'dolor_cron')
-    data = valores_codigos(data, iatrog_list, 'iatrogenico')
-    data = valores_codigos(data, constipation_list, 'estreñimiento')
+    # Funció que classifica utilitzant un intèrval de 10 en 10 anys, les edats dels pacients de la columna 'edat'
+    data = interval_10_edat(data, 'edat')
 
-    data = valores_codigos(data, CVdisease_list, 'CV')
-    data = valores_codigos(data, heartdisease_list, 'probl_corazon')
-    data = valores_codigos(data, ND_list, 'neurodegenerativas')
-    data = valores_codigos(data, DM_list, 'DM')
-    data = valores_codigos(data, hepatopat_list, 'hepatopatias')
-    data = valores_codigos(data, neopl_list, 'neoplasias')
-    data = valores_codigos(data, AcuteRenalF_list, 'ARF')
-    data = valores_codigos(data, dizsyn_list, 'mareos')
-    data = valores_codigos(data, VIH_list, 'VIH')
-    data = valores_codigos(data, psicosis_list, 'psicosis')
-    data = valores_codigos(data, nutridef_list, 'def_nutri')
-
-    # Función para hacer columna de chronic renal disease (creatinina): con esta función te devuelve todos los valores
-    # del parametro indicado en nombre_interes
-    data = extraer_name_value_to_column(data, 'labs', 'CREATININA Sèrum',
-                                        'creatinina')
-
-    # Función para calcular los respectos indices de charlson de cada paciente, a partir del diccionario charlson_dict
-    # que contiene los codigos con sus respectivos valores
-    data = cci(data, 'ingressos', 'charlson', charlson_dict)
-
-    # Función que indica cuantas veces ha ingresado el paciente, en base a contar el número de diccionarios que hay
-    # en 'ingressos', generando la nueva columna Num_ingresos
-    data = contar_diccionarios(data, 'ingressos')
-
-    # Función que devuelve un sumatorio de los dias en total que ha estado ingresado el paciente, en base a hacer un
-    # sumatorio con el resultado de la resta de las claves 'dataAlta' i 'dataIngres' (situadas en la columna
-    # 'ingressos', i generando la nueva columna Dias_totales_ingresado
-    data = dias_ingreso_total(data, 'ingressos')
-
-    # Función que clasifica usando un intervalo de 10 en 10 años, a las edades de los pacientes de la columna edat
-    data = asignar_intervalo_edad(data, 'edat')
-
-    # Función que hace un sumatorio de todos los ítems del test de Barthel, sin tener en cuenta la última clave 'data'
+    # Funció que realitza un sumatori de tots els ítems del test de Barthel, sense tenir en compte l'última clau 'data'
     data = sumar_barthel(data, 'barthel')
 
-    # Función que hace un sumatorio de todos los ítems del test emina, sin tener en cuenta las últimas 2 claves
-    # 'dataValoració' y 'resultat'. Además compara si el sumatorio es el mismo que el valor de la columna 'resultat', y
-    # si es así, introduce el sumatorio. Si la lista está vacia (tiene longitud=0) o los valores del sumatorio
-    # i 'resultat' no son los mismos, devuelve None (por ahora devuelve NaN)
-    data = sumar_emina(data, 'emina', 'EMINA_sumatorios_comparados')
+    # Funció que fa un sumatori de tots els elements de la prova EMINA, sense tenir en compte les dues darreres claus
+    # 'dataValoració' i 'resultat'. A més, compara si la suma és igual al valor de la columna 'resultat' i, si és així,
+    # retorna la suma. Si la llista està buida (longitud=0) o els valors de la suma i 'resultat' no són els mateixos,
+    # retorna NaN
+    data = sumar_emina(data, 'emina', 'EMINA sumatoris comparats')
 
-    # Función que extrae la última clave del test emina llamada 'resultats'
-    data = obtenir_ultim_resultat(data, 'emina', 'emina_resultats')
+    # Funció que extreu l'última clau del test emina anomenada 'resultats' # TODO: estos 2 se pueden cambiar por obterir valors clau?
+    data = obtenir_ultim_resultat(data, 'emina', 'EMINA resultats')
 
-    # Función que extrae la última clave del test mna llamada 'resultats'
-    data = obtenir_ultim_resultat(data, 'mna', 'mna_resultats')
+    # Funció que extrae la última clave del test mna llamada 'resultats' ##        ''
+    data = obtenir_ultim_resultat(data, 'mna', 'MNA resultats')
 
-    # Funcion que proporciona el promedio de los todos los pesos (en caso de que haya más de un valor de peso) o el
-    # único valor de peso que tenga el paciente registrado
-    data = obtenir_valor_promedio(data, 'pes')
+    # Funció que proporciona la mitjana de tots els pesos (en el cas que hi hagi més d'un valor de pes) o l'únic valor
+    # de pes que el pacient contingui
+    data = obtenir_pes_o_mitjana(data, 'pes')
 
-    # Función que compara el sumatorio de determinados ítems de la escala canadenca con la clave 'total',
-    # y si es igual te devuelve el sumatorio. Para hacer el sumatorio no tiene en cuenta las claves: 'total',
-    # 'dataValoracio' y 'horaValoracio'. Si la fila está vacia (no hay diccionario) devuelve NaN.
+    # Funció que compara la suma de certes entrades de l'escala canadenca amb la clau 'total', i si són iguals, retorna
+    # la suma. Per fer la suma, no considera les claus: 'total', 'dataValoracio' i 'horaValoracio'. Si la fila està
+    # buida (no hi ha diccionari), retorna NaN.
     data = canadenca_comparada(data, 'canadenca')
 
-    # Función que itera hasta encontrar la última vez que apareció disfagia o disfagia coneguda en la lista de
-    # diccionarios mecvvs y que devuelve 1 o 0 si el paciente tiene respectivamente un si o un no en dichas claves
+    # Funció que itera fins a trobar l'última vegada que van aparèixer les claus 'disfàgia' o 'disfàgiaConeguda' a la
+    # llista de diccionaris 'mecvvs' i que retorna 1 o 0 si el pacient té respectivament un sí o un no en aquestes claus
     data = disfagia_mecvvs(data, 'mecvvs')
 
-    # Función que itera hasta encontrar el último diccionario con la clave de interes y que devuelve sus valores
-    # sinedo estos: 1 si es SI, y 0 si es NO
-    data = extraer_valor_clave(data, 'mecvvs', 'alteracioEficacia',
-                               'alteracioEficacia_mecvvs')
-    data = extraer_valor_clave(data, 'mecvvs', 'alteracioSeguretat',
-                               'alteracioSeguretat_mecvvs')
+    # Funció que itera fins trobar l'últim diccionari amb la clau d'interès i que retorna els seus valors, essent
+    # aquests 1 si és SÍ, i 0 si és NO. se puede con obtenir valors clau???
+    data = extreure_valors_claus(data, 'mecvvs', 'alteracioEficacia',
+                               'Alteració eficàcia MECVV')
+    data = extreure_valors_claus(data, 'mecvvs', 'alteracioSeguretat',
+                               'Alteració seguretat MECVV')
 
-    # Función que itera hasta encontrar el último diccionario con la clave de interés y devuelve su valor talcual
-    data = extraer_valor_clave_simple(data, 'mecvvs', 'viscositat',
-                                      'viscositat_mecvvs')
+    # Funció que itera fins trobar l'últim diccionari amb la clau d'interés i retorna el seu valor tal com és
+    data = extreure_valors_claus_simple(data, 'mecvvs', 'viscositat',
+                                      'Viscositat MECVV')
 
-    data = extraer_valor_clave_simple(data, 'mecvvs', 'volum',
-                                      'volumn_mecvvs')
+    data = extreure_valors_claus_simple(data, 'mecvvs', 'volum',
+                                      'Volum MECVV')
 
-    # Función que permite obtener de la lista de diccionarios 'labs', el valor de las diferentes pruebas realizadas,
-    # mediante el uso del parametro 'nombre_interes', que permite extraer este valor de interés de la clave requerida
-    data = extraer_name_value_to_column(data, 'labs', 'ALBÚMINA Sèrum', 'albumina')
+    # Funció que permet obtenir de la llista de diccionaris 'labs' el valor de les diferents proves realitzades 
+    # mitjançant l'ús del paràmetre 'nom_interes', que permet extreure aquest valor d'interès de la clau requerida.
+    data = extreure_valors_claus(data, 'labs', 'ALBÚMINA Sèrum', 'Albúmina')
 
-    data = extraer_name_value_to_column(data, 'labs', 'PROTEÏNES TOTALS Sèrum',
-                                        'proteinas totales')
+    data = extreure_valors_claus(data, 'labs', 'PROTEÏNES TOTALS Sèrum',
+                                        'Proteïnes totals')
 
-    data = extraer_name_value_to_column(data, 'labs', 'HEMOGLOBINA',
+    data = extreure_valors_claus(data, 'labs', 'HEMOGLOBINA',
                                        'Hb')
 
-    data = extraer_name_value_to_column(data, 'labs', 'COLESTEROL Sèrum',
-                                        'colesterol total')
+    data = extreure_valors_claus(data, 'labs', 'COLESTEROL Sèrum',
+                                        'Colesterol total')
 
-    data = extraer_name_value_to_column(data, 'labs', 'LEUCÒCITS',
-                                        'leucos')
+    data = extreure_valors_claus(data, 'labs', 'LEUCÒCITS',
+                                        'Leucos')
 
-    data = extraer_name_value_to_column(data, 'labs', 'LIMFÒCITS %',
-                                       'limfos')
+    data = extreure_valors_claus(data, 'labs', 'LIMFÒCITS %',
+                                       'Limfos')
 
-    data = extraer_name_value_to_column(data, 'labs', 'PROTEÏNA C REACTIVA Sèrum',
-                                        'prot C react')
+    data = extreure_valors_claus(data, 'labs', 'PROTEÏNA C REACTIVA Sèrum',
+                                        'Prot C react')
 
-    data = extraer_name_value_to_column(data, 'labs', 'UREA Sèrum',
-                                        'urea')
+    data = extreure_valors_claus(data, 'labs', 'UREA Sèrum',
+                                        'Urea')
 
-    data = extraer_name_value_to_column(data, 'labs', 'F. G. ESTIMAT (MDRD) Sèrum',
+    data = extreure_valors_claus(data, 'labs', 'F. G. ESTIMAT (MDRD) Sèrum',
                                         'FGE MDRD')
 
-    data = extraer_name_value_to_column(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
+    data = extreure_valors_claus(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
                                         'FGE CDK-EPI')
 
-    # Función que devuelve el peso más antiguo registrado de la columna 'pes'
-    data = obtenir_pes_mes_antic(data, 'pes més antic')
+    # Funció que retorna el pes més antic registrat de la columna 'pes'
+    data = obtenir_pes_mes_antic(data, 'Pes més antic')
 
-    # Función que devuelve el peso más actual
-    data = obtenir_pes_mes_nou(data, 'pes més nou')
+    # Funció que retorna el pes més actual
+    data = obtenir_pes_mes_nou(data, 'Pes més nou')
 
-    # Función que devuelve la fecha de dicho peso
-    data = obtenir_fecha_mes_antiga(data,'data pes més antic')
+    # Funció que retorna la data que correspon al pes més antic
+    data = obtenir_data_mes_antiga(data,'Data pes més antic')
 
-    # Función que devuelve la fecha en la que el mecvv dio positivo (disfagia + alteracion seguridad o eficacia)
-    data = obtenir_primera_fecha_mecvv(data, 'data primer mecvv')
+    # Funció que retorna la data en la qual el MECVV va donar positiu (disfàgia + alteració seguretat o eficàcia)
+    # per primer cop
+    data = obtenir_primera_data_mecvv(data, 'Data primer MECVV')
 
-    # Función que devuelve el peso si su fecha se encuentra en un rango de 3 días antes o despues de la fecha de
-    # 'data primer mecvv'
-    data = obtenir_pes_per_rang_de_fecha(data, 'pes coincident primer mecvv')
+    # Funció que retorna el pes si la seva data es troba en un rang de 3 dies abans o després de la data que hi ha a la
+    # columna 'Data primer MECVV'
+    data = obtenir_pes_coincident_mecvv(data, 'Pes coincident primer MECVV')
 
-    # Función que obtiene la perdida de peso al restar el peso más antiguo ('pes més antic') menos el peso en el que
-    # aproximadamente el mecvv salió positivo ('pes coindicent primer mecvv)
-    data = restar_columnas(data, 'pes més antic', 'pes coincident primer mecvv',
-                           'perdua pes entre ingressos')
+    # Funció que obté la pèrdua de pes en restar la columna amb el pes més antic ('pes més antic') menys el pes en el
+    # qual aproximadament el MECVV va donar positiu ('pes coindicent primer mecvv')
+    data = restar_columnes(data, 'Pes més antic', 'Pes coincident primer MECVV',
+                           'Pèrdua pes entre ingressos')
 
-    # Función que obtiene la perdida de peso total al restar 'pes més antic' i 'pes més nou'
-    data = restar_columnas(data, 'pes més antic', 'pes més nou', 'perdua pes total')
+    # Funció que obté la pèrdua de pes total en restar les columnes 'pes més antic' menys 'pes més nou'
+    data = restar_columnes(data, 'Pes més antic', 'Pes més nou', 'Pèrdua pes total')
 
-    # Función que devuelve la fecha más antigua de cada vez que han diagnosticado un código de pneumonia
-    # Ejemplo de uso
-    data = obtenir_fecha_por_codigo(data, lista=P_list, nueva_columna='fecha más antigua pneumonia')
+    # Funció que retorna la data més antiga de totes les vegades que han diagnosticat un codi de pneumònia
+    data = obtenir_data_presencia_codi(data, P_list,  'Data més antiga pneumònia')
 
-    # Funcion para saber los días que hay entre las 2 columnas mecvv i plist
-    data = restar_fechas(data, 'data primer mecvv', 'fecha más antigua pneumonia',
-                         'dias entre primer ICD pneumonia y primer MECVV positivo')
+    # Funció per saber els dies de diferència que hi ha entre 2 columnes. En aquest cas, basant-se en la resta de les
+    # columnes 'Data primer MECVV' i 'Data més antiga pneumònia'
+    data = restar_dates(data, 'Data primer MECVV', 'Data més antiga pneumònia',
+                         'Dies entre primer ICD pneumònia i primer MECVV positiu')
 
 
 
-    # DF para usar en jupyter
+    # Dataframe per utilitzar en els documents JupyterNotebook
     data.to_pickle('./data/processed/dataframe.pkl')
 
 

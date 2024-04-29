@@ -5,33 +5,33 @@ from datetime import datetime, timedelta
 # TODO: Agrega una descripción de la funcionalidad de las funciones.
 # TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código.
 # PA, P i DO
-def valores_codigos(data: pd.DataFrame, lista: list, nueva_columna: str) -> pd.DataFrame:
+def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
         for ingreso in fila['ingressos']:  # Iterar sobre cada ingreso en 'ingressos'
             for valor in ingreso['codiDiagnostics']:  # Iterar sobre cada valor en 'codiDiagnostics'
-                if valor in lista:  # Verificar si el valor está en la lista de valores a buscar
-                    data.at[indice, nueva_columna] = 1  # Asignar 1 si el valor está presente
+                if valor in llista:  # Verificar si el valor está en la lista de valores a buscar
+                    data.at[indice, nova_columna] = 1  # Asignar 1 si el valor está presente
                     break  # Romper el bucle si se encuentra el valor para esta fila
                 else:
-                    data.at[indice, nueva_columna] = 0  # Asignar 0 si el valor no está presente
-            if data.at[indice, nueva_columna] == 1:  # Verificar si el valor está en la lista de valores a buscar
+                    data.at[indice, nova_columna] = 0  # Asignar 0 si el valor no está presente
+            if data.at[indice, nova_columna] == 1:  # Verificar si el valor está en la lista de valores a buscar
                 break  # Romper el bucle si se encuentra el valor para esta fila
     return data
 
 
 # Cantidad de ingresos
-def contar_diccionarios(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def nombre_ingressos(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():
-        num_diccionarios = len(fila[nombre_columna]) if isinstance(fila[nombre_columna], list) else 0
+        num_diccionarios = len(fila[nom_columna]) if isinstance(fila[nom_columna], list) else 0
         data.at[indice, 'Num_ingresos'] = num_diccionarios
     return data
 
 
 # Sumatorio dias ingresados
-def dias_ingreso_total(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def dies_ingressat_total(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
         suma_dias = 0  # Inicializar la suma de días de ingreso para esta fila
-        for ingreso in fila[nombre_columna]:  # Iterar sobre cada ingreso en la columna de interés
+        for ingreso in fila[nom_columna]:  # Iterar sobre cada ingreso en la columna de interés
             fecha_ingreso = datetime.strptime(ingreso['dataIngres'], '%Y-%m-%d')
             fecha_alta = datetime.strptime(ingreso['dataAlta'], '%Y-%m-%d')
             diferencia = fecha_alta - fecha_ingreso
@@ -41,9 +41,9 @@ def dias_ingreso_total(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
 
 
 # Rango de edad
-def asignar_intervalo_edad(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def interval_10_edat(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
-        edad = fila[nombre_columna]  # Obtener la edad del paciente de la columna de interés
+        edad = fila[nom_columna]  # Obtener la edad del paciente de la columna de interés
         if edad < 21:
             intervalo = 'Menor de 21'
         elif edad < 31:
@@ -62,13 +62,13 @@ def asignar_intervalo_edad(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
             intervalo = '81-90'
         else:
             intervalo = '91 o más'
-        data.at[indice, 'Intervalo_edad'] = intervalo  # Asignar el intervalo de edad a la nueva columna
+        data.at[indice, 'Interval_edat'] = intervalo  # Asignar el intervalo de edad a la nueva columna
     return data
 
 
 # Funcion que devuelve la fecha cuando está presente algun codigo de la lista que necesite introducir. Si el codigo se
 # repite, devuelve la fecha más antigua
-def obtenir_fecha_por_codigo(data: pd.DataFrame, lista: list, nueva_columna: str) -> pd.DataFrame:
+def obtenir_data_presencia_codi(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra la fecha más antigua ('dataIngres') asociada con un código de diagnóstico de la lista 'lista'
     en la lista de diccionarios 'ingressos' de cada fila del DataFrame 'data' y crea una nueva columna con los resultados.
@@ -76,17 +76,17 @@ def obtenir_fecha_por_codigo(data: pd.DataFrame, lista: list, nueva_columna: str
     Parámetros:
         - data: DataFrame que contiene los datos.
         - lista: Lista de códigos de diagnóstico a buscar.
-        - nueva_columna: Nombre de la nueva columna donde se almacenarán las fechas más antiguas por código.
+        - nova_columna: Nombre de la nueva columna donde se almacenarán las fechas más antiguas por código.
 
     Devuelve:
         - DataFrame modificado con la nueva columna que contiene las fechas más antiguas por código.
     """
     # Aplicar la función 'encontrar_fecha_mas_antigua' a cada fila del DataFrame 'data'
-    data[nueva_columna] = data['ingressos'].apply(lambda x: encontrar_fecha_mas_antigua(x, lista))
+    data[nova_columna] = data['ingressos'].apply(lambda x: encontrar_fecha_mas_antigua(x, llista))
 
     return data
 
-def encontrar_fecha_mas_antigua(ingressos, lista):
+def encontrar_fecha_mas_antigua(ingressos, llista):
     codigo_fecha_mas_antigua = {}
 
     for ingreso in ingressos:
@@ -94,7 +94,7 @@ def encontrar_fecha_mas_antigua(ingressos, lista):
         fecha_ingreso = ingreso.get('dataIngres', '')
 
         for codigo in codigos_diagnosticos:
-            if codigo in lista:
+            if codigo in llista:
                 if codigo not in codigo_fecha_mas_antigua or fecha_ingreso < codigo_fecha_mas_antigua[codigo]:
                     codigo_fecha_mas_antigua[codigo] = fecha_ingreso
 
@@ -108,7 +108,7 @@ def encontrar_fecha_mas_antigua(ingressos, lista):
 
 
 # Función que resta dos columnas que contienen fechas
-def restar_fechas(data: pd.DataFrame, columna1: str, columna2: str, nueva_columna: str) -> pd.DataFrame:
+def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna: str) -> pd.DataFrame:
     """
     Resta dos columnas que contienen fechas en formato %Y-%m-%d y guarda el resultado en una nueva columna.
 
@@ -116,7 +116,7 @@ def restar_fechas(data: pd.DataFrame, columna1: str, columna2: str, nueva_column
         - data: DataFrame que contiene los datos.
         - columna1: Nombre de la primera columna con fechas.
         - columna2: Nombre de la segunda columna con fechas.
-        - nueva_columna: Nombre de la nueva columna donde se almacenarán los resultados de la resta.
+        - nova_columna: Nombre de la nueva columna donde se almacenarán los resultados de la resta.
 
     Devuelve:
         - DataFrame modificado con la nueva columna que contiene la diferencia entre las fechas.
@@ -126,18 +126,18 @@ def restar_fechas(data: pd.DataFrame, columna1: str, columna2: str, nueva_column
     data[columna2] = pd.to_datetime(data[columna2])
 
     # Restar las fechas y calcular la diferencia en valores absolutos
-    data[nueva_columna] = (data[columna1] - data[columna2]).dt.days.abs()
+    data[nova_columna] = (data[columna1] - data[columna2]).dt.days.abs()
 
     return data
 
 
 # Valores barthel
-def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
-    # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame
+def sumar_barthel(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
+    # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nom_columna) y devuelve un DataFrame
     # modificado.
 
     # Aplicar la función a la columna 'barthel' para obtener la suma de los valores, excluyendo la clave 'data'
-    data['Barthel_resultados'] = data[nombre_columna].apply(
+    data['Barthel_resultados'] = data[nom_columna].apply(
         suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
     # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total
     # Barthel'.
@@ -158,12 +158,12 @@ def suma_sin_fecha(
 
 
 # EMINA sumatorios comparados
-def sumar_emina(data: pd.DataFrame, nombre_columna: str,
-                nueva_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
-    # que toma un DataFrame data, el nombre de una columna nombre_columna y devuelve un DataFrame modificado.
+def sumar_emina(data: pd.DataFrame, nom_columna: str,
+                nova_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
+    # que toma un DataFrame data, el nombre de una columna nom_columna y devuelve un DataFrame modificado.
 
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
-    data[nueva_columna] = data[nombre_columna].apply(
+    data[nova_columna] = data[nom_columna].apply(
         suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
     # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total
     # Barthel'.
@@ -198,21 +198,21 @@ def suma_sin_ultimas_claves(diccionarios):
 
 
 # Emina funcion alternativa (coge solo la última clave 'resultats' teniendo en cuenta que none != 0,
-# además usada tmb en mna, al haber agregado nueva_columna: str y convertir la funcion en estatica)
-def obtenir_ultim_resultat(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> pd.DataFrame:
+# además usada tmb en mna, al haber agregado nova_columna: str y convertir la funcion en estatica)
+def obtenir_ultim_resultat(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Función para obtener el último valor de la clave 'resultat' en una columna de tipo lista de diccionarios.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
 
     Devuelve:
         - DataFrame modificado con una nueva columna que contiene el último valor de la clave 'resultat'.
     """
 
     # Aplicar la función obtener_ultimo a la columna especificada del DataFrame
-    data[nueva_columna] = data[nombre_columna].apply(obtener_ultimo)
+    data[nova_columna] = data[nom_columna].apply(obtener_ultimo)
 
     return data  # Devolver el DataFrame modificado
 
@@ -237,19 +237,19 @@ def obtener_ultimo(diccionarios):
 
 # pes
 # TODO: elige un idioma y mantenlo consistente en todo el código.
-def obtenir_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     """
     Función para calcular el promedio de los valores de la clave 'valor' en los diccionarios de una lista.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene las listas de diccionarios.
+        - nom_columna: Nombre de la columna que contiene las listas de diccionarios.
 
     Devuelve:
         - DataFrame modificado con una nueva columna que contiene el promedio de los valores.
     """
     # Aplica el método estático calcular_promedio a la columna especificada del DataFrame
-    data['promedio_pes'] = data[nombre_columna].apply(calcular_promedio)
+    data['promedio_pes'] = data[nom_columna].apply(calcular_promedio)
 
     return data
 
@@ -293,19 +293,19 @@ def calcular_promedio(diccionarios):
 
 
 # Canadenca
-def canadenca_comparada(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def canadenca_comparada(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     """
     Función para comparar el sumatorio de ciertas claves con el valor de 'total' en una lista de diccionarios.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
 
     Devuelve:
         - DataFrame modificado con una nueva columna que contiene el resultado deseado.
     """
     # Aplicar la función calcular_sumatorio_y_comparar a la columna especificada del DataFrame
-    data['Canadenca_sumatorios_comparados'] = data[nombre_columna].apply(
+    data['Canadenca_sumatorios_comparados'] = data[nom_columna].apply(
         lambda x: calcular_sumatorio_y_comparar(x[0]) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Devolver el DataFrame modificado
@@ -348,19 +348,19 @@ def calcular_sumatorio_y_comparar(diccionario):
 
 
 # Disfagia y disfagia conocida identificada con mecvvs
-def disfagia_mecvvs(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
+def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     """
     Función para comparar el valor de 'disfagia' en el último diccionario con 'SI' o 'S' en una lista de diccionarios.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
 
     Devuelve:
         - DataFrame modificado con una nueva columna que contiene el resultado deseado.
     """
     # Aplicar la función obtener_ultima_disfagia a la columna especificada del DataFrame
-    data['Disfagia_mecvvs'] = data[nombre_columna].apply(
+    data['Disfagia_mecvvs'] = data[nom_columna].apply(
         lambda x: obtener_ultima_disfagia(x) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Devolver el DataFrame modificado
@@ -403,27 +403,27 @@ def obtener_ultima_disfagia(diccionarios):
 
 
 # MECVVS para eficacia y seguridad
-def extraer_valor_clave(data: pd.DataFrame, nombre_columna: str, clave: str, nueva_columna: str) -> pd.DataFrame:
+def extreure_valors_claus(data: pd.DataFrame, nom_columna: str, clau: str, nova_columna: str) -> pd.DataFrame:
     """
     Función para extraer el valor de una clave específica en el último diccionario de una lista de diccionarios.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
         - clave: Clave cuyo valor se desea extraer de cada diccionario.
-        - nueva_columna: Nombre de la nueva columna donde se almacenarán los valores extraídos.
+        - nova_columna: Nombre de la nueva columna donde se almacenarán los valores extraídos.
 
     Devuelve:
         - DataFrame modificado con una nueva columna que contiene los valores extraídos.
     """
     # Aplicar la función para extraer el valor de la clave a la columna especificada del DataFrame
-    data[nueva_columna] = data[nombre_columna].apply(
-        lambda x: obtener_valor_clave(x, clave) if isinstance(x, list) and len(x) > 0 else None)
+    data[nova_columna] = data[nom_columna].apply(
+        lambda x: obtener_valor_clave(x, clau) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Devolver el DataFrame modificado
 
 
-def obtener_valor_clave(diccionarios, clave):
+def obtener_valor_clave(diccionarios, clau):
     """
     Obtiene el valor de una clave específica del último diccionario válido que contiene esta clave.
 
@@ -443,8 +443,8 @@ def obtener_valor_clave(diccionarios, clave):
     # Iterar hacia atrás en la lista de diccionarios
     for dic in reversed(diccionarios):
         if isinstance(dic, dict):
-            if clave in dic:
-                valor = dic[clave]
+            if clau in dic:
+                valor = dic[clau]
                 break  # Salir del bucle si se encuentra la clave en el diccionario
 
     # Transformar valores 'SI' o 'S' en 1 y 'NO' o 'N' en 0
@@ -459,22 +459,22 @@ def obtener_valor_clave(diccionarios, clave):
 
 # MECVVS para viscolidad y volumen
 # Esta funcion se podria usar también para extraer los resultados de mna y emina
-def extraer_valor_clave_simple(data: pd.DataFrame, nombre_columna: str, clave: str, nueva_columna: str) -> pd.DataFrame:
+def extreure_valors_claus_simple(data: pd.DataFrame, nom_columna: str, clau: str, nova_columna: str) -> pd.DataFrame:
     """
     Función para extraer el valor de una clave específica en el último diccionario de una lista de diccionarios.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
         - clave: Clave cuyo valor se desea extraer de cada diccionario.
-        - nueva_columna: Nombre de la nueva columna donde se almacenarán los valores extraídos.
+        - nova_columna: Nombre de la nueva columna donde se almacenarán los valores extraídos.
 
     Devuelve:
         - DataFrame modificado con una nueva columna que contiene los valores extraídos.
     """
     # Aplicar la función para extraer el valor de la clave a la columna especificada del DataFrame
-    data[nueva_columna] = data[nombre_columna].apply(
-        lambda x: obtener_valor(x, clave) if isinstance(x, list) and len(x) > 0 else None)
+    data[nova_columna] = data[nom_columna].apply(
+        lambda x: obtener_valor(x, clau) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Devolver el DataFrame modificado
 
@@ -507,16 +507,16 @@ def obtener_valor(diccionarios, clave):
 
 
 # Valores del lab
-def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre_interes: str,
-                                 nueva_columna: str) -> pd.DataFrame:
+def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str,
+                                 nova_columna: str) -> pd.DataFrame:
     """
     Función para extraer los valores de la clave 'value' de una lista de diccionarios en una columna, filtrando por un nombre de interés.
 
     Parámetros:
         - data: DataFrame de pandas que contiene los datos.
-        - nombre_columna: Nombre de la columna que contiene la lista de diccionarios.
-        - nombre_interes: Nombre de interés para filtrar la extracción de valores.
-        - nueva_columna: Nombre para la nueva columna que contendrá los valores extraídos.
+        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
+        - clau_interes: Nombre de interés para filtrar la extracción de valores.
+        - nova_columna: Nombre para la nueva columna que contendrá los valores extraídos.
 
     Devuelve:
         - DataFrame con una nueva columna que contiene los valores de 'value' filtrados por el nombre de interés.
@@ -525,12 +525,12 @@ def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre
     valores_extraidos = []
 
     # Iterar sobre cada fila de la columna de diccionarios
-    for lista_diccionarios in data[nombre_columna]:
-        if isinstance(lista_diccionarios, list) and lista_diccionarios:
+    for llista_diccionaris in data[nom_columna]:
+        if isinstance(llista_diccionaris, list) and llista_diccionaris:
             valor_extraido = None
-            for diccionario in lista_diccionarios:
+            for diccionario in llista_diccionaris:
                 # Verificar si el diccionario contiene el nombre de interés
-                if 'name' in diccionario and diccionario['name'] == nombre_interes:
+                if 'name' in diccionario and diccionario['name'] == clau_interes:
                     # Extraer el valor de 'value'
                     valor_extraido = diccionario.get('value')
                     break  # Salir del bucle una vez encontrado el nombre de interés
@@ -545,13 +545,13 @@ def extraer_name_value_to_column(data: pd.DataFrame, nombre_columna: str, nombre
         raise ValueError("La longitud de valores extraídos no coincide con la longitud del DataFrame original.")
 
     # Agregar los valores extraídos como una nueva columna al DataFrame original
-    data[nueva_columna] = valores_extraidos
+    data[nova_columna] = valores_extraidos
 
     return data
 
 
 # Función para calcular el valor Charlson para un paciente
-def cci(data: pd.DataFrame, columna_entrada: str, nueva_columna: str, charlson_dict: dict) -> pd.DataFrame:
+def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, charlson_dict: dict) -> pd.DataFrame:
     """
     Calcula el índice de Charlson para cada entrada en la lista de diagnósticos en la columna especificada
     y agrega el resultado a una nueva columna en el DataFrame.
@@ -559,20 +559,20 @@ def cci(data: pd.DataFrame, columna_entrada: str, nueva_columna: str, charlson_d
     Parámetros:
         - data: DataFrame que contiene los datos.
         - columna_entrada: Nombre de la columna que contiene la lista de diagnósticos.
-        - nueva_columna: Nombre de la nueva columna donde se almacenarán los resultados.
+        - nova_columna: Nombre de la nueva columna donde se almacenarán los resultados.
         - charlson_dict: Diccionario que mapea los valores de Charlson a listas de códigos de diagnóstico.
 
     Devuelve:
         - DataFrame modificado con la nueva columna de índice de Charlson.
     """
-    data[nueva_columna] = 0  # Inicializar la nueva columna con valores predeterminados
+    data[nova_columna] = 0  # Inicializar la nueva columna con valores predeterminados
 
     # Recorrer cada fila del DataFrame
     for index, row in data.iterrows():
         charlson_value = 0  # Inicializar el valor de Charlson para esta fila
 
         # Obtener la lista de diagnósticos de la entrada actual
-        diagnosticos_lista = row[columna_entrada]
+        diagnosticos_lista = row[columna_interes]
 
         if diagnosticos_lista is None or not isinstance(diagnosticos_lista, list):
             continue  # Saltar a la siguiente fila si no hay lista de diagnósticos válida
@@ -592,25 +592,25 @@ def cci(data: pd.DataFrame, columna_entrada: str, nueva_columna: str, charlson_d
                             break  # Salir del bucle una vez que se encuentra la coincidencia
 
         # Asignar el valor calculado a la nueva columna en el DataFrame
-        data.loc[index, nueva_columna] = charlson_value
+        data.loc[index, nova_columna] = charlson_value
 
     return data
 
 
 # Funcion que devuelve el peso más antiguo
-def obtenir_pes_mes_antic(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+def obtenir_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra el peso más antiguo en la lista de diccionarios 'pes' de cada fila y lo guarda en una nueva columna.
 
     Parámetros:
         - data: DataFrame que contiene los datos.
-        - nueva_columna: Nombre de la nueva columna donde se almacenará el peso más antiguo.
+        - nova_columna: Nombre de la nueva columna donde se almacenará el peso más antiguo.
 
     Devuelve:
         - DataFrame modificado con la nueva columna del peso más antiguo.
     """
     # Inicializar la nueva columna con None
-    data[nueva_columna] = None
+    data[nova_columna] = None
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
@@ -623,7 +623,7 @@ def obtenir_pes_mes_antic(data: pd.DataFrame, nueva_columna: str) -> pd.DataFram
         try:
             oldest_pes_data = min(pes_data, key=lambda x: datetime.strptime(x['data'], '%Y-%m-%d'))
             oldest_pes_weight = oldest_pes_data['valor']
-            data.loc[index, nueva_columna] = oldest_pes_weight
+            data.loc[index, nova_columna] = oldest_pes_weight
         except ValueError:
             # En caso de error al parsear la fecha, continuar con la siguiente fila
             continue
@@ -632,19 +632,19 @@ def obtenir_pes_mes_antic(data: pd.DataFrame, nueva_columna: str) -> pd.DataFram
 
 
 # Funcion que devuelve el peso más actual
-def obtenir_pes_mes_nou(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+def obtenir_pes_mes_nou(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra el peso más nuevo en la lista de diccionarios 'pes' de cada fila y lo guarda en una nueva columna.
 
     Parámetros:
         - data: DataFrame que contiene los datos.
-        - nueva_columna: Nombre de la nueva columna donde se almacenará el peso más nuevo.
+        - nova_columna: Nombre de la nueva columna donde se almacenará el peso más nuevo.
 
     Devuelve:
         - DataFrame modificado con la nueva columna del peso más nuevo.
     """
     # Inicializar la nueva columna con None
-    data[nueva_columna] = None
+    data[nova_columna] = None
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
@@ -657,7 +657,7 @@ def obtenir_pes_mes_nou(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
         try:
             newest_pes_data = max(pes_data, key=lambda x: datetime.strptime(x['data'], '%Y-%m-%d'))
             newest_pes_weight = newest_pes_data['valor']
-            data.loc[index, nueva_columna] = newest_pes_weight
+            data.loc[index, nova_columna] = newest_pes_weight
         except ValueError:
             # En caso de error al parsear la fecha, continuar con la siguiente fila
             continue
@@ -666,7 +666,7 @@ def obtenir_pes_mes_nou(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
 
 
 # Funcion que devuelve la fecha del peso más antiguo
-def obtenir_fecha_mes_antiga(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
+def obtenir_data_mes_antiga(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra la fecha más antigua en la lista de diccionarios 'pes' de cada fila y la guarda en una nueva columna.
 
@@ -700,20 +700,20 @@ def obtenir_fecha_mes_antiga(data: pd.DataFrame, nova_columna: str) -> pd.DataFr
 
 
 # Funcion que devuelve la primera fecha en la que se cumple que hay un test mecvv positivo
-def obtenir_primera_fecha_mecvv(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra la fecha en la lista de diccionarios 'mecvvs' cuando se cumplen ciertas condiciones y la guarda en una
     nueva columna.
 
     Parámetros:
         - data: DataFrame que contiene los datos.
-        - nueva_columna: Nombre de la nueva columna donde se almacenará la fecha.
+        - nova_columna: Nombre de la nueva columna donde se almacenará la fecha.
 
     Devuelve:
         - DataFrame modificado con la nueva columna de la fecha que cumple las condiciones.
     """
     # Inicializar la nueva columna con None
-    data[nueva_columna] = None
+    data[nova_columna] = None
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
@@ -729,7 +729,7 @@ def obtenir_primera_fecha_mecvv(data: pd.DataFrame, nueva_columna: str) -> pd.Da
                 if ('alteracioSeguretat' in mec_data and mec_data['alteracioSeguretat'] in ['SI', 'S']) or \
                         ('alteracioEficacia' in mec_data and mec_data['alteracioEficacia'] in ['SI', 'S']):
                     fecha_primera_condicion = datetime.strptime(mec_data['data'][:8], '%Y%m%d').strftime('%Y-%m-%d')
-                    data.loc[index, nueva_columna] = fecha_primera_condicion
+                    data.loc[index, nova_columna] = fecha_primera_condicion
                     break  # Detener la búsqueda una vez que se encuentra la fecha
 
     return data
@@ -737,24 +737,24 @@ def obtenir_primera_fecha_mecvv(data: pd.DataFrame, nueva_columna: str) -> pd.Da
 
 # Funcion que devuelve el peso, teniendo en cuenta la fecha del primer mecvv positivo. Para que devuelva el peso, su
 # fecha debe coincidir con la fecha que hay en 'data primer mecvv', con un intervalo de una semana de margen
-def obtenir_pes_per_rang_de_fecha(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
+def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra el peso en la lista de diccionarios 'pes' que coincide con la fecha de 'data primer mecvv' dentro de un rango de ±7 días
     y guarda el peso correspondiente en una nueva columna.
 
     Parámetros:
         - data: DataFrame que contiene los datos.
-        - nueva_columna: Nombre de la nueva columna donde se almacenará el peso encontrado.
+        - nova_columna: Nombre de la nueva columna donde se almacenará el peso encontrado.
 
     Devuelve:
         - DataFrame modificado con la nueva columna del peso correspondiente al rango de fecha.
     """
     # Inicializar la nueva columna con None
-    data[nueva_columna] = None
+    data[nova_columna] = None
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
-        mecvv_date_str = row['data primer mecvv']
+        mecvv_date_str = row['data primer MECVV']
         pes_data = row['pes']
 
         if not mecvv_date_str or not pes_data or len(pes_data) == 0:
@@ -774,7 +774,7 @@ def obtenir_pes_per_rang_de_fecha(data: pd.DataFrame, nueva_columna: str) -> pd.
                 if pes_date_str:
                     pes_date = datetime.strptime(pes_date_str, '%Y-%m-%d')
                     if date_start <= pes_date <= date_end:
-                        data.loc[index, nueva_columna] = pes_entry.get('valor')
+                        data.loc[index, nova_columna] = pes_entry.get('valor')
                         break  # Detener la búsqueda después de encontrar la primera coincidencia
         except ValueError:
             # En caso de error al parsear la fecha, continuar con la siguiente fila
@@ -784,7 +784,7 @@ def obtenir_pes_per_rang_de_fecha(data: pd.DataFrame, nueva_columna: str) -> pd.
 
 
 # Función para obtener la resta de 2 columnas que contienen valores tipo object
-def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_columna: str) -> pd.DataFrame:
+def restar_columnes(data: pd.DataFrame, columna1: str, columna2: str, nova_columna: str) -> pd.DataFrame:
     """
     Resta los valores de dos columnas en un DataFrame y almacena el resultado en una nueva columna.
 
@@ -792,13 +792,13 @@ def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_colu
         - data: DataFrame que contiene los datos.
         - columna1: Nombre de la primera columna para restar.
         - columna2: Nombre de la segunda columna para restar.
-        - nueva_columna: Nombre de la nueva columna donde se almacenará el resultado de la resta.
+        - nova_columna: Nombre de la nueva columna donde se almacenará el resultado de la resta.
 
     Devuelve:
         - DataFrame modificado con la nueva columna del resultado de la resta.
     """
     # Inicializar la nueva columna con None
-    data[nueva_columna] = None
+    data[nova_columna] = None
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
@@ -811,10 +811,10 @@ def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_colu
             valor2 = float(valor2)
 
             # Realizar la resta y almacenar el resultado en la nueva columna
-            data.loc[index, nueva_columna] = valor1 - valor2
+            data.loc[index, nova_columna] = valor1 - valor2
         except (ValueError, TypeError):
             # En caso de error al convertir o restar, almacenar None en la nueva columna
-            data.loc[index, nueva_columna] = None
+            data.loc[index, nova_columna] = None
 
     return data
 
