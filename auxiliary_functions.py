@@ -1,7 +1,9 @@
 import pandas as pd
 from datetime import datetime, timedelta
 
-
+# TODO: comprueba que los nombres de las funciones sean descriptivos y concisos.
+# TODO: Agrega una descripción de la funcionalidad de las funciones.
+# TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código.
 # PA, P i DO
 def valores_codigos(data: pd.DataFrame, lista: list, nueva_columna: str) -> pd.DataFrame:
     for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
@@ -66,22 +68,27 @@ def asignar_intervalo_edad(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
 
 # Valores barthel
 def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
-    # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame modificado.
+    # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame
+    # modificado.
 
     # Aplicar la función a la columna 'barthel' para obtener la suma de los valores, excluyendo la clave 'data'
     data['Barthel_resultados'] = data[nombre_columna].apply(
         suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
-    # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total Barthel'.
-    return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel', excluyendo la fecha
+    # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total
+    # Barthel'.
+    return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel',
+    # excluyendo la fecha
 
 
 def suma_sin_fecha(
         diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
-    suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores, comenzando en 0.
+    suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores,
+    # comenzando en 0.
     for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario.
         if clave != 'data':  # Verifica si la clave actual es diferente de 'fecha'
             suma_parcial += int(
-                valor)  # Si la clave no es 'fecha', suma el valor correspondiente al total, convirtiéndolo primero a entero.
+                valor)  # Si la clave no es 'fecha', suma el valor correspondiente al total, convirtiéndolo primero a
+            # entero.
     return suma_parcial  # Devuelve la suma parcial de los valores, excluyendo la fecha.
 
 
@@ -93,7 +100,8 @@ def sumar_emina(data: pd.DataFrame, nombre_columna: str,
     # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
     data[nueva_columna] = data[nombre_columna].apply(
         suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
-    # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total Barthel'.
+    # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total
+    # Barthel'.
 
     return data  # Devuelve el DataFrame modificado con la nueva columna agregada
 
@@ -120,11 +128,12 @@ def suma_sin_ultimas_claves(diccionarios):
 
         return None  # Devuelve None si el diccionario está vacío
 
-    return None  # Devuelve None si el sumatorio no coincide con 'resultat' o si 'resultat' no está presente en el último diccionario
+    return None  # Devuelve None si el sumatorio no coincide con 'resultat' o si 'resultat' no está presente en el
+    # último diccionario
 
 
-# Emina funcion alternativa (coge solo la ultima clave 'resultats' teniendo en cuenta que none != 0,
-# ademas usada tmb en mna, al haber agregado nueva_columna: str y convertir la funcion en estatica)
+# Emina funcion alternativa (coge solo la última clave 'resultats' teniendo en cuenta que none != 0,
+# además usada tmb en mna, al haber agregado nueva_columna: str y convertir la funcion en estatica)
 def obtenir_ultim_resultat(data: pd.DataFrame, nombre_columna: str, nueva_columna: str) -> pd.DataFrame:
     """
     Función para obtener el último valor de la clave 'resultat' en una columna de tipo lista de diccionarios.
@@ -143,7 +152,7 @@ def obtenir_ultim_resultat(data: pd.DataFrame, nombre_columna: str, nueva_column
     return data  # Devolver el DataFrame modificado
 
 
-@staticmethod  # Para crear funciones estaticas
+# TODO: el nombre de las funciones debe proporcionar el significado de lo que hacen, modificalo.
 def obtener_ultimo(diccionarios):
     """
     Función interna para obtener el último valor de la clave 'resultat' en la lista de diccionarios.
@@ -162,6 +171,7 @@ def obtener_ultimo(diccionarios):
 
 
 # pes
+# TODO: elige un idioma y mantenlo consistente en todo el código.
 def obtenir_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:
     """
     Función para calcular el promedio de los valores de la clave 'valor' en los diccionarios de una lista.
@@ -179,7 +189,6 @@ def obtenir_valor_promedio(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     return data
 
 
-@staticmethod
 def calcular_promedio(diccionarios):
     """
     Calcula el promedio de los valores numéricos de la clave 'valor' en una lista de diccionarios.
@@ -383,8 +392,8 @@ def obtener_valor_clave(diccionarios, clave):
     return valor  # Devolver el valor encontrado o None si la clave no se encontró
 
 
-# MECVVS para viscolidad i volumen
-# Esta funcion se podria usar tambien para extraer los resultados de mna y emina
+# MECVVS para viscolidad y volumen
+# Esta funcion se podria usar también para extraer los resultados de mna y emina
 def extraer_valor_clave_simple(data: pd.DataFrame, nombre_columna: str, clave: str, nueva_columna: str) -> pd.DataFrame:
     """
     Función para extraer el valor de una clave específica en el último diccionario de una lista de diccionarios.
@@ -556,6 +565,7 @@ def obtenir_pes_mes_antic(data: pd.DataFrame, nueva_columna: str) -> pd.DataFram
 
     return data
 
+
 # Funcion que devuelve el peso más actual
 def obtenir_pes_mes_nou(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
     """
@@ -588,6 +598,7 @@ def obtenir_pes_mes_nou(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
             continue
 
     return data
+
 
 # Funcion que devuelve la fecha del peso más antiguo
 def obtenir_fecha_mes_antiga(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
@@ -648,14 +659,15 @@ def obtenir_primera_fecha_mecvv(data: pd.DataFrame, nueva_columna: str) -> pd.Da
         # Buscar la primera fecha que cumpla las condiciones
         for mec_data in mecvvs_data:
             if ('disfagia' in mec_data and mec_data['disfagia'] in ['SI', 'S']) or \
-               ('disfagiaConeguda' in mec_data and mec_data['disfagiaConeguda'] in ['SI', 'S']):
+                    ('disfagiaConeguda' in mec_data and mec_data['disfagiaConeguda'] in ['SI', 'S']):
                 if ('alteracioSeguretat' in mec_data and mec_data['alteracioSeguretat'] in ['SI', 'S']) or \
-                   ('alteracioEficacia' in mec_data and mec_data['alteracioEficacia'] in ['SI', 'S']):
+                        ('alteracioEficacia' in mec_data and mec_data['alteracioEficacia'] in ['SI', 'S']):
                     fecha_primera_condicion = datetime.strptime(mec_data['data'][:8], '%Y%m%d').strftime('%Y-%m-%d')
                     data.loc[index, nueva_columna] = fecha_primera_condicion
                     break  # Detener la búsqueda una vez que se encuentra la fecha
 
     return data
+
 
 # Funcion que devuelve el peso, teniendo en cuenta la fecha del primer mecvv positivo. Para que devuelva el peso, su
 # fecha debe coincidir con la fecha que hay en 'data primer mecvv', con un intervalo de una semana de margen
@@ -708,6 +720,7 @@ def obtenir_pes_per_rang_de_fecha(data: pd.DataFrame, nueva_columna: str) -> pd.
 # Función para obtener la resta de 2 columnas que contienen valores tipo object
 import pandas as pd
 
+
 def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_columna: str) -> pd.DataFrame:
     """
     Resta los valores de dos columnas en un DataFrame y almacena el resultado en una nueva columna.
@@ -741,10 +754,6 @@ def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_colu
             data.loc[index, nueva_columna] = None
 
     return data
-
-
-
-
 
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es lista de diccionarios []
