@@ -2,7 +2,7 @@
 
 import json
 import pandas as pd
-from auxiliary_functions import (valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
+from auxiliary_functions import (obtenir_fecha_por_codigo, restar_fechas,valores_codigos, contar_diccionarios, dias_ingreso_total, asignar_intervalo_edad,
                                  sumar_barthel, sumar_emina, obtenir_ultim_resultat, obtenir_valor_promedio,
                                  canadenca_comparada, disfagia_mecvvs, extraer_valor_clave,
                                  extraer_valor_clave_simple, extraer_name_value_to_column, cci, obtenir_pes_mes_antic,
@@ -202,6 +202,16 @@ if __name__ == "__main__":
 
     # Función que obtiene la perdida de peso total al restar 'pes més antic' i 'pes més nou'
     data = restar_columnas(data, 'pes més antic', 'pes més nou', 'perdua pes total')
+
+    # Función que devuelve la fecha más antigua de cada vez que han diagnosticado un código de pneumonia
+    # Ejemplo de uso
+    data = obtenir_fecha_por_codigo(data, lista=P_list, nueva_columna='fecha más antigua pneumonia')
+
+    # Funcion para saber los días que hay entre las 2 columnas mecvv i plist
+    data = restar_fechas(data, 'data primer mecvv', 'fecha más antigua pneumonia',
+                         'dias entre primer ICD pneumonia y primer MECVV positivo')
+
+
 
     # DF para usar en jupyter
     data.to_pickle('./data/processed/dataframe.pkl')
