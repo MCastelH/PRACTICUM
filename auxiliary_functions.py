@@ -66,6 +66,71 @@ def asignar_intervalo_edad(data: pd.DataFrame, nombre_columna: str) -> pd.DataFr
     return data
 
 
+# Funcion que devuelve la fecha cuando está presente algun codigo de la lista que necesite introducir. Si el codigo se
+# repite, devuelve la fecha más antigua
+def obtenir_fecha_por_codigo(data: pd.DataFrame, lista: list, nueva_columna: str) -> pd.DataFrame:
+    """
+    Encuentra la fecha más antigua ('dataIngres') asociada con un código de diagnóstico de la lista 'lista'
+    en la lista de diccionarios 'ingressos' de cada fila del DataFrame 'data' y crea una nueva columna con los resultados.
+
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - lista: Lista de códigos de diagnóstico a buscar.
+        - nueva_columna: Nombre de la nueva columna donde se almacenarán las fechas más antiguas por código.
+
+    Devuelve:
+        - DataFrame modificado con la nueva columna que contiene las fechas más antiguas por código.
+    """
+    # Aplicar la función 'encontrar_fecha_mas_antigua' a cada fila del DataFrame 'data'
+    data[nueva_columna] = data['ingressos'].apply(lambda x: encontrar_fecha_mas_antigua(x, lista))
+
+    return data
+
+def encontrar_fecha_mas_antigua(ingressos, lista):
+    codigo_fecha_mas_antigua = {}
+
+    for ingreso in ingressos:
+        codigos_diagnosticos = ingreso.get('codiDiagnostics', [])
+        fecha_ingreso = ingreso.get('dataIngres', '')
+
+        for codigo in codigos_diagnosticos:
+            if codigo in lista:
+                if codigo not in codigo_fecha_mas_antigua or fecha_ingreso < codigo_fecha_mas_antigua[codigo]:
+                    codigo_fecha_mas_antigua[codigo] = fecha_ingreso
+
+    # Obtener solo las fechas más antiguas por código
+    fechas_mas_antiguas = {codigo: fecha for codigo, fecha in codigo_fecha_mas_antigua.items()}
+
+    # Encontrar la fecha más antigua de todas las fechas encontradas
+    fecha_mas_antigua = min(fechas_mas_antiguas.values()) if fechas_mas_antiguas else None
+
+    return fecha_mas_antigua
+
+
+# Función que resta dos columnas que contienen fechas
+def restar_fechas(data: pd.DataFrame, columna1: str, columna2: str, nueva_columna: str) -> pd.DataFrame:
+    """
+    Resta dos columnas que contienen fechas en formato %Y-%m-%d y guarda el resultado en una nueva columna.
+
+    Parámetros:
+        - data: DataFrame que contiene los datos.
+        - columna1: Nombre de la primera columna con fechas.
+        - columna2: Nombre de la segunda columna con fechas.
+        - nueva_columna: Nombre de la nueva columna donde se almacenarán los resultados de la resta.
+
+    Devuelve:
+        - DataFrame modificado con la nueva columna que contiene la diferencia entre las fechas.
+    """
+    # Convertir las columnas de fechas al tipo datetime
+    data[columna1] = pd.to_datetime(data[columna1])
+    data[columna2] = pd.to_datetime(data[columna2])
+
+    # Restar las fechas y calcular la diferencia en valores absolutos
+    data[nueva_columna] = (data[columna1] - data[columna2]).dt.days.abs()
+
+    return data
+
+
 # Valores barthel
 def sumar_barthel(data: pd.DataFrame, nombre_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
     # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nombre_columna) y devuelve un DataFrame
@@ -637,7 +702,8 @@ def obtenir_fecha_mes_antiga(data: pd.DataFrame, nova_columna: str) -> pd.DataFr
 # Funcion que devuelve la primera fecha en la que se cumple que hay un test mecvv positivo
 def obtenir_primera_fecha_mecvv(data: pd.DataFrame, nueva_columna: str) -> pd.DataFrame:
     """
-    Encuentra la fecha en la lista de diccionarios 'mecvvs' cuando se cumplen ciertas condiciones y la guarda en una nueva columna.
+    Encuentra la fecha en la lista de diccionarios 'mecvvs' cuando se cumplen ciertas condiciones y la guarda en una
+    nueva columna.
 
     Parámetros:
         - data: DataFrame que contiene los datos.
@@ -718,9 +784,6 @@ def obtenir_pes_per_rang_de_fecha(data: pd.DataFrame, nueva_columna: str) -> pd.
 
 
 # Función para obtener la resta de 2 columnas que contienen valores tipo object
-import pandas as pd
-
-
 def restar_columnas(data: pd.DataFrame, columna1: str, columna2: str, nueva_columna: str) -> pd.DataFrame:
     """
     Resta los valores de dos columnas en un DataFrame y almacena el resultado en una nueva columna.
