@@ -2,11 +2,11 @@ import json
 import pandas as pd
 from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
                                  dies_ingressat_total, interval_10_edat,
-                                 sumar_barthel, sumar_emina, obtenir_ultim_resultat, obtenir_pes_o_mitjana,
+                                 sumar_barthel, sumar_emina, obtenir_ultima_clau, obtenir_pes_o_mitjana,
                                  canadenca_comparada, disfagia_mecvvs, extreure_valors_claus,
-                                 extreure_valors_claus_simple, obtenir_valors_clau_interes, index_charlson, obtenir_pes_mes_antic,
-                                 obtenir_pes_mes_nou, obtenir_data_mes_antiga, obtenir_primera_data_mecvv,
-                                 obtenir_pes_coincident_mecvv, restar_columnes)
+                                 extreure_valors_claus_simple, obtenir_valors_clau_interes, index_charlson,
+                                 obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_mes_antiga,
+                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list,
                     COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
@@ -93,14 +93,14 @@ if __name__ == "__main__":
     # retorna NaN
     data = sumar_emina(data, 'emina', 'EMINA sumatoris comparats')
 
-    # Funció que extreu l'última clau del test emina anomenada 'resultats' # TODO: estos 2 se pueden cambiar por obterir valors clau?
-    data = obtenir_ultim_resultat(data, 'emina', 'EMINA resultats')
+    # Funció que extreu el resultat l'última clau del test emina anomenada 'resultats' # TODO: estos 2 se pueden cambiar por obtenir valors clau?
+    data = obtenir_ultima_clau(data, 'emina', 'EMINA resultats')
 
-    # Funció que extrae la última clave del test mna llamada 'resultats' ##        ''
-    data = obtenir_ultim_resultat(data, 'mna', 'MNA resultats')
+    # Funció que extreu el resultat de l'última clau del test mna anomenada 'resultats' ##        ''
+    data = obtenir_ultima_clau(data, 'mna', 'MNA resultats')
 
     # Funció que proporciona la mitjana de tots els pesos (en el cas que hi hagi més d'un valor de pes) o l'únic valor
-    # de pes que el pacient contingui
+    # de pes que es disposi del pacient
     data = obtenir_pes_o_mitjana(data, 'pes')
 
     # Funció que compara la suma de certes entrades de l'escala canadenca amb la clau 'total', i si són iguals, retorna
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     data = extreure_valors_claus(data, 'mecvvs', 'alteracioSeguretat',
                                'Alteració seguretat MECVV')
 
-    # Funció que itera fins trobar l'últim diccionari amb la clau d'interés i retorna el seu valor tal com és
+    # Funció que itera fins trobar l'últim diccionari amb la clau d'interès i retorna el seu valor tal com és
     data = extreure_valors_claus_simple(data, 'mecvvs', 'viscositat',
                                       'Viscositat MECVV')
 

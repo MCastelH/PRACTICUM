@@ -1,127 +1,131 @@
 import pandas as pd
 from datetime import datetime, timedelta
 
+
 # TODO: comprueba que los nombres de las funciones sean descriptivos y concisos.
 # TODO: Agrega una descripción de la funcionalidad de las funciones.
 # TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código.
-# PA, P i DO
+
+# Funció per obtenir les columnes de les malalties segons els seus ICD
 def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
-    for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
-        for ingreso in fila['ingressos']:  # Iterar sobre cada ingreso en 'ingressos'
-            for valor in ingreso['codiDiagnostics']:  # Iterar sobre cada valor en 'codiDiagnostics'
-                if valor in llista:  # Verificar si el valor está en la lista de valores a buscar
-                    data.at[indice, nova_columna] = 1  # Asignar 1 si el valor está presente
-                    break  # Romper el bucle si se encuentra el valor para esta fila
+    for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
+        for ingres in fila['ingressos']:  # Iterar sobre cada ingrés en 'ingressos'
+            for valor in ingres['codiDiagnostics']:  # Iterar sobre cada valor en 'codiDiagnostics'
+                if valor in llista:  # Verificar si el valor està a la llista de codis a buscar
+                    data.at[index, nova_columna] = 1  # Assignar 1 si el valor està present
+                    break  # Aturar el bucle si es troba el valor per aquesta fila
                 else:
-                    data.at[indice, nova_columna] = 0  # Asignar 0 si el valor no está presente
-            if data.at[indice, nova_columna] == 1:  # Verificar si el valor está en la lista de valores a buscar
-                break  # Romper el bucle si se encuentra el valor para esta fila
+                    data.at[index, nova_columna] = 0  # Assignar 0 si el valor no està present
+            if data.at[index, nova_columna] == 1:  # Verificar si el valor està en la llista de codis a buscar
+                break  # Aturar el bucle si es troba el valor per aquesta fila
     return data
 
 
-# Cantidad de ingresos
+# Funció per calcular el nombre d'ingressos que ha tingut cada pacient
 def nombre_ingressos(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
-    for indice, fila in data.iterrows():
-        num_diccionarios = len(fila[nom_columna]) if isinstance(fila[nom_columna], list) else 0
-        data.at[indice, 'Num_ingresos'] = num_diccionarios
+    for index, fila in data.iterrows():
+        num_diccionaris = len(fila[nom_columna]) if isinstance(fila[nom_columna], list) else 0
+        data.at[index, 'Num_ingresos'] = num_diccionaris
     return data
 
 
-# Sumatorio dias ingresados
+# Funció que fa un sumatori de tots els dies en total que el pacient ha estat ingressat
 def dies_ingressat_total(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
-    for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
-        suma_dias = 0  # Inicializar la suma de días de ingreso para esta fila
-        for ingreso in fila[nom_columna]:  # Iterar sobre cada ingreso en la columna de interés
-            fecha_ingreso = datetime.strptime(ingreso['dataIngres'], '%Y-%m-%d')
-            fecha_alta = datetime.strptime(ingreso['dataAlta'], '%Y-%m-%d')
-            diferencia = fecha_alta - fecha_ingreso
-            suma_dias += diferencia.days  # Sumar los días de ingreso de este ingreso a la suma total
-        data.at[indice, 'Dias_totales_ingresado'] = suma_dias  # Asignar la suma de días de ingreso a la nueva columna
+    for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
+        suma_dies = 0  # Inicialitzar la suma de dies d'ingrés per aquesta fila
+        for ingres in fila[nom_columna]:  # Iterar sobre cada ingrés en la columna d'interès
+            data_ingres = datetime.strptime(ingres['dataIngres'], '%Y-%m-%d')
+            data_alta = datetime.strptime(ingres['dataAlta'], '%Y-%m-%d')
+            diferencia = data_alta - data_ingres
+            suma_dies += diferencia.days  # Sumar els dies d'ingrés d'aquest ingrés a la suma total de dies en total
+            # que el pacient ha estat ingressat
+        data.at[index, 'Dias_totales_ingresado'] = suma_dies  # Assignar la suma de dies d'ingrés a la nova columna
     return data
 
 
-# Rango de edad
+# Funció per classificar en un intèrval de 10 anys l'edat dels pacients
 def interval_10_edat(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
-    for indice, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
-        edad = fila[nom_columna]  # Obtener la edad del paciente de la columna de interés
-        if edad < 21:
-            intervalo = 'Menor de 21'
-        elif edad < 31:
-            intervalo = '21-30'
-        elif edad < 41:
-            intervalo = '31-40'
-        elif edad < 51:
-            intervalo = '41-50'
-        elif edad < 61:
-            intervalo = '51-60'
-        elif edad < 71:
-            intervalo = '61-70'
-        elif edad < 81:
-            intervalo = '71-80'
-        elif edad < 91:
-            intervalo = '81-90'
+    for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
+        edat = fila[nom_columna]  # Obtenir l'edat del pacient de la columna d'interès
+        if edat < 21:
+            interval = 'Menor de 21'
+        elif edat < 31:
+            interval = '21-30'
+        elif edat < 41:
+            interval = '31-40'
+        elif edat < 51:
+            interval = '41-50'
+        elif edat < 61:
+            interval = '51-60'
+        elif edat < 71:
+            interval = '61-70'
+        elif edat < 81:
+            interval = '71-80'
+        elif edat < 91:
+            interval = '81-90'
         else:
-            intervalo = '91 o más'
-        data.at[indice, 'Interval_edat'] = intervalo  # Asignar el intervalo de edad a la nueva columna
+            interval = '91 o más'
+        data.at[index, 'Interval_edat'] = interval  # Assignar l'intèrval d'edat a la nova columna
     return data
 
 
-# Funcion que devuelve la fecha cuando está presente algun codigo de la lista que necesite introducir. Si el codigo se
-# repite, devuelve la fecha más antigua
+# Funció que retorna la data quan està present algun codi de la llista introduïda. Si el codi es repeteix, retorna
+# la data més antiga
 def obtenir_data_presencia_codi(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
     """
-    Encuentra la fecha más antigua ('dataIngres') asociada con un código de diagnóstico de la lista 'lista'
-    en la lista de diccionarios 'ingressos' de cada fila del DataFrame 'data' y crea una nueva columna con los resultados.
+    Troba la data més antiga ('dataIngres') associada a un codi de diagnòstic de la llista 'lista' a la llista de
+    diccionaris 'ingressos' de cada fila del DataFrame 'data' i crea una nova columna amb els resultats.
 
-    Parámetros:
-        - data: DataFrame que contiene los datos.
-        - lista: Lista de códigos de diagnóstico a buscar.
-        - nova_columna: Nombre de la nueva columna donde se almacenarán las fechas más antiguas por código.
+    Paràmetres:
+     -data: DataFrame que conté les dades.
+    -llista: Llista de codis de diagnòstic a cercar.
+    -nova_columna: Nom de la nova columna on s'emmagatzemaran les dates més antigues per codi.
 
-    Devuelve:
-        - DataFrame modificado con la nueva columna que contiene las fechas más antiguas por código.
+    Retorna:
+    DataFrame modificat amb la nova columna que conté les dates més antigues per codi.
     """
-    # Aplicar la función 'encontrar_fecha_mas_antigua' a cada fila del DataFrame 'data'
-    data[nova_columna] = data['ingressos'].apply(lambda x: encontrar_fecha_mas_antigua(x, llista))
+    # Aplicar la funció 'trobar_data_mes_antiga' a cada fila del DataFrame 'data'
+    data[nova_columna] = data['ingressos'].apply(lambda x: trobar_data_mes_antiga(x, llista))
 
     return data
 
-def encontrar_fecha_mas_antigua(ingressos, llista):
-    codigo_fecha_mas_antigua = {}
 
-    for ingreso in ingressos:
-        codigos_diagnosticos = ingreso.get('codiDiagnostics', [])
-        fecha_ingreso = ingreso.get('dataIngres', '')
+def trobar_data_mes_antiga(ingressos, llista):
+    codi_data_mes_antiga = {}
 
-        for codigo in codigos_diagnosticos:
-            if codigo in llista:
-                if codigo not in codigo_fecha_mas_antigua or fecha_ingreso < codigo_fecha_mas_antigua[codigo]:
-                    codigo_fecha_mas_antigua[codigo] = fecha_ingreso
+    for ingres in ingressos:
+        codis_diagnostics = ingres.get('codiDiagnostics', [])
+        data_ingres = ingres.get('dataIngres', '')
 
-    # Obtener solo las fechas más antiguas por código
-    fechas_mas_antiguas = {codigo: fecha for codigo, fecha in codigo_fecha_mas_antigua.items()}
+        for codi in codis_diagnostics:
+            if codi in llista:
+                if codi not in codi_data_mes_antiga or data_ingres < codi_data_mes_antiga[codi]:
+                    codi_data_mes_antiga[codi] = data_ingres
+
+    # Obtenir només les dates més antigues per codi
+    dates_mes_antigues = {codi: data for codi, data in codi_data_mes_antiga.items()}
 
     # Encontrar la fecha más antigua de todas las fechas encontradas
-    fecha_mas_antigua = min(fechas_mas_antiguas.values()) if fechas_mas_antiguas else None
+    data_mes_antiga = min(dates_mes_antigues.values()) if dates_mes_antigues else None
 
-    return fecha_mas_antigua
+    return data_mes_antiga
 
 
-# Función que resta dos columnas que contienen fechas
+# Funció que resta dues columnes que contenen dates
 def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna: str) -> pd.DataFrame:
     """
-    Resta dos columnas que contienen fechas en formato %Y-%m-%d y guarda el resultado en una nueva columna.
+    Resta dues columnes que contenen dates en format %Y-%m-%d i guarda el resultat en una nova columna.
 
-    Parámetros:
-        - data: DataFrame que contiene los datos.
-        - columna1: Nombre de la primera columna con fechas.
-        - columna2: Nombre de la segunda columna con fechas.
-        - nova_columna: Nombre de la nueva columna donde se almacenarán los resultados de la resta.
+    Paràmetres:
+    -data: DataFrame que conté les dades.
+    -columna1: Nom de la primera columna amb dates.
+    -columna2: Nom de la segona columna amb dates.
+    -nova_columna: Nom de la nova columna on s'emmagatzemaran els resultats de la resta.
 
-    Devuelve:
-        - DataFrame modificado con la nueva columna que contiene la diferencia entre las fechas.
+    Retorna:
+    DataFrame modificat amb la nova columna que conté la diferència entre les dates.
     """
-    # Convertir las columnas de fechas al tipo datetime
+    # Convertir les columnes de dates al tipus datetime
     data[columna1] = pd.to_datetime(data[columna1])
     data[columna2] = pd.to_datetime(data[columna2])
 
@@ -131,108 +135,111 @@ def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna:
     return data
 
 
-# Valores barthel
-def sumar_barthel(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:  # Esto define la función sumar_barthel que
-    # toma un DataFrame de Pandas (data), el nombre de la columna de interés (nom_columna) y devuelve un DataFrame
-    # modificado.
+# Funció per realitzar la suma de resultats de la columna 'barthel' sense agafar el valor de la clau 'data', comparar-ho
+# amb la clau 'resultat' i si el sumatori es el mateix que el valor que hi ha en 'resultat', retorna el sumatori
+# realitzat
+def sumar_barthel(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:  # Aquesta funció defineix la funció
+    # sumar_barthel que pren un DataFrame de Pandas (data), el nom de la columna d'interès (nom_columna) i retorna un
+    # DataFrame modificat.
 
-    # Aplicar la función a la columna 'barthel' para obtener la suma de los valores, excluyendo la clave 'data'
-    data['Barthel_resultados'] = data[nom_columna].apply(
-        suma_sin_fecha)  # Aplica la función suma_sin_fecha a cada elemento
-    # de la columna 'barthel' en el DataFrame, almacenando el resultado en una nueva columna llamada 'Suma total
-    # Barthel'.
-    return data  # Devuelve el DataFrame modificado con la nueva columna de suma total de los valores de 'barthel',
-    # excluyendo la fecha
+    # Aplicar la funció a la columna 'barthel' per obtenir la suma dels valors, però excloent la clau 'data'
+    data['Barthel_resultats'] = data[nom_columna].apply(suma_sense_data)  # Aplica la funció suma_sense_data a cada
+    # element de la columna 'barthel' en el DataFrame, emmagatzemant el resultat en una nova columna anomenada
+    # 'Barthel_resultats'.
+    return data  # Retorna el DataFrame modificat amb la nova columna de suma total dels valors de 'barthel', però
+    # excloent els valors que hi hagi a la clau 'data'
 
 
-def suma_sin_fecha(
-        diccionario):  # Esto define una función interna llamada suma_sin_fecha que toma un diccionario como entrada.
-    suma_parcial = 0  # Inicializa una variable llamada suma_parcial que almacenará la suma de los valores,
-    # comenzando en 0.
-    for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario.
-        if clave != 'data':  # Verifica si la clave actual es diferente de 'fecha'
+def suma_sense_data(diccionari):  # Això defineix una funció interna anomenada suma_sense_data que pren un diccionari
+    #com a entrada
+    suma_parcial = 0  # Inicialitza una variable anomenada suma_parcial que emmagatzemarà la suma dels valors, començant
+    # en 0.
+    for clau, valor in diccionari.items():  # Itera sobre cada parell clau-valor en el diccionari.
+        if clau != 'data':  # Verifica si la clau actual és diferent de 'data'
             suma_parcial += int(
-                valor)  # Si la clave no es 'fecha', suma el valor correspondiente al total, convirtiéndolo primero a
-            # entero.
-    return suma_parcial  # Devuelve la suma parcial de los valores, excluyendo la fecha.
+                valor)  # Si la clau no és 'data', suma el valor corresponent al total, però convertint-lo primer a
+            # enter.
+    return suma_parcial  # Retorna la suma parcial dels valors, excloent la data.
 
 
-# EMINA sumatorios comparados
+# Funció semblant a l'anterior però pel test EMINA. En aquest cas no té en compte els valors de les claus
+# 'dataValoracio' ni 'resultat'
 def sumar_emina(data: pd.DataFrame, nom_columna: str,
-                nova_columna: str) -> pd.DataFrame:  # Esto define una función llamada sumar_barthel
-    # que toma un DataFrame data, el nombre de una columna nom_columna y devuelve un DataFrame modificado.
+                nova_columna: str) -> pd.DataFrame:  # Aquesta funció defineix la funció sumar_emina que pren un
+    # DataFrame de Pandas (data), el nom de la columna d'interès (nom_columna) i retorna un DataFrame modificat amb una
+    # nova columna (nova_columna).
 
-    # Aplicar la función a la columna 'emina' para obtener la suma de los valores, excluyendo las últimas claves
+    # Aplicar la funció a la columna 'emina' per obtenir la suma dels valors, excloent les últimes claus
     data[nova_columna] = data[nom_columna].apply(
-        suma_sin_ultimas_claves)  # Aplica la función suma_sin_ultimas_claves
-    # a la columna especificada del DataFrame data y asigna los resultados a una nueva columna llamada 'Suma total
-    # Barthel'.
+        suma_sense_ultimes_claus)  # Aplica la funció suma_sense_ultimes_claus
+    # a la columna especificada del DataFrame data i assigna els resultados a una nova columna anomenada 'EMINA
+    # sumatoris comparats'.
 
-    return data  # Devuelve el DataFrame modificado con la nueva columna agregada
+    return data  # Retorna el DataFrame modificat amb la nova columna afegida
 
 
-def suma_sin_ultimas_claves(diccionarios):
-    if not diccionarios:  # Verifica si la lista de diccionarios está vacía
-        return None  # Devuelve None si la lista de diccionarios está vacía. None detiene la ejecución de la función
-        # y no continuará con el bucle ni con el resto del código
+def suma_sense_ultimes_claus(diccionaris):
+    if not diccionaris:  # Verifica si la llista de diccionaris està buida
+        return None  # Retorna None si la llista de diccionaris està buida. None atura l'execució de la funció i no
+        # continuarà amb el bucle ni amb la resta del codi
 
-    suma_parcial = 0  # Inicializa el sumatorio parcial
+    suma_parcial = 0  # Inicialitza el sumatori parcial
 
-    for diccionario in diccionarios:  # Itera sobre cada diccionario en la lista de diccionarios
-        if diccionario:  # Verifica si el diccionario está vacío
-            for clave, valor in diccionario.items():  # Itera sobre cada par clave-valor en el diccionario
-                if clave not in ['dataValoracio',
-                                 'resultat']:  # Verifica si la clave no es 'dataValoracio' ni 'resultat'
-                    if valor.replace('.', '', 1).isdigit():  # Verifica si el valor es un número
-                        suma_parcial += float(valor)  # Suma el valor al sumatorio parcial
+    for diccionari in diccionaris:  # Itera sobre cada diccionari en la llista de diccionaris
+        if diccionari:  # Verifica si el diccionari està buit
+            for clau, valor in diccionari.items():  # Itera sobre cada parell clau-valor en el diccionari
+                if clau not in ['dataValoracio',
+                                'resultat']:  # Verifica si la clau no és 'dataValoracio' ni 'resultat'
+                    if valor.replace('.', '', 1).isdigit():  # Verifica si el valor és un nombre
+                        suma_parcial += float(valor)  # Suma el valor al sumatori parcial
 
-            if 'resultat' in diccionario:  # Verifica si 'resultat' está en el diccionario
-                if suma_parcial == float(diccionario['resultat']):  # Verifica si el sumatorio coincide con 'resultat'
-                    return suma_parcial  # Devuelve el sumatorio parcial
+            if 'resultat' in diccionari:  # Verifica si 'resultat' està en el diccionari
+                if suma_parcial == float(diccionari['resultat']):  # Verifica si el sumatori coincideix amb 'resultat'
+                    return suma_parcial  # Retorna el sumatori parcial
             continue
 
-        return None  # Devuelve None si el diccionario está vacío
+        return None  # Retorna None si el diccionari està buit
 
-    return None  # Devuelve None si el sumatorio no coincide con 'resultat' o si 'resultat' no está presente en el
-    # último diccionario
+    return None  # Retorna None si el sumatori no coincideix amb 'resultat' o si 'resultat' no està present a l'últim
+    # diccionari
 
 
-# Emina funcion alternativa (coge solo la última clave 'resultats' teniendo en cuenta que none != 0,
-# además usada tmb en mna, al haber agregado nova_columna: str y convertir la funcion en estatica)
-def obtenir_ultim_resultat(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+# Funció alternativa per obtenir el resultat del test EMINA sense fer sumatori i comparar-ho (simplement tria la clau
+# 'resultats').
+def obtenir_ultima_clau(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
-    Función para obtener el último valor de la clave 'resultat' en una columna de tipo lista de diccionarios.
+    Funció per obtenir l'últim valor de la clau 'resultat' en una columna de tipus llista de diccionaris.
 
-    Parámetros:
-        - data: DataFrame de pandas que contiene los datos.
-        - nom_columna: Nombre de la columna que contiene la lista de diccionarios.
+    Paràmetres:
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: Nom de la columna que conté la llista de diccionaris.
 
     Devuelve:
-        - DataFrame modificado con una nueva columna que contiene el último valor de la clave 'resultat'.
+        - DataFrame modificat amb una nova columna que conté l'últim valor de la clau 'resultat'.
     """
 
-    # Aplicar la función obtener_ultimo a la columna especificada del DataFrame
-    data[nova_columna] = data[nom_columna].apply(obtener_ultimo)
+    # Aplicar la funció obtenir_ultima_clau a la columna especificada del DataFrame
+    data[nova_columna] = data[nom_columna].apply(obtenir_ultim_diccionari)
 
-    return data  # Devolver el DataFrame modificado
+    return data  # Retorna el DataFrame modificat
 
 
 # TODO: el nombre de las funciones debe proporcionar el significado de lo que hacen, modificalo.
-def obtener_ultimo(diccionarios):
+def obtenir_ultim_diccionari(diccionaris):
     """
-    Función interna para obtener el último valor de la clave 'resultat' en la lista de diccionarios.
+    Funció interna para obtenir l'últim valor de la clau 'resultat' en la llista de diccionaris.
 
-    Parámetros:
-        - diccionarios: Lista de diccionarios.
+    Paràmetres:
+        - diccionaris: Llista de diccionaris.
 
-    Devuelve:
-        - Último valor de la clave 'resultat' o None si no está presente.
+    Retorna:
+        - Últim valor de la clau 'resultat' o None si aquest no està present.
     """
-    if diccionarios:  # Verificar si la lista de diccionarios no está vacía
-        ultimo_diccionario = diccionarios[-1]  # Obtener el último diccionario de la lista
-        if 'resultat' in ultimo_diccionario:  # Verificar si la clave 'resultat' está presente en el último diccionario
-            return ultimo_diccionario['resultat']  # Devolver el valor de la clave 'resultat'
-    return None  # Devolver None si la lista de diccionarios está vacía o si 'resultat' no está presente en el último diccionario
+    if diccionaris:  # Verificar si la llista de diccionaris no està buida
+        ultim_diccionari = diccionaris[-1]  # Obtenir l'últim diccionari de la llista
+        if 'resultat' in ultim_diccionari:  # Verificar si la clau 'resultat' està present en l'últim diccionari
+            return ultim_diccionari['resultat']  # Retornar el valor de la clau 'resultat'
+    return None  # Retornar None si la llista de diccionaris està buida o si 'resultat' no està present en l'últim diccionari
 
 
 # pes
@@ -508,7 +515,7 @@ def obtener_valor(diccionarios, clave):
 
 # Valores del lab
 def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str,
-                                 nova_columna: str) -> pd.DataFrame:
+                                nova_columna: str) -> pd.DataFrame:
     """
     Función para extraer los valores de la clave 'value' de una lista de diccionarios en una columna, filtrando por un nombre de interés.
 
@@ -736,7 +743,7 @@ def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Data
 
 
 # Funcion que devuelve el peso, teniendo en cuenta la fecha del primer mecvv positivo. Para que devuelva el peso, su
-# fecha debe coincidir con la fecha que hay en 'data primer mecvv', con un intervalo de una semana de margen
+# fecha debe coincidir con la fecha que hay en 'data primer mecvv', con un interval de una semana de margen
 def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Encuentra el peso en la lista de diccionarios 'pes' que coincide con la fecha de 'data primer mecvv' dentro de un rango de ±7 días
