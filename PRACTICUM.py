@@ -5,8 +5,8 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  sumar_barthel, sumar_emina, obtenir_ultima_clau, obtenir_pes_o_mitjana,
                                  canadenca_comparada, disfagia_mecvvs, extreure_valors_claus,
                                  extreure_valors_claus_simple, obtenir_valors_clau_interes, index_charlson,
-                                 obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_mes_antiga,
-                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes)
+                                 obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
+                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list,
                     COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     data = codis_ICD(data, conf_list, 'Confusió')
     data = codis_ICD(data, osteopor_list, 'Osteoporosi')
     data = codis_ICD(data, sarcopenia_list, 'Sarcopènia')
-    data = codis_ICD(data, sleepdisturb_list, 'Problson')
+    data = codis_ICD(data, sleepdisturb_list, 'Probl.son')
     data = codis_ICD(data, chrpain_list, 'Dolor crònic')
     data = codis_ICD(data, iatrog_list, 'Iatrogènic')
     data = codis_ICD(data, constipation_list, 'Restrenyiment')
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     data = obtenir_pes_mes_nou(data, 'Pes més nou')
 
     # Funció que retorna la data que correspon al pes més antic
-    data = obtenir_data_mes_antiga(data,'Data pes més antic')
+    data = obtenir_data_pes_mes_antic(data,'Data pes més antic')
 
     # Funció que retorna la data en la qual el MECVV va donar positiu (disfàgia + alteració seguretat o eficàcia)
     # per primer cop
@@ -176,11 +176,11 @@ if __name__ == "__main__":
 
     # Funció que obté la pèrdua de pes en restar la columna amb el pes més antic ('pes més antic') menys el pes en el
     # qual aproximadament el MECVV va donar positiu ('pes coindicent primer mecvv')
-    data = restar_columnes(data, 'Pes més antic', 'Pes coincident primer MECVV',
+    data = restar_columnes_object(data, 'Pes més antic', 'Pes coincident primer MECVV',
                            'Pèrdua pes entre ingressos')
 
     # Funció que obté la pèrdua de pes total en restar les columnes 'pes més antic' menys 'pes més nou'
-    data = restar_columnes(data, 'Pes més antic', 'Pes més nou', 'Pèrdua pes total')
+    data = restar_columnes_object(data, 'Pes més antic', 'Pes més nou', 'Pèrdua pes total')
 
     # Funció que retorna la data més antiga de totes les vegades que han diagnosticat un codi de pneumònia
     data = obtenir_data_presencia_codi(data, P_list,  'Data més antiga pneumònia')
