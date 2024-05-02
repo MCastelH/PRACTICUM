@@ -113,7 +113,7 @@ if __name__ == "__main__":
     data = disfagia_mecvvs(data, 'mecvvs')
 
     # Funció que itera fins trobar l'últim diccionari amb la clau d'interès i que retorna els seus valors, essent
-    # aquests 1 si és SÍ, i 0 si és NO. se puede con obtenir valors clau???
+    # aquests 1 si és SÍ, i 0 si és NO. #TODO: se puede con funcion obtenir valors clau???
     data = extreure_valors_claus(data, 'mecvvs', 'alteracioEficacia',
                                'Alteració eficàcia MECVV')
     data = extreure_valors_claus(data, 'mecvvs', 'alteracioSeguretat',

@@ -370,7 +370,7 @@ def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
         - DataFrame modificat amb una nova columna que conté el resultat desitjat.
     """
     # Aplicar la funció obtenir_ultima_disfagia a la columna especificada del DataFrame
-    data['Disfagia mecvvs'] = data[nom_columna].apply(
+    data['Disfàgia MECVV'] = data[nom_columna].apply(
         lambda x: obtenir_ultima_disfagia(x) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Retornar el DataFrame modificat
