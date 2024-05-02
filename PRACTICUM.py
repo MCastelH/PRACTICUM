@@ -113,7 +113,7 @@ if __name__ == "__main__":
     data = disfagia_mecvvs(data, 'mecvvs')
 
     # Funció que itera fins trobar l'últim diccionari amb la clau d'interès i que retorna els seus valors, essent
-    # aquests 1 si és SÍ, i 0 si és NO. #TODO: se puede con funcion obtenir valors clau???
+    # aquests 1 si és SÍ, i 0 si és NO. #TODO: se puede con funcion obtenir_valors_clau_interes???
     data = extreure_valors_claus(data, 'mecvvs', 'alteracioEficacia',
                                'Alteració eficàcia MECVV')
     data = extreure_valors_claus(data, 'mecvvs', 'alteracioSeguretat',
@@ -127,34 +127,34 @@ if __name__ == "__main__":
                                       'Volum MECVV')
 
     # Funció que permet obtenir de la llista de diccionaris 'labs' el valor de les diferents proves realitzades 
-    # mitjançant l'ús del paràmetre 'nom_interes', que permet extreure aquest valor d'interès de la clau requerida.
-    data = extreure_valors_claus(data, 'labs', 'ALBÚMINA Sèrum', 'Albúmina')
+    # mitjançant l'ús del paràmetre 'clau_interes', que permet extreure aquest valor d'interès de la clau introduïda
+    data = obtenir_valors_clau_interes(data, 'labs', 'ALBÚMINA Sèrum', 'Albúmina')
 
-    data = extreure_valors_claus(data, 'labs', 'PROTEÏNES TOTALS Sèrum',
+    data = obtenir_valors_clau_interes(data, 'labs', 'PROTEÏNES TOTALS Sèrum',
                                         'Proteïnes totals')
 
-    data = extreure_valors_claus(data, 'labs', 'HEMOGLOBINA',
+    data = obtenir_valors_clau_interes(data, 'labs', 'HEMOGLOBINA',
                                        'Hb')
 
-    data = extreure_valors_claus(data, 'labs', 'COLESTEROL Sèrum',
+    data = obtenir_valors_clau_interes(data, 'labs', 'COLESTEROL Sèrum',
                                         'Colesterol total')
 
-    data = extreure_valors_claus(data, 'labs', 'LEUCÒCITS',
+    data = obtenir_valors_clau_interes(data, 'labs', 'LEUCÒCITS',
                                         'Leucos')
 
-    data = extreure_valors_claus(data, 'labs', 'LIMFÒCITS %',
+    data = obtenir_valors_clau_interes(data, 'labs', 'LIMFÒCITS %',
                                        'Limfos')
 
-    data = extreure_valors_claus(data, 'labs', 'PROTEÏNA C REACTIVA Sèrum',
+    data = obtenir_valors_clau_interes(data, 'labs', 'PROTEÏNA C REACTIVA Sèrum',
                                         'Prot C react')
 
-    data = extreure_valors_claus(data, 'labs', 'UREA Sèrum',
+    data = obtenir_valors_clau_interes(data, 'labs', 'UREA Sèrum',
                                         'Urea')
 
-    data = extreure_valors_claus(data, 'labs', 'F. G. ESTIMAT (MDRD) Sèrum',
+    data = obtenir_valors_clau_interes(data, 'labs', 'F. G. ESTIMAT (MDRD) Sèrum',
                                         'FGE MDRD')
 
-    data = extreure_valors_claus(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
+    data = obtenir_valors_clau_interes(data, 'labs', 'F. G. ESTIMAT (CKD-EPI) Sèrum',
                                         'FGE CDK-EPI')
 
     # Funció que retorna el pes més antic registrat de la columna 'pes'

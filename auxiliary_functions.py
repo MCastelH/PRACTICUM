@@ -452,10 +452,10 @@ def obtenir_valor_clau(diccionaris, clau):
     valor = None  # Valor per defecte
 
     # Iterar cap endarrere en la llista de diccionaris
-    for dic in reversed(diccionaris):
-        if isinstance(dic, dict):
-            if clau in dic:
-                valor = dic[clau]
+    for diccionari in reversed(diccionaris):
+        if isinstance(diccionari, dict):
+            if clau in diccionari:
+                valor = diccionari[clau]
                 break  # Sortir del bucle si la clau es troba en el diccionari
 
     # Transformar valors 'SI' o 'S' en 1 i 'NO' o 'N' en 0
