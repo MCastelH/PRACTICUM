@@ -19,8 +19,8 @@ from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_
 
 
 if __name__ == "__main__":
-    with open('./data/origin/bbdd_pneumonia_aspirativa.json') as archivo:
-        dades = json.load(archivo)
+    with open('./data/origin/bbdd_pneumonia_aspirativa.json') as arxiu:
+        dades = json.load(arxiu)
 
     data = pd.DataFrame(dades)
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     data = extreure_valors_claus(data, 'mecvvs', 'alteracioSeguretat',
                                'Alteració seguretat MECVV')
 
-    # Funció que itera fins trobar l'últim diccionari amb la clau d'interès i retorna el seu valor tal com és
+    # Funció que itera fins a trobar l'últim diccionari amb la clau d'interès i retorna el seu valor tal com és
     data = extreure_valors_claus_simple(data, 'mecvvs', 'viscositat',
                                       'Viscositat MECVV')
 
