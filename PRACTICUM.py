@@ -6,7 +6,8 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  canadenca_comparada, disfagia_mecvvs, extreure_valors_claus,
                                  extreure_valors_claus_simple, obtenir_valors_clau_interes, index_charlson,
                                  obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
-                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object)
+                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
+                                 binaritzar_valors_creatinina)
 from listas import (PA_list, P_list, disfagia_list, Main_respiratory_infections_list, LRTI_list,
                     COPD_exacerbations_list,
                     Pulmonary_fibrosis_fibrotorax_list, priorfalls_list, delirium_list, dementia_list, depresyndr_list,
@@ -67,6 +68,9 @@ if __name__ == "__main__":
     # Funció que et retorna tots els valors de la clau que introdueixis, en aquest cas, de la clau 'CREATININA Sèrum'
     data = obtenir_valors_clau_interes(data, 'labs', 'CREATININA Sèrum',
                                         'Creatinina')
+
+    # Funció per binaritzar els valors de la columna 'Creatinina'
+    data = binaritzar_valors_creatinina(data, 'Creatinina', 'Creatinina >1.5 binària')
 
     # Funció per calcular els índexs de Charlson de cada pacient, a partir del diccionari 'charlson_dict'
     # que conté els codis amb els valors corresponents

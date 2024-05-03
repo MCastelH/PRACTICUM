@@ -834,6 +834,28 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
     return data
 
 
+# Funció per transformar en 0 i 1 els valors de la columna de 'Creatinina', sent 0 quan <1.5 y 1 quan >1.5
+def binaritzar_valors_creatinina(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+    """
+    Funció per binaritza els valors d'una columna en un DataFrame.
+
+    Paràmetres:
+        - data: DataFrame que conté les dades.
+        - columna_original: Nom de la columna original que s'utilitzarà.
+        - nova_columna: Nom de la nova columna on s'emmagatzemaran els valors binaritzats.
+
+    Retorna:
+        - DataFrame modificat amb la nova columna que conté valors binaris (0 o 1).
+    """
+    # Crear una nova columna inicialitzada amb 0
+    data[nova_columna] = 0
+
+    # Assignar 1 als valors superiors d'1,5 en la nova columna
+    data.loc[data[nom_columna] > 1.5, nova_columna] = 1
+
+    return data
+
+
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []
