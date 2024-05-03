@@ -136,7 +136,7 @@ def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna:
 
 
 # Funció per realitzar la suma de resultats de la columna 'barthel' sense agafar el valor de la clau 'data', comparar-ho
-# amb la clau 'resultat' i si el sumatori es el mateix que el valor que hi ha en 'resultat', retorna el sumatori
+# amb la clau 'resultat' i si el sumatori és el mateix que el valor que hi ha en 'resultat', retorna el sumatori
 # realitzat
 def sumar_barthel(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:  # Aquesta funció defineix la funció
     # sumar_barthel que pren un DataFrame de pandes (data), el nom de la columna d'interès (nom_columna) i retorna un
