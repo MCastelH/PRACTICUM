@@ -835,23 +835,12 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
 
 
 # Funció per transformar en 0 i 1 els valors de la columna de 'Creatinina', sent 0 quan <1.5 y 1 quan >1.5
-def binaritzar_valors_creatinina(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
-    """
-    Funció per binaritza els valors d'una columna en un DataFrame.
+def binaritzar_15_creatinina(data, nom_columna, nova_columna):
+    # Converteix els valors de la columna a tipus numèric i omple els valors no vàlids amb NaN
+    data[nom_columna] = pd.to_numeric(data[nom_columna], errors='coerce')
 
-    Paràmetres:
-        - data: DataFrame que conté les dades.
-        - columna_original: Nom de la columna original que s'utilitzarà.
-        - nova_columna: Nom de la nova columna on s'emmagatzemaran els valors binaritzats.
-
-    Retorna:
-        - DataFrame modificat amb la nova columna que conté valors binaris (0 o 1).
-    """
-    # Crear una nova columna inicialitzada amb 0
-    data[nova_columna] = 0
-
-    # Assignar 1 als valors superiors d'1,5 en la nova columna
-    data.loc[data[nom_columna] > 1.5, nova_columna] = 1
+    # Aplica una funció lambda a cada fila per a avaluar els valors
+    data[nova_columna] = data[nom_columna].apply(lambda x: 1 if (not pd.isna(x) and x > 1.5) else 0)
 
     return data
 
