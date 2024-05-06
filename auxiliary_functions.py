@@ -154,40 +154,33 @@ def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list,
     Retorna:
         - DataFrame modificat amb una nova columna que conté el resultat de la comparació.
     """
+    # Funció per sumar i comparar els valors dels diccionaris
+    def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
+        if not diccionaris or not isinstance(diccionaris, list):
+            return None
+
+        suma_parcial = 0
+
+        for diccionari in diccionaris:
+            if isinstance(diccionari, dict):
+                for clau, valor in diccionari.items():
+                    if clau not in claus_excloure and isinstance(valor, str) and ',' in valor:
+                        valor = valor.replace(',', '.')  # Reemplaçar la coma per un punt per a nombres decimals
+                    if clau not in claus_excloure and isinstance(valor, str) and valor.replace('.', '', 1).isdigit():
+                        suma_parcial += float(valor)
+
+                if clau_comparacio in diccionari:
+                    if suma_parcial == float(diccionari[clau_comparacio]):
+                        return suma_parcial
+
+        return None
+
     # Aplicar la funció a la columna especificada per fer el sumatori i comparar
     data[nova_columna] = data[nom_columna].apply(
         lambda x: suma_compara_diccionaris(x, claus_excloure, clau_comparacio) if isinstance(x, list) else None)
 
     return data
 
-def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
-    """
-    Funció per sumar els valors d'una llista de diccionaris i comparar el resultat amb una clau específica.
-
-    Paràmetres:
-        - diccionaris: Llista de diccionaris a processar.
-        - claus_excloure: Llista de claus a excloure del sumatori.
-        - clau_comparacio: Clau amb la qual vols comparar el sumatori.
-
-    Retorna:
-        - Resultat de la comparació si s'ha trobat el valor de comparació; altrament, None.
-    """
-    if not diccionaris or not isinstance(diccionaris, list):
-        return None
-
-    suma_parcial = 0
-
-    for diccionari in diccionaris:
-        if isinstance(diccionari, dict):
-            for clau, valor in diccionari.items():
-                if clau not in claus_excloure and valor.replace('.', '', 1).isdigit():
-                    suma_parcial += float(valor)
-
-            if clau_comparacio in diccionari:
-                if suma_parcial == float(diccionari[clau_comparacio]):
-                    return suma_parcial
-
-    return None
 
 
 # Funció per obtenir el pes dels pacients o en el cas de que hi hagi més d'un valor, obtenir la seva mitjana
@@ -353,12 +346,55 @@ def obtenir_valor(diccionaris, clau):
     return valor  # Retornar el valor trobat o None si la clau no s'ha trobat
 
 
-# Funció que retorna els valors de les claus introduïdes
+# Funció que retorna els valors de les claus introduïdes, tenint en compte que no utilitza les claus com a tal sino el
+# seu contingut (la clau es 'name' pero classifica pel que contigui aquesta clau, no per la clau en si)
+def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, nova_columna: str) -> pd.DataFrame:
+    """
+    Funció per obtenir el valor associat a la paraula clau a la columna de diccionaris i emmagatzemar-ho en una nova columna.
+
+    Paràmetres:
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: Nom de la columna que conté la llista de diccionaris.
+        - paraula_clau: Paraula clau a buscar dins de la columna 'name' dels diccionaris.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà els valors obtinguts.
+
+    Retorna:
+        - DataFrame amb la nova columna afegida que conté els valors obtinguts.
+    """
+    # Llista per emmagatzemar els valors trobats
+    valors_trobats = []
+
+    # Iterar sobre cada fila de la columna de diccionaris
+    for estructura in data[nom_columna]:
+        valor_trobat = None
+
+        # Verificar si l'estructura és una llista de diccionaris no buida
+        if isinstance(estructura, list) and len(estructura) > 0:
+            # Iterar sobre cada diccionari a la llista
+            for diccionari in estructura:
+                # Verificar si 'name' conté la paraula clau desitjada
+                if 'name' in diccionari and paraula_clau in diccionari['name']:
+                    # Obtenir el valor associat a la clau 'value'
+                    valor_trobat = diccionari.get('value', None)
+                    break  # Aturar la cerca un cop trobat el valor desitjat
+
+        # Afegir el valor trobat a la llista de valors
+        valors_trobats.append(valor_trobat)
+
+    # Afegir una nova columna al DataFrame amb els valors trobats
+    data[nova_columna] = valors_trobats
+
+    # Retornar el DataFrame modificat amb la nova columna
+    return data
+
+
+# Funció que retorna els valors que conté la clau que introdueixis, mitjançant l'ús de la clau_interés, el valor de la
+# qual conté el resultat. No és aplicable a la columna de labs, ja que aquesta té un format diferent i la clau no conté
+# el valor sinó que hi ha les claus 'name' i 'value' que contenen respectivament el nom de la prova i el resultat, per
+# tant, no es pot aplicar aquesta funció.
 import pandas as pd
 
-
-def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str, nova_columna: str,
-                                profunditat_maxima: int = 2) -> pd.DataFrame:
+def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per extreure els valors de la clau d'interès d'una llista de diccionaris en una columna.
 
@@ -367,53 +403,39 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
         - nom_columna: Nom de la columna que conté la llista de diccionaris.
         - clau_interes: Clau d'interès per filtrar l'extracció de valors.
         - nova_columna: Nom per la nova columna que contindrà els valors extrets.
-        - profunditat_maxima: Profunditat màxima a explorar per extreure el valor de la clau d'interès (per defecte: 2).
 
     Retorna:
         - DataFrame amb una nova columna que conté els valors de la clau d'interès.
     """
-
-    def extract_value(d, key, depth):
-        if depth > profunditat_maxima:
-            return None
-
-        if isinstance(d, dict):
-            if key in d:
-                return d[key]
-            else:
-                for k, v in d.items():
-                    result = extract_value(v, key, depth + 1)
-                    if result is not None:
-                        return result
-        elif isinstance(d, list):
-            for item in d:
-                result = extract_value(item, key, depth + 1)
-                if result is not None:
-                    return result
-        return None
-
+    # Funció per extreure els valors de la clau d'interès per a cada element de la columna
     valors_extrets = []
-
     for estructura in data[nom_columna]:
-        if isinstance(estructura, list) and estructura:
-            valor_extret = None
-            for elem in estructura:
-                # Extracció recursiva del valor de la clau d'interès
-                valor_extret = extract_value(elem, clau_interes, 1)
-                if valor_extret is not None:
-                    break  # Sortir del bucle un cop s'ha trobat el valor d'interès
+        if isinstance(estructura, (dict, list)) and estructura:
+            valor_extret = extract_value(estructura, clau_interes)
             valors_extrets.append(valor_extret)
-        elif isinstance(estructura, dict):  # Si és un diccionari
-            if clau_interes in estructura:
-                valors_extrets.append(estructura[clau_interes])
-            else:
-                valors_extrets.append(None)
         else:
             valors_extrets.append(None)
 
+    # Afegir els valors extrets com una nova columna al DataFrame original
     data[nova_columna] = valors_extrets
 
     return data
+
+def extract_value(d, key):
+    if isinstance(d, dict):
+        if key in d:
+            return d[key]
+        else:
+            for v in d.values():
+                result = extract_value(v, key)
+                if result is not None:
+                    return result
+    elif isinstance(d, list):
+        for item in d:
+            result = extract_value(item, key)
+            if result is not None:
+                return result
+    return None
 
 
 # Funció per calcular el valor de l'index de Charlson per a un pacient, tenint en compte que cada codi representa un
