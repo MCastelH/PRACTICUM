@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     # Funció que proporciona la mitjana de tots els pesos (en el cas que hi hagi més d'un valor de pes) o l'únic valor
     # de pes que es disposi del pacient
-    data = obtenir_pes_o_mitjana(data, 'pes')
+    data = obtenir_pes_o_mitjana(data, 'pes', 'Mitjana pes')
 
     # Funció que compara la suma de certs ítems de l'escala canadenca amb la clau 'total', i si són iguals, retorna
     # la suma. Per fer la suma, no considera les claus: 'total', 'dataValoracio' i 'horaValoracio'. Si la fila està
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     # Funció que itera fins a trobar l'última vegada que van aparèixer les claus 'disfàgia' o 'disfàgiaConeguda' a la
     # llista de diccionaris 'mecvvs' i que retorna 1 o 0 si el pacient té respectivament un sí o un no en aquestes claus
-    data = disfagia_mecvvs(data, 'mecvvs')
+    data = disfagia_mecvvs(data, 'mecvvs', 'Disfàgia MECVV')
 
     # Funció que itera fins trobar l'últim diccionari amb la clau d'interès que retorna els seus valors. En aquest cas, essent
     # aquests 1 si és SÍ, i 0 si és NO.

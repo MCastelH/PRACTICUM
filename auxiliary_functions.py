@@ -218,7 +218,7 @@ def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
 
 
 # Funció per obtenir el pes dels pacients o en el cas de que hi hagi més d'un valor, obtenir la seva mitjana
-def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
+def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per calcular la mitjana dels valors de la clau 'valor' als diccionaris d'una llista.
 
@@ -230,7 +230,7 @@ def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
         - DataFrame modificat amb una nova columna que conté la mitjana dels valors.
     """
     # Aplica el mètode estàtic calcular_mitjana a la columna especificada del DataFrame
-    data['Mitjana pes'] = data[nom_columna].apply(calcular_mitjana)
+    data[nova_columna] = data[nom_columna].apply(calcular_mitjana)
 
     return data
 
@@ -275,7 +275,7 @@ def calcular_mitjana(diccionaris):
 
 # Funció que retorna un 1 en cas de que en la clau 'disfagia'o 'disfagiaConeguda' (de la llista de diccionaris 'mecvvs'
 # hi hagi un 'SI' o 'S'
-def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
+def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per comparar el valor de 'disfagia' en l'últim diccionari amb 'SI' o 'S' en una llista de diccionaris.
 
@@ -287,7 +287,7 @@ def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
         - DataFrame modificat amb una nova columna que conté el resultat desitjat.
     """
     # Aplicar la funció obtenir_ultima_disfagia a la columna especificada del DataFrame
-    data['Disfàgia MECVV'] = data[nom_columna].apply(
+    data[nova_columna] = data[nom_columna].apply(
         lambda x: obtenir_ultima_disfagia(x) if isinstance(x, list) and len(x) > 0 else None)
 
     return data  # Retornar el DataFrame modificat
