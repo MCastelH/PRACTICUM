@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 # TODO: comprueba que los Noms de las funciones sean descriptivos y concisos.
 # TODO: Agrega una descripción de la funcionalidad de las funciones.
 # TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código.
+# TODO: elige un idioma y mantenlo consistente en todo el código.
 
 # Funció per obtenir les columnes de les malalties segons els seus ICD
 def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
@@ -40,32 +41,6 @@ def dies_ingressat_total(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
             suma_dies += diferencia.days  # Sumar els dies d'ingrés d'aquest ingrés a la suma total de dies en total
             # que el pacient ha estat ingressat
         data.at[index, 'Dies totals ingressat'] = suma_dies  # Assignar la suma de dies d'ingrés a la nova columna
-    return data
-
-
-# Funció per classificar en un intèrval de 10 anys l'edat dels pacients
-def interval_10_edat(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
-    for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
-        edat = fila[nom_columna]  # Obtenir l'edat del pacient de la columna d'interès
-        if edat < 21:
-            interval = 'Menor de 21'
-        elif edat < 31:
-            interval = '21-30'
-        elif edat < 41:
-            interval = '31-40'
-        elif edat < 51:
-            interval = '41-50'
-        elif edat < 61:
-            interval = '51-60'
-        elif edat < 71:
-            interval = '61-70'
-        elif edat < 81:
-            interval = '71-80'
-        elif edat < 91:
-            interval = '81-90'
-        else:
-            interval = '91 o más'
-        data.at[index, 'Interval edat'] = interval  # Assignar l'intèrval d'edat a la nova columna
     return data
 
 
@@ -149,7 +124,6 @@ def sumar_barthel(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:  # Aque
     return data  # Retorna el DataFrame modificat amb la nova columna de suma total dels valors de 'barthel', però
     # excloent els valors que hi hagi a la clau 'data'
 
-
 def suma_sense_data(diccionari):  # Això defineix una funció interna anomenada suma_sense_data que pren un diccionari
     #com a entrada
     suma_parcial = 0  # Inicialitza una variable anomenada suma_parcial que emmagatzemarà la suma dels valors, començant
@@ -162,89 +136,61 @@ def suma_sense_data(diccionari):  # Això defineix una funció interna anomenada
     return suma_parcial  # Retorna la suma parcial dels valors, excloent la data.
 
 
-# Funció semblant a l'anterior però pel test EMINA. En aquest cas no té en compte els valors de les claus
-# 'dataValoracio' ni 'resultat'
-def sumar_emina(data: pd.DataFrame, nom_columna: str,
-                nova_columna: str) -> pd.DataFrame:  # Aquesta funció defineix la funció sumar_emina que pren un
-    # DataFrame de pandes (data), el nom de la columna d'interès (nom_columna) i retorna un DataFrame modificat amb una
-    # nova columna (nova_columna).
-
-    # Aplicar la funció a la columna 'emina' per obtenir la suma dels valors, excloent les últimes claus
-    data[nova_columna] = data[nom_columna].apply(
-        suma_sense_ultimes_claus)  # Aplica la funció suma_sense_ultimes_claus
-    # a la columna especificada del DataFrame data i assigna els resultados a una nova columna anomenada 'EMINA
-    # sumatoris comparats'.
-
-    return data  # Retorna el DataFrame modificat amb la nova columna afegida
-
-
-def suma_sense_ultimes_claus(diccionaris):
-    if not diccionaris:  # Verifica si la llista de diccionaris està buida
-        return None  # Retorna None si la llista de diccionaris està buida. None atura l'execució de la funció i no
-        # continuarà amb el bucle ni amb la resta del codi
-
-    suma_parcial = 0  # Inicialitza el sumatori parcial
-
-    for diccionari in diccionaris:  # Itera sobre cada diccionari en la llista de diccionaris
-        if diccionari:  # Verifica si el diccionari està buit
-            for clau, valor in diccionari.items():  # Itera sobre cada parell clau-valor en el diccionari
-                if clau not in ['dataValoracio',
-                                'resultat']:  # Verifica si la clau no és 'dataValoracio' ni 'resultat'
-                    if valor.replace('.', '', 1).isdigit():  # Verifica si el valor és un Nom
-                        suma_parcial += float(valor)  # Suma el valor al sumatori parcial
-
-            if 'resultat' in diccionari:  # Verifica si 'resultat' està en el diccionari
-                if suma_parcial == float(diccionari['resultat']):  # Verifica si el sumatori coincideix amb 'resultat'
-                    return suma_parcial  # Retorna el sumatori parcial
-            continue
-
-        return None  # Retorna None si el diccionari està buit
-
-    return None  # Retorna None si el sumatori no coincideix amb 'resultat' o si 'resultat' no està present a l'últim
-    # diccionari
-
-
-# Funció alternativa per obtenir el resultat del test EMINA sense fer sumatori i comparar-ho (simplement tria la clau
-# 'resultats').
-def obtenir_ultima_clau(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+# Funció aplicable a EMINA i Canadenca (a Barthel no es pot aplicar, ja que no conté clau amb resultat/total). Realitza
+# un sumatori de les claus del test, obviant algunes quan sigui necessari, i aquest sumatori ho compara amb la clau que
+# conté el resultat/total del test. Si els valors coincideixen, retorna el sumatori.
+def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list, clau_comparacio: str,
+                     nova_columna: str) -> pd.DataFrame:
     """
-    Funció per obtenir l'últim valor de la clau 'resultat' en una columna de tipus llista de diccionaris.
+    Funció per sumar els valors d'una llista de diccionaris en una columna i comparar el resultat amb una clau específica.
 
     Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
+        - data: DataFrame de pandas que conté les dades.
         - nom_columna: Nom de la columna que conté la llista de diccionaris.
+        - claus_excloure: Llista de claus a excloure del sumatori.
+        - clau_comparacio: Clau amb la qual vols comparar el sumatori.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà el resultat de la comparació.
 
     Retorna:
-        - DataFrame modificat amb una nova columna que conté l'últim valor de la clau 'resultat'.
+        - DataFrame modificat amb una nova columna que conté el resultat de la comparació.
     """
+    # Aplicar la funció a la columna especificada per fer el sumatori i comparar
+    data[nova_columna] = data[nom_columna].apply(
+        lambda x: suma_compara_diccionaris(x, claus_excloure, clau_comparacio) if isinstance(x, list) else None)
 
-    # Aplicar la funció obtenir_ultima_clau a la columna especificada del DataFrame
-    data[nova_columna] = data[nom_columna].apply(obtenir_ultim_diccionari)
+    return data
 
-    return data  # Retorna el DataFrame modificat
-
-
-# TODO: el Nom de las funciones debe proporcionar el significado de lo que hacen, modificalo.
-def obtenir_ultim_diccionari(diccionaris):
+def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
     """
-    Funció interna para obtenir l'últim valor de la clau 'resultat' en la llista de diccionaris.
+    Funció per sumar els valors d'una llista de diccionaris i comparar el resultat amb una clau específica.
 
     Paràmetres:
-        - diccionaris: llista de diccionaris.
+        - diccionaris: Llista de diccionaris a processar.
+        - claus_excloure: Llista de claus a excloure del sumatori.
+        - clau_comparacio: Clau amb la qual vols comparar el sumatori.
 
     Retorna:
-        - Últim valor de la clau 'resultat' o None si aquest no està present.
+        - Resultat de la comparació si s'ha trobat el valor de comparació; altrament, None.
     """
-    if diccionaris:  # Verificar si la llista de diccionaris no està buida
-        ultim_diccionari = diccionaris[-1]  # Obtenir l'últim diccionari de la llista
-        if 'resultat' in ultim_diccionari:  # Verificar si la clau 'resultat' està present en l'últim diccionari
-            return ultim_diccionari['resultat']  # Retornar el valor de la clau 'resultat'
-    return None  # Retornar None si la llista de diccionaris està buida o si 'resultat' no està present en l'últim
-    # diccionari
+    if not diccionaris or not isinstance(diccionaris, list):
+        return None
+
+    suma_parcial = 0
+
+    for diccionari in diccionaris:
+        if isinstance(diccionari, dict):
+            for clau, valor in diccionari.items():
+                if clau not in claus_excloure and valor.replace('.', '', 1).isdigit():
+                    suma_parcial += float(valor)
+
+            if clau_comparacio in diccionari:
+                if suma_parcial == float(diccionari[clau_comparacio]):
+                    return suma_parcial
+
+    return None
 
 
 # Funció per obtenir el pes dels pacients o en el cas de que hi hagi més d'un valor, obtenir la seva mitjana
-# TODO: elige un idioma y mantenlo consistente en todo el código.
 def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
     """
     Funció per calcular la mitjana dels valors de la clau 'valor' als diccionaris d'una llista.
@@ -294,64 +240,8 @@ def calcular_mitjana(diccionaris):
 
     # Calcular la mitjana si s'han trobat valors numèrics
     if valors:
-        promedio = sum(valors) / len(valors)
-        return promedio
-    else:
-        return None
-
-
-# Funció que fa un sumatori dels valors de cada clau de la columna canadenca sense tenir en compte alguns d'ells, i la 
-# compara amb la clau 'total', si coincideixen els valors retorna el sumatori realitzat
-def canadenca_comparada(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
-    """
-    Funció per comparar el sumatori de claus determinades amb el valor de 'total' en una llista de diccionaris.
-
-    Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-
-    Retorna:
-        - DataFrame modificat amb una nova columna que conté el resultat desitjat.
-    """
-    # Aplicar la funció calcular_sumatori_i_comparar a la columna especificada del DataFrame
-    data['Canadenca sumatoris comparats'] = data[nom_columna].apply(
-        lambda x: calcular_sumatori_i_comparar(x[0]) if isinstance(x, list) and len(x) > 0 else None)
-
-    return data  # Retornar el DataFrame modificat
-
-
-def calcular_sumatori_i_comparar(diccionari):
-    """
-    Funció interna per calcular el sumatori i comparar-ho amb el valor de 'total' en un diccionari.
-
-    Paràmetres:
-        - diccionari: Diccionari que conté les dades.
-
-    Retorna:
-        - Sumatori calculat si coincideix amb 'total', None en cas contrari.
-    """
-    if not isinstance(diccionari, dict):  # Verificar si el diccionari no és vàlid
-        return None
-
-    sumatori = 0  # Inicialitzar el sumatori
-    claus_excloses = ['total', 'dataValoracio', 'horaValoracio']
-
-    # Calcular el sumatori de les claus numèriques vàlides en el diccionari
-    for clau, valor in diccionari.items():
-        if clau not in claus_excloses and valor.strip():  # Excloure claus no desitjades i valores buits
-            try:
-                # Convertir coma a punt per transformar a float
-                valor_float = float(valor.replace(',', '.'))
-                sumatori += valor_float
-            except ValueError:
-                pass  # Ignorar valors no numèrics
-
-    # Obtenir el valor de 'total' del diccionari
-    total = diccionari.get('total')
-
-    # Comparar el sumatori amb 'total' i retornar el resultat adequat
-    if total is not None and sumatori == float(total):
-        return sumatori
+        mitjana = sum(valors) / len(valors)
+        return mitjana
     else:
         return None
 
@@ -412,65 +302,8 @@ def obtenir_ultima_disfagia(diccionaris):
     return None  # Retornar None si no es troba la clau 'disfagia' en cap diccionari vàlid
 
 
-# Funció que busca en les claus indicades, els valors que aquestes contenen i transforma els valors trobats (si i no) 
-# en 1 i 0
-def extreure_valors_claus(data: pd.DataFrame, nom_columna: str, clau: str, nova_columna: str) -> pd.DataFrame:
-    """
-    Funció per extreure el valor d'una clau específica en l'últim diccionari d'una llista de diccionaris.
-
-    Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - clau: Clau el valor de la qual es desitja extreure de cada diccionari.
-        - nova_columna: Nom de la nova columna on s'emmagatzemen els valors extrets.
-
-    Retorna:
-        - DataFrame modificat amb una nova columna que conté els valors extrets.
-    """
-    # Aplicar la funció per extreure el valor de la clau a la columna especificada del DataFrame
-    data[nova_columna] = data[nom_columna].apply(
-        lambda x: obtenir_valor_clau(x, clau) if isinstance(x, list) and len(x) > 0 else None)
-
-    return data  # Retornar el DataFrame modificat
-
-
-def obtenir_valor_clau(diccionaris, clau):
-    """
-    Obté el valor d'una clau específica de l'últim diccionario vàlid que conté aquesta clau.
-
-    Paràmetres:
-        - diccionaris: llista de diccionaris.
-        - clau: Clau el valor de la qual es desitja extreure de cada diccionari.
-
-    Retorna:
-        - Valor de la clau especificada si es troba en l'últim diccionari vàlid.
-        - None si la clau no es troba en cap diccionari vàlid.
-    """
-    if not isinstance(diccionaris, list) or not diccionaris:
-        return None  # Retornar None si l'entrada no és una llista vàlida o està buida
-
-    valor = None  # Valor per defecte
-
-    # Iterar cap endarrere en la llista de diccionaris
-    for diccionari in reversed(diccionaris):
-        if isinstance(diccionari, dict):
-            if clau in diccionari:
-                valor = diccionari[clau]
-                break  # Sortir del bucle si la clau es troba en el diccionari
-
-    # Transformar valors 'SI' o 'S' en 1 i 'NO' o 'N' en 0
-    if valor is not None:
-        if valor.strip().upper() == 'SI' or valor.strip().upper() == 'S':
-            return 1
-        elif valor.strip().upper() == 'NO' or valor.strip().upper() == 'N':
-            return 0
-
-    return valor  # Retornar el valor trobat o None si la clau no s'ha trobat
-
-
-# Funció que retorna el valor (paraula) de la clau introduïda, de l'últim diccionari de la fila 
-####### Esta funcion se podria usar también para extreure los resultados de mna y emina
-def extreure_valors_claus_simple(data: pd.DataFrame, nom_columna: str, clau: str, nova_columna: str) -> pd.DataFrame:
+# Funció que retorna el valor (paraula) de la clau introduïda de l'últim diccionari. Binaritza valors SI/NO a 1/0
+def extreure_valors_binaritzants(data: pd.DataFrame, nom_columna: str, clau: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per extreure el valor d'una clau específica en l'últim diccionari d'una llista de diccionaris.
 
@@ -486,6 +319,9 @@ def extreure_valors_claus_simple(data: pd.DataFrame, nom_columna: str, clau: str
     # Aplicar la funció per extreure el valor de la clau a la columna especificada del DataFrame
     data[nova_columna] = data[nom_columna].apply(
         lambda x: obtenir_valor(x, clau) if isinstance(x, list) and len(x) > 0 else None)
+
+    # Transformar els valors 'SI' o 'S' en 1 i 'NO' o 'N' en 0
+    data[nova_columna] = data[nova_columna].apply(lambda x: 1 if x == 'SI' or x == 'S' else (0 if x == 'NO' or x == 'N' else x))
 
     return data  # Retornar el DataFrame modificat
 
@@ -518,51 +354,69 @@ def obtenir_valor(diccionaris, clau):
 
 
 # Funció que retorna els valors de les claus introduïdes
-def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str,
-                                nova_columna: str) -> pd.DataFrame:
+import pandas as pd
+
+
+def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str, nova_columna: str,
+                                profunditat_maxima: int = 2) -> pd.DataFrame:
     """
-    Funció per extreure els valors de la clau 'value' d'una llista de diccionaris en una columna, filtrant per un 
-    Nom d'interès.
+    Funció per extreure els valors de la clau d'interès d'una llista de diccionaris en una columna.
 
     Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
+        - data: DataFrame de pandas que conté les dades.
         - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - clau_interes: Nom d'interès per filtrar l'extracció de valors.
+        - clau_interes: Clau d'interès per filtrar l'extracció de valors.
         - nova_columna: Nom per la nova columna que contindrà els valors extrets.
+        - profunditat_maxima: Profunditat màxima a explorar per extreure el valor de la clau d'interès (per defecte: 2).
 
     Retorna:
-        - DataFrame amb una nova columna que conté els valors de 'value' filtrats pel Nom d'interès.
+        - DataFrame amb una nova columna que conté els valors de la clau d'interès.
     """
-    # Crear una llista per emmagatzemar els valors extrets
+
+    def extract_value(d, key, depth):
+        if depth > profunditat_maxima:
+            return None
+
+        if isinstance(d, dict):
+            if key in d:
+                return d[key]
+            else:
+                for k, v in d.items():
+                    result = extract_value(v, key, depth + 1)
+                    if result is not None:
+                        return result
+        elif isinstance(d, list):
+            for item in d:
+                result = extract_value(item, key, depth + 1)
+                if result is not None:
+                    return result
+        return None
+
     valors_extrets = []
 
-    # Iterar sobre cada fila de la columna de diccionaris
-    for llista_diccionaris in data[nom_columna]:
-        if isinstance(llista_diccionaris, list) and llista_diccionaris:
+    for estructura in data[nom_columna]:
+        if isinstance(estructura, list) and estructura:
             valor_extret = None
-            for diccionari in llista_diccionaris:
-                # Verificar si el diccionari conté el Nom d'interès
-                if 'name' in diccionari and diccionari['name'] == clau_interes:
-                    # Extreure el valor de 'value'
-                    valor_extret = diccionari.get('value')
-                    break  # Sortir del bucle un cop s'ha trobat el Nom d'interès
-            # Afegir el valor extret a la llista de valors
+            for elem in estructura:
+                # Extracció recursiva del valor de la clau d'interès
+                valor_extret = extract_value(elem, clau_interes, 1)
+                if valor_extret is not None:
+                    break  # Sortir del bucle un cop s'ha trobat el valor d'interès
             valors_extrets.append(valor_extret)
+        elif isinstance(estructura, dict):  # Si és un diccionari
+            if clau_interes in estructura:
+                valors_extrets.append(estructura[clau_interes])
+            else:
+                valors_extrets.append(None)
         else:
-            # Si la llista de diccionaris és buida o no vàlida, afegir None
             valors_extrets.append(None)
 
-    # Verificar si la longitud de valors extrets coincideix amb la longitud del DataFrame original
-    if len(valors_extrets) != len(data):
-        raise ValueError("La longitud de valors extrets no coincideix amb la longitud del DataFrame original.")
-
-    # Afegir els valors extrets com a una nova columna al DataFrame original
     data[nova_columna] = valors_extrets
 
     return data
 
 
-# Funció per calcular el valor de l'index de Charlson per a un pacient, tenint en compte que cada codi representa un 
+# Funció per calcular el valor de l'index de Charlson per a un pacient, tenint en compte que cada codi representa un
 # valor i que aquests valors es poden anar sumant si el pacient en té més d'un
 def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, charlson_dict: dict) -> pd.DataFrame:
     """
