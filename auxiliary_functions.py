@@ -23,24 +23,47 @@ def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFra
 
 
 # Funció per calcular el nombre d'ingressos que ha tingut cada pacient
-def nombre_ingressos(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
+def nombre_ingressos(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+    """
+    Funció per comptar el nombre de diccionaris en una llista de diccionaris d'una columna i emmagatzemar-ho en una nova columna.
+
+    Paràmetres:
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: Nom de la columna que conté la llista de diccionaris.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà el nombre de diccionaris.
+
+    Retorna:
+        - DataFrame modificat amb la nova columna que conté el nombre de diccionaris.
+    """
     for index, fila in data.iterrows():
         num_diccionaris = len(fila[nom_columna]) if isinstance(fila[nom_columna], list) else 0
-        data.at[index, 'Nombre ingressos'] = num_diccionaris
+        data.at[index, nova_columna] = num_diccionaris
     return data
 
 
 # Funció que fa un sumatori de tots els dies en total que el pacient ha estat ingressat
-def dies_ingressat_total(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:
-    for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
-        suma_dies = 0  # Inicialitzar la suma de dies d'ingrés per aquesta fila
-        for ingres in fila[nom_columna]:  # Iterar sobre cada ingrés en la columna d'interès
+def dies_ingressat_total(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+    """
+    Funció per calcular el total de dies ingressat per cada fila i emmagatzemar-ho en una nova columna.
+
+    Paràmetres:
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: Nom de la columna que conté la llista d'ingressos.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà el total de dies ingressat.
+
+    Retorna:
+        - DataFrame modificat amb la nova columna que conté el total de dies ingressat.
+    """
+    for index, fila in data.iterrows():
+        suma_dies = 0
+        for ingres in fila[nom_columna]:
             data_ingres = datetime.strptime(ingres['dataIngres'], '%Y-%m-%d')
             data_alta = datetime.strptime(ingres['dataAlta'], '%Y-%m-%d')
             diferencia = data_alta - data_ingres
-            suma_dies += diferencia.days  # Sumar els dies d'ingrés d'aquest ingrés a la suma total de dies en total
-            # que el pacient ha estat ingressat
-        data.at[index, 'Dies totals ingressat'] = suma_dies  # Assignar la suma de dies d'ingrés a la nova columna
+            suma_dies += diferencia.days
+
+        data.at[index, nova_columna] = suma_dies
+
     return data
 
 
@@ -110,30 +133,41 @@ def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna:
     return data
 
 
-# Funció per realitzar la suma de resultats de la columna 'barthel' sense agafar el valor de la clau 'data', comparar-ho
-# amb la clau 'resultat' i si el sumatori és el mateix que el valor que hi ha en 'resultat', retorna el sumatori
-# realitzat
-def sumar_barthel(data: pd.DataFrame, nom_columna: str) -> pd.DataFrame:  # Aquesta funció defineix la funció
-    # sumar_barthel que pren un DataFrame de pandes (data), el nom de la columna d'interès (nom_columna) i retorna un
-    # DataFrame modificat.
+# Funció per realitzar la suma de resultats de la columna 'barthel' sense agafar el valor de la clau 'data'. No pot
+# ser comparada amb cap clau que contingui resultat/total de la prova (com és el cas de la EMINA o la Canadenca),
+# ja que no existeix aquesta clau
+def sumar_barthel(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+    """
+    Funció per sumar els valors de la columna especificada excloent la clau 'data' i emmagatzemar-ho en una nova columna.
 
-    # Aplicar la funció a la columna 'barthel' per obtenir la suma dels valors, però excloent la clau 'data'
-    data['Barthel resultats'] = data[nom_columna].apply(suma_sense_data)  # Aplica la funció suma_sense_data a cada
-    # element de la columna 'barthel' en el DataFrame, emmagatzemant el resultat en una nova columna anomenada
-    # 'Barthel resultats'.
-    return data  # Retorna el DataFrame modificat amb la nova columna de suma total dels valors de 'barthel', però
-    # excloent els valors que hi hagi a la clau 'data'
+    Paràmetres:
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: Nom de la columna que conté la llista de diccionaris.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà la suma dels valors excloent 'data'.
 
-def suma_sense_data(diccionari):  # Això defineix una funció interna anomenada suma_sense_data que pren un diccionari
-    #com a entrada
-    suma_parcial = 0  # Inicialitza una variable anomenada suma_parcial que emmagatzemarà la suma dels valors, començant
-    # en 0.
-    for clau, valor in diccionari.items():  # Itera sobre cada parell clau-valor en el diccionari.
-        if clau != 'data':  # Verifica si la clau actual és diferent de 'data'
-            suma_parcial += int(
-                valor)  # Si la clau no és 'data', suma el valor corresponent al total, però convertint-lo primer a
-            # enter.
-    return suma_parcial  # Retorna la suma parcial dels valors, excloent la data.
+    Retorna:
+        - DataFrame modificat amb la nova columna de suma total excloent la clau 'data'.
+    """
+    # Aplicar la funció suma_sense_data a la columna especificada per fer la suma
+    data[nova_columna] = data[nom_columna].apply(suma_sense_data)
+
+    return data
+
+def suma_sense_data(diccionari):
+    """
+    Funció interna per sumar els valors del diccionari excloent la clau 'data'.
+
+    Paràmetres:
+        - diccionari: Diccionari del qual es vol sumar els valors.
+
+    Retorna:
+        - Suma total dels valors excloent la clau 'data'.
+    """
+    suma_parcial = 0
+    for clau, valor in diccionari.items():
+        if clau != 'data':
+            suma_parcial += int(valor)
+    return suma_parcial
 
 
 # Funció aplicable a EMINA i Canadenca (a Barthel no es pot aplicar, ja que no conté clau amb resultat/total). Realitza
@@ -154,32 +188,32 @@ def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list,
     Retorna:
         - DataFrame modificat amb una nova columna que conté el resultat de la comparació.
     """
-    # Funció per sumar i comparar els valors dels diccionaris
-    def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
-        if not diccionaris or not isinstance(diccionaris, list):
-            return None
-
-        suma_parcial = 0
-
-        for diccionari in diccionaris:
-            if isinstance(diccionari, dict):
-                for clau, valor in diccionari.items():
-                    if clau not in claus_excloure and isinstance(valor, str) and ',' in valor:
-                        valor = valor.replace(',', '.')  # Reemplaçar la coma per un punt per a nombres decimals
-                    if clau not in claus_excloure and isinstance(valor, str) and valor.replace('.', '', 1).isdigit():
-                        suma_parcial += float(valor)
-
-                if clau_comparacio in diccionari:
-                    if suma_parcial == float(diccionari[clau_comparacio]):
-                        return suma_parcial
-
-        return None
-
     # Aplicar la funció a la columna especificada per fer el sumatori i comparar
     data[nova_columna] = data[nom_columna].apply(
         lambda x: suma_compara_diccionaris(x, claus_excloure, clau_comparacio) if isinstance(x, list) else None)
 
     return data
+
+# Funció per sumar i comparar els valors dels diccionaris
+def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
+    if not diccionaris or not isinstance(diccionaris, list):
+        return None
+
+    suma_parcial = 0
+
+    for diccionari in diccionaris:
+        if isinstance(diccionari, dict):
+            for clau, valor in diccionari.items():
+                if clau not in claus_excloure and isinstance(valor, str) and ',' in valor:
+                    valor = valor.replace(',', '.')  # Reemplaçar la coma per un punt per a nombres decimals
+                if clau not in claus_excloure and isinstance(valor, str) and valor.replace('.', '', 1).isdigit():
+                    suma_parcial += float(valor)
+
+            if clau_comparacio in diccionari:
+                if suma_parcial == float(diccionari[clau_comparacio]):
+                    return suma_parcial
+
+    return None
 
 
 
@@ -392,8 +426,6 @@ def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, 
 # qual conté el resultat. No és aplicable a la columna de labs, ja que aquesta té un format diferent i la clau no conté
 # el valor sinó que hi ha les claus 'name' i 'value' que contenen respectivament el nom de la prova i el resultat, per
 # tant, no es pot aplicar aquesta funció.
-import pandas as pd
-
 def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per extreure els valors de la clau d'interès d'una llista de diccionaris en una columna.

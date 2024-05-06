@@ -71,28 +71,29 @@ if __name__ == "__main__":
 
     # Funció que indica quants cops ha ingressat el pacient. Aixó ho fa comptant el nombre de diccionaris que hi ha a la
     # columna 'ingressos'
-    data = nombre_ingressos(data, 'ingressos')
+    data = nombre_ingressos(data, 'ingressos', 'Nombre ingressos')
 
     # Funció que retorna la suma dels dies totals que ha estat ingressat el pacient, basant-se en fer una suma amb el
     # resultat de la resta de les claus 'dataAlta' i 'dataIngres' (que es troben a la columna 'ingressos'), i creant la
     # nova columna 'Dias_totals_ingressat'
-    data = dies_ingressat_total(data, 'ingressos')
+    data = dies_ingressat_total(data, 'ingressos', 'Dies totals ingressat')
 
     # Funció que realitza un sumatori de tots els ítems del test de Barthel, sense tenir en compte l'última clau 'data'
-    data = sumar_barthel(data, 'barthel')
+    data = sumar_barthel(data, 'barthel', 'Barthel resultats')
 
     # Funció que fa un sumatori de tots els elements de la prova EMINA, sense tenir en compte les dues darreres claus
     # 'dataValoracio' i 'resultat'. A més, compara si la suma és igual al valor de la columna 'resultat' i, si és així,
     # retorna la suma. Si la llista està buida (longitud=0) o els valors de la suma i 'resultat' no són els mateixos,
     # retorna NaN
     data = sumar_i_comparar(data, 'emina', ['dataValoracio', 'resultat'], 'resultat',
-                            'EMINA sumatoris comparats')
+                            'EMINA sumatori comparat')
 
     # Funció que extreu el resultat l'última clau del test emina anomenada 'resultats'
     data = obtenir_valors_clau_interes(data, 'emina', 'resultat', 'EMINA resultats')
 
     # Funció que extreu el resultat de l'última clau del test mna anomenada 'resultats'
     data = obtenir_valors_clau_interes(data, 'mna', 'resultat', 'MNA resultats')
+
 
     # Funció que proporciona la mitjana de tots els pesos (en el cas que hi hagi més d'un valor de pes) o l'únic valor
     # de pes que es disposi del pacient
@@ -102,7 +103,7 @@ if __name__ == "__main__":
     # la suma. Per fer la suma, no considera les claus: 'total', 'dataValoracio' i 'horaValoracio'. Si la fila està
     # buida (no hi ha diccionari), retorna NaN.
     data = sumar_i_comparar(data, 'canadenca', ['total', 'dataValoracio', 'horaValoracio'],
-                            'total', 'Canadenca sumatoris comparats')
+                            'total', 'Canadenca sumatori comparat')
 
     # Funció que itera fins a trobar l'última vegada que van aparèixer les claus 'disfàgia' o 'disfàgiaConeguda' a la
     # llista de diccionaris 'mecvvs' i que retorna 1 o 0 si el pacient té respectivament un sí o un no en aquestes claus
