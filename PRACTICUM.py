@@ -4,8 +4,7 @@ from typing import List
 import pandas as pd
 from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
                                  dies_ingressat_total, binaritzar_15_creatinina, sumar_i_comparar,
-                                 obtenir_pes_o_mitjana,
-                                 disfagia_mecvvs, sumar_barthel, obtenir_valors_lab,
+                                 obtenir_pes_o_mitjana, disfagia_mecvvs, sumar_barthel, obtenir_valors_lab,
                                  extreure_valors_binaritzants, obtenir_valors_clau_interes, index_charlson,
                                  obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
                                  obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object)
