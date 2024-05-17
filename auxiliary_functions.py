@@ -2,10 +2,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 
-# TODO: comprueba que los Noms de las funciones sean descriptivos y concisos.
-# TODO: Agrega una descripción de la funcionalidad de las funciones.
-# TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código.
-# TODO: elige un idioma y mantenlo consistente en todo el código.
+# TODO: comprueba que los Noms de las funciones sean descriptivos y concisos. OK
+# TODO: Agrega una descripción de la funcionalidad de las funciones. OK
+# TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código. OK
+# TODO: elige un idioma y mantenlo consistente en todo el código. OK
 
 # Funció per obtenir les columnes de les malalties segons els seus ICD
 def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
