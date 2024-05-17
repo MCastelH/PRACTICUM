@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 import pandas as pd
 from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
