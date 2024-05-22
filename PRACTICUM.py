@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     # Funció que compara la suma de certs ítems de l'escala canadenca amb la clau 'total', i si són iguals, retorna
     # la suma. Per fer la suma, no considera les claus: 'total', 'dataValoracio' i 'horaValoracio'. Si la fila està
-    # buida (no hi ha diccionari), retorna NaN.
+    # buida (no hi ha diccionari), retorna NaN
     data = sumar_i_comparar(data, 'canadenca', ['total', 'dataValoracio', 'horaValoracio'],
                             'total', 'Canadenca sumatori comparat')
 
