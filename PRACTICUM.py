@@ -1,6 +1,6 @@
 import json
-
 import pandas as pd
+
 from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
                                  dies_ingressat_total, binaritzar_15_creatinina, sumar_i_comparar,
                                  obtenir_pes_o_mitjana, disfagia_mecvvs, sumar_barthel, obtenir_valors_lab,
