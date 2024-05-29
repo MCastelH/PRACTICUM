@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # Funció que indica quants cops ha ingressat el pacient. Aixó ho fa comptant el nombre de diccionaris que hi ha a la
     # columna 'ingressos'
-    data = nombre_ingressos(data, 'ingressos', 'Admissions', 'Emergencies')
+    data = nombre_ingressos(data, 'ingressos', 'Admissions', 'Emergències')
 
     # Funció que retorna la suma dels dies totals que ha estat ingressat el pacient, basant-se en fer una suma amb el
     # resultat de la resta de les claus 'dataAlta' i 'dataIngres' (que es troben a la columna 'ingressos'), i creant la
@@ -66,6 +66,7 @@ if __name__ == "__main__":
     # diccionari que contingui la 'clau_interes'
     for key, value in laboratoris_dict.items():
         data = obtenir_valors_lab(data, 'labs', value, key)
+    # TODO: modificar creatinina para poderla usar en malaltia cronica renal
 
     # Funció que retorna el pes més antic registrat de la columna 'pes'
     data = obtenir_pes_mes_antic(data, 'Pes més antic')

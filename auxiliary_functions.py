@@ -1,5 +1,9 @@
 import pandas as pd
 from datetime import datetime, timedelta
+from scipy.stats import shapiro
+from scipy.stats import ttest_ind
+from scipy.stats import mannwhitneyu
+from scipy.stats import chi2_contingency
 
 
 # TODO: comprueba que los Noms de las funciones sean descriptivos y concisos. OK
@@ -755,6 +759,91 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
             data.loc[index, nova_columna] = None
 
     return data
+
+
+# Funció per calcular la normalitat aplicar el test de Shapiro-Wilks
+def normalitat(grups: dict, alpha=0.05):
+    for name, grup in grups.items():  # Bucle 'for' per iterar sobre cada grup
+        stat, p_value = shapiro(grup)  # Realització de la prova de Shapiro-Wilk en cada grup
+        print(f"Grup {name}:")  # Impresió del nom del grup
+        print(f"  Estadístic W = {stat:.4f}")  # Impresió de l'estadístic de prova
+        print(f"  P-valor = {p_value:.4f}")  # Impresió del p-valor
+        if p_value < alpha:  # Comprobació de si el grup segueix una distribució normal
+            print("  El grup no segueix una distribució normal.")
+        else:
+            print("  El grup segueix una distribució normal.")
+        print()  # Línia en blanc per separar els resultats de cada grup
+
+
+# Funció per calcular T-test o Mann-Whitney segons si són normals o no, respectivament
+def t_test_mannwhitney_tests(grups_ttest: dict, grups_mannwhitney: dict, alpha=0.05):
+    # Realiza las comparaciones usando t-test
+    for name1, grup1 in grups_ttest.items():
+        for name2, grup2 in grups_ttest.items():
+            if name1 != name2:  # Evita comparar un grupo consigo mismo
+                # Realiza el t-test para grupos normales
+                stat, p_value = ttest_ind(grup1, grup2)
+                print(f"Comparación entre {name1} i {name2} (t-test):")
+
+                print(f"  Estadístico de prueba = {stat:.4f}")
+                print(f"  Valor p = {p_value:.4f}")
+                if p_value < alpha:
+                    print("  Hay una diferencia significativa entre los grupos.")
+                else:
+                    print("  No hay una diferencia significativa entre los grupos.")
+                print()
+
+    # Realiza las comparaciones usando Mann-Whitney U
+    for name1, grop1 in grups_mannwhitney.items():
+        # Si solo hay un grupo en grups_mannwhitney, compáralo con todos los otros grupos
+        if len(grups_mannwhitney) == 1:
+            for name2, grup2 in grups_ttest.items():
+                if name1 != name2:  # Evita comparar un grupo consigo mismo
+                    # Realiza el test de Mann-Whitney U para grupos no normales
+                    stat, p_value = mannwhitneyu(grup1, grup2, alternative='two-sided')
+                    print(f"Comparación entre {name1} i {name2} (Mann-Whitney U):")
+
+                    print(f"  Estadístico de prueba = {stat:.4f}")
+                    print(f"  P-valor = {p_value:.4f}")
+                    if p_value < alpha:
+                        print("  Hay una diferencia significativa entre los grupos.")
+                    else:
+                        print("  No hay una diferencia significativa entre los grupos.")
+                    print()
+        else:
+            # Si hay más de un grupo en grupos_mannwhitney, compara el grupo actual con los otros grupos de la lista
+            for name2, grup2 in grups_mannwhitney.items():
+                if name1 != name2:  # Evita comparar un grupo consigo mismo
+                    # Realiza el test de Mann-Whitney U para grupos no normales
+                    stat, p_value = mannwhitneyu(grup1, grup2, alternative='two-sided')
+                    print(f"Comparación entre {name1} i {name2} (Mann-Whitney U):")
+
+                    print(f"  Estadístico de prueba = {stat:.4f}")
+                    print(f"  P-valor = {p_value:.4f}")
+                    if p_value < alpha:
+                        print("  Hay una diferencia significativa entre los grupos.")
+                    else:
+                        print("  No hay una diferencia significativa entre los grupos.")
+                    print()
+
+
+
+# Funció per calcular el test de Xi-quadrat
+def xi_quadrat_test(grups: dict, alpha=0.05):
+    for name1, grup1 in grups.items():  # Itera sobre cada grupo del diccionario
+        for name2, grup2 in grups.items():  # Itera nuevamente para comparar con los otros grupos
+            if name1 != name2:  # Evita comparar un grupo consigo mismo
+                # Realiza el test de chi-cuadrado
+                contingency_table = [grup1, grup2]
+                chi2, p_value, dof, expected = chi2_contingency(contingency_table)
+                print(f"Comparación entre {name1} i {name2}:")
+                print(f"  Estadístico chi-cuadrado = {chi2:.4f}")
+                print(f"  P-valor = {p_value:.4f}")
+                if p_value < alpha:
+                    print("  Hay una diferencia significativa entre los grupos.")
+                else:
+                    print("  No hay una diferencia significativa entre los grupos.")
+                print()  # Línea en blanco para separar las comparaciones
 
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo

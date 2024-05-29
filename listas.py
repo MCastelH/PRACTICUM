@@ -1,4 +1,4 @@
-# Listas busqueda codigos
+# Llistes cerca de codis
 
 P_list = ['481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'A48.1', 'J09.X1', 'J10.00', 'J10.01', 'J10.02',
@@ -354,7 +354,7 @@ neopl_list = ['C00.0', 'C00.1', 'C00.2', 'C00.3', 'C00.4', 'C00.5', 'C00.6', 'C0
               'D07.4', 'D07.5', 'D07.60', 'D07.61', 'D07.69', 'D09.0', 'D09.10', 'D09.19', 'D09.20', 'D09.21', 'D09.22',
               'D09.3', 'D09.8', 'D09.9']
 # ChronicRenalD_list NO TIENE ICD, el valor es creatinina >1.5mg/dL. Primero hago columna con todos los valores de
-# creatinina serum, después en el analisis filtro por los que tengan valores >1.5
+# creatinina serum, después en el analisis filtro por los que tengan valores >1.5 # TODO
 AcuteRenalF_list = ['N17.0', 'N17.1', 'N17.2', 'N17.8', 'N17.9']
 dizsyn_list = ['R42', 'R55', 'T67']
 VIH_list = ['Z71.7', 'B20']
@@ -409,6 +409,7 @@ laboratoris_dict = {
     "Urea": "3091-6",
     "Glomerular Filtrate": "62238-1"
 }
+
 
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',
