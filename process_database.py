@@ -16,6 +16,7 @@ if __name__ == "__main__":
         dades_raw = json.load(arxiu)
     data = pd.DataFrame(dades_raw)
 
+
     # Construim una columna per cada patologia.
     for key, value in pathology_dict.items():
         data = codis_ICD(data, value, key)
