@@ -761,72 +761,61 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
     return data
 
 
-# Funció per calcular la normalitat aplicar el test de Shapiro-Wilks
-def normalitat(grups: dict, alpha=0.05):
-    for name, grup in grups.items():  # Bucle 'for' per iterar sobre cada grup
-        stat, p_value = shapiro(grup)  # Realització de la prova de Shapiro-Wilk en cada grup
-        print(f"Grup {name}:")  # Impresió del nom del grup
-        print(f"  Estadístic W = {stat:.4f}")  # Impresió de l'estadístic de prova
-        print(f"  P-valor = {p_value:.4f}")  # Impresió del p-valor
-        if p_value < alpha:  # Comprobació de si el grup segueix una distribució normal
-            print("  El grup no segueix una distribució normal.")
-        else:
-            print("  El grup segueix una distribució normal.")
-        print()  # Línia en blanc per separar els resultats de cada grup
+# Funció per calcular la normalitat aplicar el test de Shapiro-Wilks, YA NO HACE FALTA
+#def normalitat(grups: dict, alpha=0.05):
+    #    for name, grup in grups.items():  # Bucle 'for' per iterar sobre cada grup
+    #       stat, p_value = shapiro(grup)  # Realització de la prova de Shapiro-Wilk en cada grup
+    #       print(f"Grup {name}:")  # Impresió del nom del grup
+    #     print(f"  Estadístic W = {stat:.4f}")  # Impresió de l'estadístic de prova
+    #     print(f"  P-valor = {p_value:.4f}")  # Impresió del p-valor
+    #    if p_value < alpha:  # Comprobació de si el grup segueix una distribució normal
+    #        print("  El grup no segueix una distribució normal.")
+    #   else:
+    #       print("  El grup segueix una distribució normal.")
+#   print()  # Línia en blanc per separar els resultats de cada grup
 
 
 # Funció per calcular T-test o Mann-Whitney segons si són normals o no, respectivament
-def t_test_mannwhitney_tests(grups_ttest: dict, grups_mannwhitney: dict, alpha=0.05):
-    # Realiza las comparaciones usando t-test
-    for name1, grup1 in grups_ttest.items():
-        for name2, grup2 in grups_ttest.items():
-            if name1 != name2:  # Evita comparar un grupo consigo mismo
-                # Realiza el t-test para grupos normales
-                stat, p_value = ttest_ind(grup1, grup2)
-                print(f"Comparación entre {name1} i {name2} (t-test):")
+from scipy.stats import shapiro, ttest_ind, mannwhitneyu
 
-                print(f"  Estadístico de prueba = {stat:.4f}")
-                print(f"  Valor p = {p_value:.4f}")
-                if p_value < alpha:
-                    print("  Hay una diferencia significativa entre los grupos.")
-                else:
-                    print("  No hay una diferencia significativa entre los grupos.")
-                print()
 
-    # Realiza las comparaciones usando Mann-Whitney U
-    for name1, grop1 in grups_mannwhitney.items():
-        # Si solo hay un grupo en grups_mannwhitney, compáralo con todos los otros grupos
-        if len(grups_mannwhitney) == 1:
-            for name2, grup2 in grups_ttest.items():
-                if name1 != name2:  # Evita comparar un grupo consigo mismo
-                    # Realiza el test de Mann-Whitney U para grupos no normales
-                    stat, p_value = mannwhitneyu(grup1, grup2, alternative='two-sided')
-                    print(f"Comparación entre {name1} i {name2} (Mann-Whitney U):")
+def norm_ttest_mannwhitney(grupos: dict, alpha=0.05):
+        for nombre_grupo1, datos_grupo1 in grupos.items():
+            for nombre_grupo2, datos_grupo2 in grupos.items():
+                if nombre_grupo1 != nombre_grupo2:
+                    # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
+                    _, p_valor_shapiro1 = shapiro(datos_grupo1)
+                    _, p_valor_shapiro2 = shapiro(datos_grupo2)
 
+                    print(f"Resultado del test Shapiro-Wilk para {nombre_grupo1}:")
+                    print(f"  p-valor = {p_valor_shapiro1:.4f}")
+                    if p_valor_shapiro1 > alpha:
+                        print("  El grupo sigue una distribución normal.")
+                    else:
+                        print("  El grupo no sigue una distribución normal.")
+
+                    print(f"Resultado del test Shapiro-Wilk para {nombre_grupo2}:")
+                    print(f"  p-valor = {p_valor_shapiro2:.4f}")
+                    if p_valor_shapiro2 > alpha:
+                        print("  El grupo sigue una distribución normal.")
+                    else:
+                        print("  El grupo no sigue una distribución normal.")
+
+                    if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
+                        tipo_prueba = "t-test"
+                        stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
+                    else:  # Si al menos uno de los grupos no es normal
+                        tipo_prueba = "Mann-Whitney U"
+                        stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
+
+                    print(f"Comparación entre {nombre_grupo1} y {nombre_grupo2} usando {tipo_prueba}:")
                     print(f"  Estadístico de prueba = {stat:.4f}")
-                    print(f"  P-valor = {p_value:.4f}")
-                    if p_value < alpha:
+                    print(f"  Valor p = {p_valor:.4f}")
+                    if p_valor < alpha:
                         print("  Hay una diferencia significativa entre los grupos.")
                     else:
                         print("  No hay una diferencia significativa entre los grupos.")
                     print()
-        else:
-            # Si hay más de un grupo en grupos_mannwhitney, compara el grupo actual con los otros grupos de la lista
-            for name2, grup2 in grups_mannwhitney.items():
-                if name1 != name2:  # Evita comparar un grupo consigo mismo
-                    # Realiza el test de Mann-Whitney U para grupos no normales
-                    stat, p_value = mannwhitneyu(grup1, grup2, alternative='two-sided')
-                    print(f"Comparación entre {name1} i {name2} (Mann-Whitney U):")
-
-                    print(f"  Estadístico de prueba = {stat:.4f}")
-                    print(f"  P-valor = {p_value:.4f}")
-                    if p_value < alpha:
-                        print("  Hay una diferencia significativa entre los grupos.")
-                    else:
-                        print("  No hay una diferencia significativa entre los grupos.")
-                    print()
-
-
 
 # Funció per calcular el test de Xi-quadrat
 def xi_quadrat_test(grups: dict, alpha=0.05):
