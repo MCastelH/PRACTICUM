@@ -361,8 +361,54 @@ VIH_list = ['Z71.7', 'B20']
 psicosis_list = ['F31', 'F20']
 nutridef_list = ['E55']
 
+pathology_dict = {
+    'PA diagnosticada': PA_list,
+    'DO diagnosticada': disfagia_list,
+    'P diagnosticada': P_list,
+    'Infeccions respiratòries principals diagnosticades': Main_respiratory_infections_list,
+    'LRTI diagnosticada': LRTI_list,
+    'Exacerbacions de COPD diagnosticades': COPD_exacerbations_list,
+    'Fibrosi pulmonar i fibrotòrax diagnosticades': Pulmonary_fibrosis_fibrotorax_list,
+    'Caigudes prèvies': priorfalls_list,
+    'Deliris': delirium_list,
+    'Demència': dementia_list,
+    'Síndrome depressiu': depresyndr_list,
+    'Incont.uri': uriincont_list,
+    'Incont.fec': fecincont_list,
+    'Úlceres pressió': pressulc_list,
+    'Immobilitat': immob_list,
+    'Confusió': conf_list,
+    'Osteoporosi': osteopor_list,
+    'Sarcopènia': sarcopenia_list,
+    'Probl.son': sleepdisturb_list,
+    'Dolor crònic': chrpain_list,
+    'Iatrogènic': iatrog_list,
+    'Restrenyiment': constipation_list,
+    'CV': CVdisease_list,
+    'Probl.cor': heartdisease_list,
+    'Neurodegeneratives': ND_list,
+    'DM': DM_list,
+    'Hepatopaties': hepatopat_list,
+    'Neoplàsies': neopl_list,
+    'ARF': AcuteRenalF_list,
+    'Marejos': dizsyn_list,
+    'VIH': VIH_list,
+    'Psicosi': psicosis_list,
+    'Def.nutri': nutridef_list
+}
 
-
+laboratoris_dict = {
+    "Albumin": "1751-7",
+    "Total Proteins": "2885-2",
+    "Hemoglobin": "718-7",
+    "Total Cholesterol": "2093-3",
+    "Leucocytes": "6690-2",
+    "Lymphocytes": "737-7",
+    "C reactive protein": "1988-5",
+    "Creatinine": "2160-0",
+    "Urea": "3091-6",
+    "Glomerular Filtrate": "62238-1"
+}
 
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',

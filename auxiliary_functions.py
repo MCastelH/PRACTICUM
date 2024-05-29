@@ -23,9 +23,11 @@ def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFra
 
 
 # Funció per calcular el nombre d'ingressos que ha tingut cada pacient
-def nombre_ingressos(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
+def nombre_ingressos(data: pd.DataFrame, nom_columna: str = 'ingressos', admissions: str = 'Admissions',
+                     emergencies: str = 'Emergencies') -> pd.DataFrame:
     """
-    Funció per comptar el nombre de diccionaris en una llista de diccionaris d'una columna i emmagatzemar-ho en una nova columna.
+    Funció per comptar el nombre de diccionaris en una llista de diccionaris d'una columna i emmagatzemar-ho en una
+    nova columna.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
@@ -36,8 +38,17 @@ def nombre_ingressos(data: pd.DataFrame, nom_columna: str, nova_columna: str) ->
         - DataFrame modificat amb la nova columna que conté el nombre de diccionaris.
     """
     for index, fila in data.iterrows():
-        num_diccionaris = len(fila[nom_columna]) if isinstance(fila[nom_columna], list) else 0
-        data.at[index, nova_columna] = num_diccionaris
+        num_admissions = 0
+        num_emergencies = 0
+        for ingres in fila[nom_columna]:
+            # Si en el diccionari hi ha la clau 'codiDiagnosticPrincipal' vol dir que és un ingrés per admissions, sino
+            # és un ingrés per urgències.
+            if 'codiDiagnosticPrincipal' in ingres:
+                num_admissions += 1
+            else:
+                num_emergencies += 1
+        data.at[index, admissions] = num_admissions
+        data.at[index, emergencies] = num_emergencies
     return data
 
 
@@ -153,6 +164,7 @@ def sumar_barthel(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd
 
     return data
 
+
 def suma_sense_data(diccionari):
     """
     Funció interna per sumar els valors del diccionari excloent la clau 'data'.
@@ -194,6 +206,7 @@ def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list,
 
     return data
 
+
 # Funció per sumar i comparar els valors dels diccionaris
 def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
     if not diccionaris or not isinstance(diccionaris, list):
@@ -214,7 +227,6 @@ def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
                     return suma_parcial
 
     return None
-
 
 
 # Funció per obtenir el pes dels pacients o en el cas de que hi hagi més d'un valor, obtenir la seva mitjana
@@ -348,7 +360,8 @@ def extreure_valors_binaritzants(data: pd.DataFrame, nom_columna: str, clau: str
         lambda x: obtenir_valor(x, clau) if isinstance(x, list) and len(x) > 0 else None)
 
     # Transformar els valors 'SI' o 'S' en 1 i 'NO' o 'N' en 0
-    data[nova_columna] = data[nova_columna].apply(lambda x: 1 if x == 'SI' or x == 'S' else (0 if x == 'NO' or x == 'N' else x))
+    data[nova_columna] = data[nova_columna].apply(
+        lambda x: 1 if x == 'SI' or x == 'S' else (0 if x == 'NO' or x == 'N' else x))
 
     return data  # Retornar el DataFrame modificat
 
@@ -407,7 +420,7 @@ def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, 
             # Iterar sobre cada diccionari a la llista
             for diccionari in estructura:
                 # Verificar si 'name' conté la paraula clau desitjada
-                if 'name' in diccionari and paraula_clau in diccionari['name']:
+                if 'loinc' in diccionari and paraula_clau in diccionari['loinc']:
                     # Obtenir el valor associat a la clau 'value'
                     valor_trobat = diccionari.get('value', None)
                     break  # Aturar la cerca un cop trobat el valor desitjat
@@ -426,7 +439,8 @@ def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, 
 # qual conté el resultat. No és aplicable a la columna de labs, ja que aquesta té un format diferent i la clau no conté
 # el valor sinó que hi ha les claus 'name' i 'value' que contenen respectivament el nom de la prova i el resultat, per
 # tant, no es pot aplicar aquesta funció.
-def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str, nova_columna: str) -> pd.DataFrame:
+def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str,
+                                nova_columna: str) -> pd.DataFrame:
     """
     Funció per extreure els valors de la clau d'interès d'una llista de diccionaris en una columna.
 
@@ -452,6 +466,7 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
     data[nova_columna] = valors_extrets
 
     return data
+
 
 def extract_value(d, key):
     if isinstance(d, dict):
@@ -740,18 +755,6 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
             data.loc[index, nova_columna] = None
 
     return data
-
-
-# Funció per transformar en 0 i 1 els valors de la columna de 'Creatinina', sent 0 quan <1.5 y 1 quan >1.5
-def binaritzar_15_creatinina(data, nom_columna, nova_columna):
-    # Converteix els valors de la columna a tipus numèric i omple els valors no vàlids amb NaN
-    data[nom_columna] = pd.to_numeric(data[nom_columna], errors='coerce')
-
-    # Aplica una funció lambda a cada fila per a avaluar els valors
-    data[nova_columna] = data[nom_columna].apply(lambda x: 1 if (not pd.isna(x) and x > 1.5) else 0)
-
-    return data
-
 
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
