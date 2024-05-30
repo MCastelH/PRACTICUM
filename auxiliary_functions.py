@@ -4,6 +4,8 @@ from scipy.stats import shapiro
 from scipy.stats import ttest_ind
 from scipy.stats import mannwhitneyu
 from scipy.stats import chi2_contingency
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 # TODO: comprueba que los Noms de las funciones sean descriptivos y concisos. OK
@@ -761,61 +763,45 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
     return data
 
 
-# Funció per calcular la normalitat aplicar el test de Shapiro-Wilks, YA NO HACE FALTA
-#def normalitat(grups: dict, alpha=0.05):
-    #    for name, grup in grups.items():  # Bucle 'for' per iterar sobre cada grup
-    #       stat, p_value = shapiro(grup)  # Realització de la prova de Shapiro-Wilk en cada grup
-    #       print(f"Grup {name}:")  # Impresió del nom del grup
-    #     print(f"  Estadístic W = {stat:.4f}")  # Impresió de l'estadístic de prova
-    #     print(f"  P-valor = {p_value:.4f}")  # Impresió del p-valor
-    #    if p_value < alpha:  # Comprobació de si el grup segueix una distribució normal
-    #        print("  El grup no segueix una distribució normal.")
-    #   else:
-    #       print("  El grup segueix una distribució normal.")
-#   print()  # Línia en blanc per separar els resultats de cada grup
-
-
 # Funció per calcular T-test o Mann-Whitney segons si són normals o no, respectivament
-from scipy.stats import shapiro, ttest_ind, mannwhitneyu
-
-
 def test_indepe(grupos: dict, alpha=0.05):
-        for nombre_grupo1, datos_grupo1 in grupos.items():
-            for nombre_grupo2, datos_grupo2 in grupos.items():
-                if nombre_grupo1 != nombre_grupo2:
-                    # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
-                    _, p_valor_shapiro1 = shapiro(datos_grupo1)
-                    _, p_valor_shapiro2 = shapiro(datos_grupo2)
+    for nombre_grupo1, datos_grupo1 in grupos.items():
+        for nombre_grupo2, datos_grupo2 in grupos.items():
+            if nombre_grupo1 != nombre_grupo2:
+                # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
+                _, p_valor_shapiro1 = shapiro(datos_grupo1)
+                _, p_valor_shapiro2 = shapiro(datos_grupo2)
 
-                    print(f"Resultado del test Shapiro-Wilk para {nombre_grupo1}:")
-                    print(f"  p-valor = {p_valor_shapiro1:.4f}")
-                    if p_valor_shapiro1 > alpha:
-                        print("  El grupo sigue una distribución normal.")
-                    else:
-                        print("  El grupo no sigue una distribución normal.")
+                print(f"Resultado del test Shapiro-Wilk para {nombre_grupo1}:")
+                print(f"  p-valor = {p_valor_shapiro1:.4f}")
+                if p_valor_shapiro1 > alpha:
+                    print("  El grupo sigue una distribución normal.")
+                else:
+                    print("  El grupo no sigue una distribución normal.")
 
-                    print(f"Resultado del test Shapiro-Wilk para {nombre_grupo2}:")
-                    print(f"  p-valor = {p_valor_shapiro2:.4f}")
-                    if p_valor_shapiro2 > alpha:
-                        print("  El grupo sigue una distribución normal.")
-                    else:
-                        print("  El grupo no sigue una distribución normal.")
+                print(f"Resultado del test Shapiro-Wilk para {nombre_grupo2}:")
+                print(f"  p-valor = {p_valor_shapiro2:.4f}")
+                if p_valor_shapiro2 > alpha:
+                    print("  El grupo sigue una distribución normal.")
+                else:
+                    print("  El grupo no sigue una distribución normal.")
 
-                    if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
-                        tipo_prueba = "t-test"
-                        stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
-                    else:  # Si al menos uno de los grupos no es normal
-                        tipo_prueba = "Mann-Whitney U"
-                        stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
+                if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
+                    tipo_prueba = "t-test"
+                    stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
+                else:  # Si al menos uno de los grupos no es normal
+                    tipo_prueba = "Mann-Whitney U"
+                    stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
 
-                    print(f"Comparación entre {nombre_grupo1} y {nombre_grupo2} usando {tipo_prueba}:")
-                    print(f"  Estadístico de prueba = {stat:.4f}")
-                    print(f"  Valor p = {p_valor:.4f}")
-                    if p_valor < alpha:
-                        print("  Hay una diferencia significativa entre los grupos.")
-                    else:
-                        print("  No hay una diferencia significativa entre los grupos.")
-                    print()
+                print(f"Comparación entre {nombre_grupo1} y {nombre_grupo2} usando {tipo_prueba}:")
+                print(f"  Estadístico de prueba = {stat:.4f}")
+                print(f"  Valor p = {p_valor:.4f}")
+                if p_valor < alpha:
+                    print("  Hay una diferencia significativa entre los grupos.")
+                else:
+                    print("  No hay una diferencia significativa entre los grupos.")
+                print()
+
 
 # Funció per calcular el test de Xi-quadrat
 def xi_quadrat_test(grups: dict, alpha=0.05):
@@ -834,13 +820,9 @@ def xi_quadrat_test(grups: dict, alpha=0.05):
                     print("  No hay una diferencia significativa entre los grupos.")
                 print()  # Línea en blanco para separar las comparaciones
 
-# Plot de los pval
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import shapiro, ttest_ind, mannwhitneyu
 
-
-def comparar_grupos(grupos: dict, alpha=0.05):
+# Plot de los pval per variables continues 
+def test_indepe_plot(grupos: dict, alpha=0.05):
     """
     Compara grupos utilizando pruebas t-test o Mann-Whitney U según la normalidad de los datos.
 
@@ -850,16 +832,56 @@ def comparar_grupos(grupos: dict, alpha=0.05):
     alpha (float): Nivel de significancia para el test de Shapiro-Wilk. Por defecto es 0.05.
 
     Retorna:
-    Una matriz con los valores del test de independencia y los p-valores para cada par de comparaciones.
+    None
     """
+
+    def plotear_matriz(matriz, nombres_grupos, titulo):
+        """
+        Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
+
+        Parámetros:
+        matriz (np.array): Matriz de p-valores a representar.
+        nombres_grupos (list): Lista de nombres de los grupos.
+        titulo (str): Título del gráfico.
+
+        Retorna:
+        None
+        """
+        fig, ax = plt.subplots()
+        cax = ax.matshow(matriz, cmap='viridis')
+
+        for (i, j), val in np.ndenumerate(matriz):
+            if i >= j:  # Solo mostrar la mitad superior y la diagonal
+                if np.isnan(val):
+                    ax.text(j, i, 'nan', ha='center', va='center', color='black')
+                else:
+                    color = 'white' if val < 0.05 else 'black'
+                    ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
+        # Configuración del color de fondo para hacer transparente la mitad superior
+        ax.set_facecolor((0, 0, 0, 0.5))
+
+        plt.colorbar(cax)
+        ax.set_xticks(np.arange(len(nombres_grupos)))
+        ax.set_yticks(np.arange(len(nombres_grupos)))
+        ax.set_xticklabels(nombres_grupos, rotation=45, ha='left')
+        ax.set_yticklabels(nombres_grupos)
+        plt.xlabel('Grupos')
+        plt.ylabel('Grupos')
+        plt.title(titulo)
+
+        # Ajustar la matriz para solo mostrar la mitad superior y la diagonal
+        ax.set_xlim(-0.5, len(nombres_grupos) - 0.5)
+        ax.set_ylim(len(nombres_grupos) - 0.5, -0.5)
+
+        plt.show()
+
     nombres_grupos = list(grupos.keys())
     num_grupos = len(nombres_grupos)
-    matriz_resultados = np.zeros((num_grupos, num_grupos))
     matriz_pvalores = np.zeros((num_grupos, num_grupos))
 
     for i, (nombre_grupo1, datos_grupo1) in enumerate(grupos.items()):
         for j, (nombre_grupo2, datos_grupo2) in enumerate(grupos.items()):
-            if nombre_grupo1 != nombre_grupo2:
+            if i >= j:  # Solo calcular para la mitad superior y la diagonal
                 # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
                 _, p_valor_shapiro1 = shapiro(datos_grupo1)
                 _, p_valor_shapiro2 = shapiro(datos_grupo2)
@@ -871,45 +893,92 @@ def comparar_grupos(grupos: dict, alpha=0.05):
                     tipo_prueba = "Mann-Whitney U"
                     stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
 
-                matriz_resultados[i, j] = stat
                 matriz_pvalores[i, j] = p_valor
 
-    return matriz_resultados, matriz_pvalores, nombres_grupos
+    plotear_matriz(matriz_pvalores, nombres_grupos, 'P-valores de las Comparaciones de Grupos')
 
-
-def plotear_matriz(matriz, nombres_filas, nombres_columnas):
+# Funció per fer el plot del pvalor de les variables binaries (0 o 1)
+def test_indepe_bin_plot(groups: dict):
     """
-    Genera un gráfico de matriz con los valores proporcionados.
+    Realiza el test de chi-cuadrado para comparar variables dicotómicas.
 
     Parámetros:
-    matriz (np.array): Matriz de valores a representar.
-    nombres_filas (list): Lista de nombres de las filas.
-    nombres_columnas (list): Lista de nombres de las columnas.
+    groups (dict): Un diccionario donde las claves son los nombres de los grupos
+                   y los valores son listas de observaciones dicotómicas (0 o 1) o
+                   variables categóricas (F/M, por ejemplo) para cada grupo.
 
     Retorna:
     None
     """
-    plt.imshow(matriz, cmap='viridis', interpolation='nearest')
-    plt.colorbar()
-    plt.xticks(np.arange(len(nombres_columnas)), nombres_columnas, rotation=45)
-    plt.yticks(np.arange(len(nombres_filas)), nombres_filas)
-    plt.xlabel('Grupos')
-    plt.ylabel('Grupos')
-    plt.title('Test de independencia')
-    plt.show()
+
+    def plot_matrix(matrix, group_names, title):
+        """
+        Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
+
+        Parámetros:
+        matrix (np.array): Matriz de p-valores a representar.
+        group_names (list): Lista de nombres de los grupos.
+        title (str): Título del gráfico.
+
+        Retorna:
+        None
+        """
+        fig, ax = plt.subplots()
+        cax = ax.matshow(matrix, cmap='magma')
+
+        for i in range(len(group_names)):
+            for j in range(len(group_names)):
+                if i >= j:
+                    val = matrix[i, j]
+                    if np.isnan(val):
+                        ax.text(j, i, 'nan', ha='center', va='center', color='black')
+                    else:
+                        color = 'white' if val < 0.05 else 'black'
+                        ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
+
+        ax.set_facecolor((0, 0, 0, 0.5))
+
+        plt.colorbar(cax)
+        ax.set_xticks(np.arange(len(group_names)))
+        ax.set_yticks(np.arange(len(group_names)))
+        ax.set_xticklabels(group_names, rotation=45, ha='left')
+        ax.set_yticklabels(group_names)
+        plt.xlabel('Grupos')
+        plt.ylabel('Grupos')
+        plt.title(title)
+
+        ax.set_xlim(-0.5, len(group_names) - 0.5)
+        ax.set_ylim(len(group_names) - 0.5, -0.5)
+
+        plt.show()
+
+    group_names = list(groups.keys())
+    num_groups = len(group_names)
+    p_values_matrix = np.zeros((num_groups, num_groups))
+
+    for i, (name1, data1) in enumerate(groups.items()):
+        for j, (name2, data2) in enumerate(groups.items()):
+            if i >= j:
+                if set(data1) == {'F', 'M'}:
+                    data1 = [1 if x == 'F' else 0 for x in data1]
+                if set(data2) == {'F', 'M'}:
+                    data2 = [1 if x == 'F' else 0 for x in data2]
+
+                count_00 = sum((x == 0 and y == 0) for x, y in zip(data1, data2))
+                count_01 = sum((x == 0 and y == 1) for x, y in zip(data1, data2))
+                count_10 = sum((x == 1 and y == 0) for x, y in zip(data1, data2))
+                count_11 = sum((x == 1 and y == 1) for x, y in zip(data1, data2))
+
+                contingency_table = np.array([[count_00, count_01], [count_10, count_11]])
+
+                _, p_value, _, _ = chi2_contingency(contingency_table)
+
+                p_values_matrix[i, j] = p_value
+
+    plot_matrix(p_values_matrix, group_names, 'P-valores de las Comparaciones de Grupos')
 
 
-# Ejemplo de uso:
-grupo1 = [10, 20, 30, 40]
-grupo2 = [15, 25, 35, 45]
-grupo3 = [20, 30, 40, 50]
-grupo4 = [25, 35, 45, 55]
 
-grupos = {'Grupo 1': grupo1, 'Grupo 2': grupo2, 'Grupo 3': grupo3, 'Grupo 4': grupo4}
-
-# Realiza las comparaciones
-matriz_resultados, matriz_pvalores, nombres_grupos = comparar_grupos(grupos)
-plotear_matriz(matriz_pvalores, nombres_grupos, nombres_grupos)
 
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
