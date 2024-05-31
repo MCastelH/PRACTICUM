@@ -1,9 +1,6 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from scipy.stats import shapiro
-from scipy.stats import ttest_ind
-from scipy.stats import mannwhitneyu
-from scipy.stats import chi2_contingency
+from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -75,6 +72,9 @@ def dies_ingressat_total(data: pd.DataFrame, nom_columna: str, nova_columna: str
         suma_dies = 0
         for ingres in fila[nom_columna]:
             data_ingres = datetime.strptime(ingres['dataIngres'], '%Y-%m-%d')
+            # Si la data d'alta no està present, no es pot calcular la diferència de dies
+            if 'dataAlta' not in ingres:
+                continue
             data_alta = datetime.strptime(ingres['dataAlta'], '%Y-%m-%d')
             diferencia = data_alta - data_ingres
             suma_dies += diferencia.days
@@ -182,6 +182,9 @@ def suma_sense_data(diccionari):
         - Suma total dels valors excloent la clau 'data'.
     """
     suma_parcial = 0
+    # Comprobem que el diccionari no estigui buit
+    if not diccionari or not isinstance(diccionari, dict):
+        return None
     for clau, valor in diccionari.items():
         if clau != 'data':
             suma_parcial += int(valor)
