@@ -15,26 +15,15 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 if __name__ == "__main__":
     logging.info("Inici del processament de l'script.")
 
-    # Carregar l'arxiu json amb les dades
-    try:
-        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
-            dades_raw = json.load(arxiu)
-        logging.info("Arxiu carregat correctament.")
-    except Exception as e:
-        logging.error(f"Error en carregar l'arxiu: {e}")
-        raise
+    # Carreguem el fitxer json amb les dades
+    with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
+        dades_raw = json.load(arxiu)
+    data = pd.DataFrame(dades_raw)
 
-    try:
-        data = pd.DataFrame(dades_raw)
-        logging.info("DataFrame creat amb èxit.")
 
-        # Filtrar per edat > 65
-        data = data[data['edat'] > 65]
-        logging.info(f"Dades filtrades per edat: {len(data)} registres trobats.")
-
-        # Construir una columna per cada patologia.
-        for key, value in pathology_dict.items():
-            data = codis_ICD(data, value, key)
+    # Construim una columna per cada patologia.
+    for key, value in pathology_dict.items():
+        data = codis_ICD(data, value, key)
 
         # Calcular índexs de Charlson
         data = index_charlson(data, 'ingressos', 'Charlson', charlson_dict)

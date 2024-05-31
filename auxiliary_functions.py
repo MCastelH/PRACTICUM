@@ -824,7 +824,7 @@ def xi_quadrat_test(grups: dict, alpha=0.05):
                 print()  # Línea en blanco para separar las comparaciones
 
 
-# Plot de los pval per variables continues 
+# Plot de los pval per variables continues
 def test_indepe_plot(grupos: dict, alpha=0.05):
     """
     Compara grupos utilizando pruebas t-test o Mann-Whitney U según la normalidad de los datos.
@@ -885,101 +885,153 @@ def test_indepe_plot(grupos: dict, alpha=0.05):
     for i, (nombre_grupo1, datos_grupo1) in enumerate(grupos.items()):
         for j, (nombre_grupo2, datos_grupo2) in enumerate(grupos.items()):
             if i >= j:  # Solo calcular para la mitad superior y la diagonal
+                # Convertir datos a serie de pandas y tratar de convertir a float
+                datos_grupo1 = pd.to_numeric(pd.Series(datos_grupo1), errors='coerce').dropna()
+                datos_grupo2 = pd.to_numeric(pd.Series(datos_grupo2), errors='coerce').dropna()
+
                 # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
-                _, p_valor_shapiro1 = shapiro(datos_grupo1)
-                _, p_valor_shapiro2 = shapiro(datos_grupo2)
+                if len(datos_grupo1) > 0 and len(datos_grupo2) > 0:
+                    _, p_valor_shapiro1 = shapiro(datos_grupo1)
+                    _, p_valor_shapiro2 = shapiro(datos_grupo2)
 
-                if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
-                    tipo_prueba = "t-test"
-                    stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
-                else:  # Si al menos uno de los grupos no es normal
-                    tipo_prueba = "Mann-Whitney U"
-                    stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
+                    if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
+                        stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
+                    else:  # Si al menos uno de los grupos no es normal
+                        stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
 
-                matriz_pvalores[i, j] = p_valor
+                    matriz_pvalores[i, j] = p_valor
+                else:
+                    matriz_pvalores[i, j] = np.nan  # Asignar NaN si alguna de las series está vacía
 
     plotear_matriz(matriz_pvalores, nombres_grupos, 'P-valores de las Comparaciones de Grupos')
 
-# Funció per fer el plot del pvalor de les variables binaries (0 o 1)
-def test_indepe_bin_plot(groups: dict):
-    """
-    Realiza el test de chi-cuadrado para comparar variables dicotómicas.
 
-    Parámetros:
-    groups (dict): Un diccionario donde las claves son los nombres de los grupos
-                   y los valores son listas de observaciones dicotómicas (0 o 1) o
-                   variables categóricas (F/M, por ejemplo) para cada grupo.
 
-    Retorna:
-    None
-    """
 
-    def plot_matrix(matrix, group_names, title):
-        """
-        Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
 
-        Parámetros:
-        matrix (np.array): Matriz de p-valores a representar.
-        group_names (list): Lista de nombres de los grupos.
-        title (str): Título del gráfico.
 
-        Retorna:
-        None
-        """
-        fig, ax = plt.subplots()
-        cax = ax.matshow(matrix, cmap='magma')
 
-        for i in range(len(group_names)):
-            for j in range(len(group_names)):
-                if i >= j:
-                    val = matrix[i, j]
-                    if np.isnan(val):
-                        ax.text(j, i, 'nan', ha='center', va='center', color='black')
-                    else:
-                        color = 'white' if val < 0.05 else 'black'
-                        ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
 
-        ax.set_facecolor((0, 0, 0, 0.5))
+# Funció per fer el plot del p-valor de les variables binàries (0 o 1)
+    def test_indepe_plot(grupos:dict, filter_function: None):
+        @staticmethod
+        def preprocess_data(data):
+            """
+            Preprocesa los datos para convertir valores categóricos a binarios y filtrar datos.
 
-        plt.colorbar(cax)
-        ax.set_xticks(np.arange(len(group_names)))
-        ax.set_yticks(np.arange(len(group_names)))
-        ax.set_xticklabels(group_names, rotation=45, ha='left')
-        ax.set_yticklabels(group_names)
-        plt.xlabel('Grupos')
-        plt.ylabel('Grupos')
-        plt.title(title)
+            Parámetros:
+            data (list): Lista de datos a preprocesar.
 
-        ax.set_xlim(-0.5, len(group_names) - 0.5)
-        ax.set_ylim(len(group_names) - 0.5, -0.5)
+            Retorna:
+            list: Lista de datos preprocesados.
+            """
+            # Convertir datos categóricos a binarios
+            if set(data) == {'F', 'M'}:
+                data = [1 if x == 'F' else 0 if x == 'M' else None for x in data]
+            # Convertir a float y filtrar NaN
+            data = pd.to_numeric(pd.Series(data), errors='coerce').dropna().tolist()
+            return data
 
-        plt.show()
+        @staticmethod
+        def plot_matrix(matrix, group_names, title):
+            """
+            Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
 
-    group_names = list(groups.keys())
-    num_groups = len(group_names)
-    p_values_matrix = np.zeros((num_groups, num_groups))
+            Parámetros:
+            matrix (np.array): Matriz de p-valores a representar.
+            group_names (list): Lista de nombres de los grupos.
+            title (str): Título del gráfico.
 
-    for i, (name1, data1) in enumerate(groups.items()):
-        for j, (name2, data2) in enumerate(groups.items()):
-            if i >= j:
-                if set(data1) == {'F', 'M'}:
-                    data1 = [1 if x == 'F' else 0 for x in data1]
-                if set(data2) == {'F', 'M'}:
-                    data2 = [1 if x == 'F' else 0 for x in data2]
+            Retorna:
+            None
+            """
+            fig, ax = plt.subplots()
+            cax = ax.matshow(matrix, cmap='magma')
 
-                count_00 = sum((x == 0 and y == 0) for x, y in zip(data1, data2))
-                count_01 = sum((x == 0 and y == 1) for x, y in zip(data1, data2))
-                count_10 = sum((x == 1 and y == 0) for x, y in zip(data1, data2))
-                count_11 = sum((x == 1 and y == 1) for x, y in zip(data1, data2))
+            for i in range(len(group_names)):
+                for j in range(len(group_names)):
+                    if i >= j:
+                        val = matrix[i, j]
+                        if np.isnan(val):
+                            ax.text(j, i, 'nan', ha='center', va='center', color='black')
+                        else:
+                            color = 'white' if val < 0.05 else 'black'
+                            ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
 
-                contingency_table = np.array([[count_00, count_01], [count_10, count_11]])
+            ax.set_facecolor((0, 0, 0, 0.5))
 
-                _, p_value, _, _ = chi2_contingency(contingency_table)
+            plt.colorbar(cax)
+            ax.set_xticks(np.arange(len(group_names)))
+            ax.set_yticks(np.arange(len(group_names)))
+            ax.set_xticklabels(group_names, rotation=45, ha='left')
+            ax.set_yticklabels(group_names)
+            plt.xlabel('Grupos')
+            plt.ylabel('Grupos')
+            plt.title(title)
+
+            ax.set_xlim(-0.5, len(group_names) - 0.5)
+            ax.set_ylim(len(group_names) - 0.5, -0.5)
+
+            plt.show()
+
+        @staticmethod
+        def test(groups: dict, filter_func=None):
+            """
+            Realiza el test de chi-cuadrado para comparar variables dicotómicas.
+
+            Parámetros:
+            groups (dict): Un diccionario donde las claves son los nombres de los grupos
+                           y los valores son listas de observaciones dicotómicas (0 o 1) o
+                           variables categóricas (F/M, por ejemplo) para cada grupo.
+            filter_func (function): Una función opcional para filtrar los datos de cada grupo.
+
+            Retorna:
+            None
+            """
+
+            group_names = list(groups.keys())
+            num_groups = len(group_names)
+            p_values_matrix = np.zeros((num_groups, num_groups))
+
+            for i, (name1, data1) in enumerate(groups.items()):
+                for j, (name2, data2) in enumerate(groups.items()):
+                    if i >= j:
+                        data1 = TestIndepBinPlot.preprocess_data(data1)
+                        data2 = TestIndepBinPlot.preprocess_data(data2)
+
+                        # Aplicar función de filtrado si se proporciona
+                        if filter_func:
+                            data1 = list(filter(filter_func, data1))
+                            data2 = list(filter(filter_func, data2))
+
+                        # Validar si las listas no están vacías
+                        if len(data1) == 0 or len(data2) == 0:
+                            p_values_matrix[i, j] = np.nan
+                            continue
+
+                        # Construir la tabla de contingencia
+                        count_00 = sum(
+                            (x == 0 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
+                        count_01 = sum(
+                            (x == 0 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
+                        count_10 = sum(
+                            (x == 1 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
+                        count_11 = sum(
+                            (x == 1 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
+
+                        contingency_table = np.array([[count_00, count_01], [count_10, count_11]])
+
+                        # Validar que la tabla de contingencia tenga valores suficientes para realizar el test
+                        if contingency_table.sum() == 0 or (contingency_table < 5).sum() > 0:
+                            p_values_matrix[i, j] = np.nan
+                            continue
+
+                        # Calcular el test de chi-cuadrado
+                        _, p_value, _, _ = chi2_contingency
 
                 p_values_matrix[i, j] = p_value
 
     plot_matrix(p_values_matrix, group_names, 'P-valores de las Comparaciones de Grupos')
-
 
 
 
