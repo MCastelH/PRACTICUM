@@ -604,8 +604,7 @@ laboratoris_dict = {
     "Glomerular Filtrate": "62238-1"
 }
 
-num_var = ['Age', 'pes', 'Charlson', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Barthel resultats',
-           'EMINA_resultats', 'MNA_resultats', 'Canadenca_resultats', 'Mitjana de pes', 'Albumin',
+num_var = ['Age', 'pes', 'Charlson', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Mitjana de pes', 'Albumin',
            'Total Proteins', 'Hemoglobin', 'Total Cholesterol', 'Leucocytes', 'Lymphocytes', 'C reactive protein',
            'Creatinine', 'Urea', 'Glomerular Filtrate']
 cat_var = ['sex', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P diagnosticada', 'Infeccions respiratòries principals diagnosticades',
@@ -614,6 +613,11 @@ cat_var = ['sex', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P d
                 'Immobilitat', 'Confusió', 'Osteoporosi', 'Sarcopènia', 'Probl.son', 'Dolor crònic', 'Iatrogènic', 'Restrenyiment',
                 'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties', 'Neoplàsies', 'ARF', 'Marejos', 'VIH', 'Psicosi',
                 'Def.nutri']
+
+tests_num = ['Barthel resultats', 'EMINA_resultats', 'MNA_resultats', 'Canadenca_resultats'] # nombre total
+
+tests_cat = #por intervalos de cada una, hacer columnas con estos intervalos y meter aqui
+
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',
 #           'J15.211', 'J15.5', 'A48.1', 'J15.8', 'J18.0', 'J18.8', 'J69.0', 'J20', 'J10.1', 'J11.1', 'J41.8',
