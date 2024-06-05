@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency
 import numpy as np
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 
 # TODO: comprueba que los Noms de las funciones sean descriptivos y concisos. OK
@@ -12,6 +13,19 @@ import matplotlib.pyplot as plt
 
 # Funció per obtenir les columnes de les malalties segons els seus ICD
 def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
+    """
+    Funció que realitza una cerca en una llista de diccionaris d'una columna present en un DataFrame de pandas. Busca un
+    conjunt de codis específics i assigna 1 si algun d'aquests codis està present a la llista 'codiDiagnostics' de cada
+    fila 'ingres', i 0 si cap dels codis està present. El resultat s'emmagatzema en una nova columna del DataFrame.
+
+    Paràmetres:
+        - data: DataFrame de pandas que conté les dades
+        - llista: Llista de codi que es busquen en la llista de 'codiDiagnostics'.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà el resultat.
+
+    Retorna:
+        - DataFrame modificat amb la nova columna que indica la presència dels codis buscats en 'codiDiagnostics'
+    """
     for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
         for ingres in fila['ingressos']:  # Iterar sobre cada ingrés en 'ingressos'
             for valor in ingres['codiDiagnostics']:  # Iterar sobre cada valor en 'codiDiagnostics'
@@ -182,7 +196,7 @@ def suma_sense_data(diccionari):
         - Suma total dels valors excloent la clau 'data'.
     """
     suma_parcial = 0
-    # Comprobem que el diccionari no estigui buit
+    # Comprovem que el diccionari no estigui buit
     if not diccionari or not isinstance(diccionari, dict):
         return None
     for clau, valor in diccionari.items():
@@ -267,7 +281,7 @@ def calcular_mitjana(diccionaris):
         - Mitjana dels valors numèrics de la clau 'valor'.
           Retorna None si la llista de diccionaris està buida, no és vàlida o conté una llista buida.
     """
-    # Verificar si la entrada no es vàlida o si és una llista buida
+    # Verificar si l'entrada no és vàlida o si és una llista buida
     if not diccionaris or not isinstance(diccionaris, list) or (len(diccionaris) == 1 and not diccionaris[0]):
         return None
 
@@ -494,7 +508,7 @@ def extract_value(d, key):
     return None
 
 
-# Funció per calcular el valor de l'index de Charlson per a un pacient, tenint en compte que cada codi representa un
+# Funció per calcular el valor de l'índex de Charlson per a un pacient, tenint en compte que cada codi representa un
 # valor i que aquests valors es poden anar sumant si el pacient en té més d'un
 def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, charlson_dict: dict) -> pd.DataFrame:
     """
@@ -766,158 +780,93 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
     return data
 
 
-# Funció per calcular T-test o Mann-Whitney segons si són normals o no, respectivament
-def test_indepe(grupos: dict, alpha=0.05):
-    for nombre_grupo1, datos_grupo1 in grupos.items():
-        for nombre_grupo2, datos_grupo2 in grupos.items():
-            if nombre_grupo1 != nombre_grupo2:
-                # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
-                _, p_valor_shapiro1 = shapiro(datos_grupo1)
-                _, p_valor_shapiro2 = shapiro(datos_grupo2)
-
-                print(f"Resultado del test Shapiro-Wilk para {nombre_grupo1}:")
-                print(f"  p-valor = {p_valor_shapiro1:.4f}")
-                if p_valor_shapiro1 > alpha:
-                    print("  El grupo sigue una distribución normal.")
-                else:
-                    print("  El grupo no sigue una distribución normal.")
-
-                print(f"Resultado del test Shapiro-Wilk para {nombre_grupo2}:")
-                print(f"  p-valor = {p_valor_shapiro2:.4f}")
-                if p_valor_shapiro2 > alpha:
-                    print("  El grupo sigue una distribución normal.")
-                else:
-                    print("  El grupo no sigue una distribución normal.")
-
-                if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
-                    tipo_prueba = "t-test"
-                    stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
-                else:  # Si al menos uno de los grupos no es normal
-                    tipo_prueba = "Mann-Whitney U"
-                    stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
-
-                print(f"Comparación entre {nombre_grupo1} y {nombre_grupo2} usando {tipo_prueba}:")
-                print(f"  Estadístico de prueba = {stat:.4f}")
-                print(f"  Valor p = {p_valor:.4f}")
-                if p_valor < alpha:
-                    print("  Hay una diferencia significativa entre los grupos.")
-                else:
-                    print("  No hay una diferencia significativa entre los grupos.")
-                print()
-
-
-# Funció per calcular el test de Xi-quadrat
-def xi_quadrat_test(grups: dict, alpha=0.05):
-    for name1, grup1 in grups.items():  # Itera sobre cada grupo del diccionario
-        for name2, grup2 in grups.items():  # Itera nuevamente para comparar con los otros grupos
-            if name1 != name2:  # Evita comparar un grupo consigo mismo
-                # Realiza el test de chi-cuadrado
-                contingency_table = [grup1, grup2]
-                chi2, p_value, dof, expected = chi2_contingency(contingency_table)
-                print(f"Comparación entre {name1} i {name2}:")
-                print(f"  Estadístico chi-cuadrado = {chi2:.4f}")
-                print(f"  P-valor = {p_value:.4f}")
-                if p_value < alpha:
-                    print("  Hay una diferencia significativa entre los grupos.")
-                else:
-                    print("  No hay una diferencia significativa entre los grupos.")
-                print()  # Línea en blanco para separar las comparaciones
-
-
-# Plot de los pval per variables continues
-def test_indepe_plot(grupos: dict, alpha=0.05):
+# Funció per generar un plot dels p-valors per variables contínues, un cop s'ha comprovat la normalitat i s'ha fet un
+# T-test o Mann-Whitney segons correspongui
+def test_indepe_plot(grups: dict, alpha=0.05):
     """
-    Compara grupos utilizando pruebas t-test o Mann-Whitney U según la normalidad de los datos.
+    Compara grups utilitzant proves t-test o Mann-Whitney U segons la normalitat de les dades.
 
-    Parámetros:
-    grupos (dict): Un diccionario donde las claves son los nombres de los grupos
-                   y los valores son listas de observaciones para cada grupo.
-    alpha (float): Nivel de significancia para el test de Shapiro-Wilk. Por defecto es 0.05.
+    Paràmetres:
+    grupos (dict): Un diccionari on les claus són els noms dels grups
+                   i els valors són llistes d'observacions per a cada grup.
+    alpha (float): Nivell de significància pel test de Shapiro-Wilk. Per defecte és 0.05.
 
     Retorna:
     None
     """
 
-    def plotear_matriz(matriz, nombres_grupos, titulo):
+    def plotejar_matriu(matriu, noms_grups, titol):
         """
-        Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
+        Genera un gràfico d'hemi-matriu superior amb els p-valors proporcionats.
 
-        Parámetros:
-        matriz (np.array): Matriz de p-valores a representar.
-        nombres_grupos (list): Lista de nombres de los grupos.
-        titulo (str): Título del gráfico.
+        Paràmetres:
+        matriu (np.array): Matriu de p-valors a representar.
+        noms_grups (list): Llista de noms dels grups.
+        titol (str): Títol del gràfic.
 
         Retorna:
         None
         """
         fig, ax = plt.subplots()
-        cax = ax.matshow(matriz, cmap='viridis')
+        cax = ax.matshow(matriu, cmap='viridis')
 
-        for (i, j), val in np.ndenumerate(matriz):
-            if i >= j:  # Solo mostrar la mitad superior y la diagonal
+        for (i, j), val in np.ndenumerate(matriu):
+            if i >= j:  # Només mostrar la meitat superior i la diagonal
                 if np.isnan(val):
                     ax.text(j, i, 'nan', ha='center', va='center', color='black')
                 else:
                     color = 'white' if val < 0.05 else 'black'
                     ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
-        # Configuración del color de fondo para hacer transparente la mitad superior
+        # Configuració del color de fons per fer transparent la meitat superior
         ax.set_facecolor((0, 0, 0, 0.5))
 
         plt.colorbar(cax)
-        ax.set_xticks(np.arange(len(nombres_grupos)))
-        ax.set_yticks(np.arange(len(nombres_grupos)))
-        ax.set_xticklabels(nombres_grupos, rotation=45, ha='left')
-        ax.set_yticklabels(nombres_grupos)
-        plt.xlabel('Grupos')
-        plt.ylabel('Grupos')
-        plt.title(titulo)
+        ax.set_xticks(np.arange(len(noms_grups)))
+        ax.set_yticks(np.arange(len(noms_grups)))
+        ax.set_xticklabels(noms_grups, rotation=45, ha='left')
+        ax.set_yticklabels(noms_grups)
+        plt.xlabel('Grups')
+        plt.ylabel('Grups')
+        plt.title(titol)
 
-        # Ajustar la matriz para solo mostrar la mitad superior y la diagonal
-        ax.set_xlim(-0.5, len(nombres_grupos) - 0.5)
-        ax.set_ylim(len(nombres_grupos) - 0.5, -0.5)
+        # Ajustar la matriu per només mostrar la meitat superior i la diagonal
+        ax.set_xlim(-0.5, len(noms_grups) - 0.5)
+        ax.set_ylim(len(noms_grups) - 0.5, -0.5)
 
         plt.show()
 
-    nombres_grupos = list(grupos.keys())
-    num_grupos = len(nombres_grupos)
-    matriz_pvalores = np.zeros((num_grupos, num_grupos))
+    noms_grups = list(grups.keys())
+    num_grups = len(noms_grups)
+    matriu_pvalors = np.zeros((num_grups, num_grups))
 
-    for i, (nombre_grupo1, datos_grupo1) in enumerate(grupos.items()):
-        for j, (nombre_grupo2, datos_grupo2) in enumerate(grupos.items()):
-            if i >= j:  # Solo calcular para la mitad superior y la diagonal
-                # Convertir datos a serie de pandas y tratar de convertir a float
-                datos_grupo1 = pd.to_numeric(pd.Series(datos_grupo1), errors='coerce').dropna()
-                datos_grupo2 = pd.to_numeric(pd.Series(datos_grupo2), errors='coerce').dropna()
+    for i, (nom_grup1, dades_grup1) in enumerate(grups.items()):
+        for j, (nom_grup2, dades_grup2) in enumerate(grups.items()):
+            if i >= j:  # Només calcular per la meitat superior i la diagonal
+                # Convertir les dades a sèrie de pandas i intentar de convertir a float
+                dades_grup1 = pd.to_numeric(pd.Series(dades_grup1), errors='coerce').dropna()
+                dades_grup2 = pd.to_numeric(pd.Series(dades_grup2), errors='coerce').dropna()
 
-                # Realiza el test de Shapiro-Wilk para comprobar la normalidad de ambos grupos
-                if len(datos_grupo1) > 0 and len(datos_grupo2) > 0:
-                    _, p_valor_shapiro1 = shapiro(datos_grupo1)
-                    _, p_valor_shapiro2 = shapiro(datos_grupo2)
+                # Realitza el test de Shapiro-Wilk per comprobar la normalitat d'ambdós grups
+                if len(dades_grup1) > 0 and len(dades_grup2) > 0:
+                    _, p_valor_shapiro1 = shapiro(dades_grup1)
+                    _, p_valor_shapiro2 = shapiro(dades_grup2)
 
-                    if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambos grupos son normales
-                        stat, p_valor = ttest_ind(datos_grupo1, datos_grupo2)
-                    else:  # Si al menos uno de los grupos no es normal
-                        stat, p_valor = mannwhitneyu(datos_grupo1, datos_grupo2, alternative='two-sided')
+                    if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambdós grups són normals
+                        stat, p_valor = ttest_ind(dades_grup1, dades_grup2)
+                    else:  # Si almenys un dels grups no és normal
+                        stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
 
-                    matriz_pvalores[i, j] = p_valor
+                    matriu_pvalors[i, j] = p_valor
                 else:
-                    matriz_pvalores[i, j] = np.nan  # Asignar NaN si alguna de las series está vacía
+                    matriu_pvalors[i, j] = np.nan  # Assignar NaN si alguna de les sèries està buïda
 
-    plotear_matriz(matriz_pvalores, nombres_grupos, 'P-valores de las Comparaciones de Grupos')
-
-
-
+    plotejar_matriu(matriu_pvalors, noms_grups, 'P-valors de les Comparacions de Grups')
 
 
 #####
 
 
 # Funció per fer el plot del p-valor de les variables binàries (0 o 1)
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.stats import chi2_contingency
-
 def test_indepe_bin_plot(groups: dict, filter_func=None):
     """
     Realiza el test de chi-cuadrado para comparar variables dicotómicas.
@@ -1035,15 +984,97 @@ def test_indepe_bin_plot(groups: dict, filter_func=None):
 
                 p_values_matrix[i, j] = p_value
 
-    plot_matrix(p_values_matrix, group_names, 'P-valores de las Comparaciones de Grupos', filter_func)
+    plot_matrix(p_values_matrix, group_names, 'P-valors de les Comparacions de Grups', filter_func)
+
+
+######
+
+# Funció per calcular la mitjana i la desviació estàndard
+def mitjana_i_std_num(df, columns: list):
+    """
+    Calcula la mitjana i la desviació estàndard per a cada columna especificada en una llista.
+
+    Paràmetres:
+    df (DataFrame): El DataFrame que conté les dades.
+    columnes (list): Llista de noms de columnes a analitzar.
+
+    Retorna:
+    None
+    """
+    for col in columns:
+        if col in df.columns:
+            try:
+                # Intenta convertir la columna a tipus numérico
+                df.loc[:, col] = pd.to_numeric(df[col], errors='coerce')  # Els valors no convertibles s'establiran
+                # com a Nan
+            except ValueError as e:
+                print(f"Error convertint la columna '{col}' a tipus numèric: {str(e)}")
+                continue  # Salta a la següent columna si hi ha un error de conversió
+
+            # Calcula la mitjana i la desviació estàndard
+            mean = df[col].mean()
+            std = df[col].std()
+
+            # Imprime los resultados
+            print(f"Resum per la columna {col}:")
+            print(f"Mitjana: {mean:.2f}")
+            print(f"Desviació estàdard: {std:.2f}")
+            print("\n")
+        else:
+            print(f"Columna '{col}' absent en el DataFrame.")
+
+
+# Funció per calcular el compteig de variables categòriques i el seu percentatge
+def comptatge_i_percentatge_cat(df, columnes):
+    """
+    Calcula el compteig i percentatge de variables per a cada columna especificada en una llista.
+
+    Paràmetres:
+    df (DataFrame): El DataFrame que conté les dades.
+    columnes (list): Llista de noms de columnes a analitzar
+
+    Retorna:
+    None
+    """
+    for col in columnes:
+        if col in df.columns:
+            # Identifica les diferents variables categòriques
+            unique_values = df[col].unique()
+
+            # Convertimos la columna 'Creatinine' a tipo numérico
+            if col == 'Creatinine':
+                df.loc[:, col] = pd.to_numeric(df[col], errors='coerce')
+
+            # Si la columna es 'Creatinine', la tratamos como categórica
+            if col == 'Creatinine':
+                # Convertimos los valores numéricos en 0 o 1 según sean mayores o menores que 1.5
+                df.loc[:, 'Malaltia renal crónica'] = (df[col] > 1.5).astype(int)
+                col = 'Malaltia renal crónica'  # Cambiamos el nombre de la columna
+
+            # Calcula el compteig y percentatge de las variables
+            counts = df[col].value_counts()
+            percentages = df[col].value_counts(normalize=True) * 100
+
+            # Crea un DataFrame para los resultados
+            Resultats = pd.DataFrame({
+                'Comptatges': counts,
+                'Percentatges': percentages
+            })
+
+            # Imprime los resultados en forma de tabla
+            print(f"Resum per la columna de {col}:\n")
+            print(tabulate(Resultats, headers='keys', tablefmt='psql'))
+            print("\n")
+
+        else:
+            print(f"Columna '{col}' absent al DataFrame.")
 
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []
 # float num enteros, int para decimales con punto
 # los tests (mna, emina, barthel...) tienen 2 "categorias":
-    # - el total que es numerico (mean+-sd) --> ttest/mannwhit
-    # - los diferentes intervalos que son categorico (num total/contaje) --> xi
-
+# - el total que es numerico (mean+-sd) --> ttest/mannwhit
+# - los diferentes intervalos que son categorico (num total/contaje) --> xi
 # Filtrar valores entre 10 y 15
 # filter_func = lambda x: 10 <= x <= 15

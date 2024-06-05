@@ -603,20 +603,22 @@ laboratoris_dict = {
     "Urea": "3091-6",
     "Glomerular Filtrate": "62238-1"
 }
-
-num_var = ['Age', 'pes', 'Charlson', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Mitjana de pes', 'Albumin',
+# he cambiado pes por Mitjana pes xq esa columna tiene diccionarios con diferentes pesos, no se puede usar sino
+num_var = {'edat', 'Mitjana pes', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Charlson', 'Albumin',
            'Total Proteins', 'Hemoglobin', 'Total Cholesterol', 'Leucocytes', 'Lymphocytes', 'C reactive protein',
-           'Creatinine', 'Urea', 'Glomerular Filtrate']
-cat_var = ['sex', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P diagnosticada', 'Infeccions respiratòries principals diagnosticades',
-              'LRTI diagnosticada', 'Exacerbacions de COPD diagnosticades', 'Fibrosi pulmonar i fibrotòrax diagnosticades',
-                'Caigudes prèvies', 'Deliris', 'Demència', 'Síndrome depressiu', 'Incont.uri', 'Incont.fec', 'Úlceres pressió',
-                'Immobilitat', 'Confusió', 'Osteoporosi', 'Sarcopènia', 'Probl.son', 'Dolor crònic', 'Iatrogènic', 'Restrenyiment',
-                'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties', 'Neoplàsies', 'ARF', 'Marejos', 'VIH', 'Psicosi',
-                'Def.nutri']
+           'Creatinine', 'Urea', 'Glomerular Filtrate'}
+cat_var = ['sexe', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P diagnosticada',
+           'Infeccions respiratòries principals diagnosticades', 'LRTI diagnosticada',
+           'Exacerbacions de COPD diagnosticades', 'Fibrosi pulmonar i fibrotòrax diagnosticades',
+           'Caigudes prèvies', 'Deliris', 'Demència', 'Síndrome depressiu', 'Incont.uri', 'Incont.fec',
+           'Úlceres pressió', 'Immobilitat', 'Confusió', 'Osteoporosi', 'Sarcopènia', 'Probl.son', 'Dolor crònic',
+           'Iatrogènic', 'Restrenyiment', 'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties', 'Neoplàsies',
+           'Creatinine', 'ARF', 'Marejos', 'VIH', 'Psicosi', 'Def.nutri'] # Creatinine está como categorica para
+                                                                          # malaltia renal cronica
 
-tests_num = ['Barthel resultats', 'EMINA_resultats', 'MNA_resultats', 'Canadenca_resultats'] # nombre total
+num_tests = ['Barthel resultats', 'EMINA resultats', 'MNA resultats', 'Canadenca resultats']  # fer mean sd
 
-tests_cat = #por intervalos de cada una, hacer columnas con estos intervalos y meter aqui
+#cat_tests = ['Categories_Barthel', 'Categories_EMINA', 'Categories_MNA', 'Categories_Canadenca'] # fer contatge i %
 
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',

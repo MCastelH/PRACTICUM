@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # Carregar l'arxiu json amb les dades
     try:
-        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
+        with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
             dades_raw = json.load(arxiu)
         logging.info("Arxiu carregat correctament.")
     except Exception as e:
@@ -35,6 +35,9 @@ if __name__ == "__main__":
         # Construir una columna per cada patologia.
         for key, value in pathology_dict.items():
             data = codis_ICD(data, value, key)
+
+        # Construir diverses columnes pels diferents intervals dels tests EMINA, MNA, Barthel i Canadenca
+        # data = categoritzar_puntuacions_i_analitzar(data)
 
         # Calcular índexs de Charlson
         data = index_charlson(data, 'ingressos', 'Charlson', charlson_dict)
