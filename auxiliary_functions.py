@@ -1048,8 +1048,8 @@ def comptatge_i_percentatge_cat(df, columnes):
             # Si la columna es 'Creatinine', la tratamos como categórica
             if col == 'Creatinine':
                 # Convertimos los valores numéricos en 0 o 1 según sean mayores o menores que 1.5
-                df.loc[:, 'Malaltia renal crónica'] = (df[col] > 1.5).astype(int)
-                col = 'Malaltia renal crónica'  # Cambiamos el nombre de la columna
+                df.loc[:, 'Malaltia renal crònica'] = (df[col] > 1.5).astype(int)
+                col = 'Malaltia renal crònica'  # Cambiamos el nombre de la columna
 
             # Calcula el compteig y percentatge de las variables
             counts = df[col].value_counts()
