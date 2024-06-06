@@ -927,7 +927,7 @@ def test_indepe_plot(grups: dict, alpha=0.05):
     plotejar_matriu(matriu_pvalors, noms_grups, 'P-valors de les Comparacions dels Grups')
 
 
-##### TODO: no funciona bien
+#####
 # Funció per fer el plot del p-valor de les variables binàries (0 o 1)
 def test_indepe_bin_plot(groups: dict, filter_func=None):
     """
