@@ -618,7 +618,7 @@ cat_var = ['sexe', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P 
 
 num_tests = ['Barthel resultats', 'EMINA resultats', 'MNA resultats', 'Canadenca resultats']  # fer mean sd
 
-#cat_tests = ['Categories_Barthel', 'Categories_EMINA', 'Categories_MNA', 'Categories_Canadenca'] # fer contatge i %
+cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canadenca categòrica'] # fer contatge i %
 
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency
 import numpy as np
@@ -780,6 +781,69 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
     return data
 
 
+# Funció per generar les columnes dels tests MNA, EMINA, Barthel i Canadenca
+def columnes_tests_categorics(df):
+    """Categoritza resultats i afegeix nous resultats amb valors categòrics al DataFrame."""
+    df = categoritzar_barthel(df)
+    df = categoritzar_mna(df)
+    df = categoritzar_emina(df)
+    df = categoritzar_canadenca(df)
+    return df
+
+
+def categoritzar_canadenca(df):
+    """Categoritza l'escala neurològica canadenca en 3 categories."""
+    df['Canadenca resultats'] = pd.to_numeric(df['Canadenca resultats'], errors='coerce')
+    conditions = [
+        (df['Canadenca resultats'] > 10) & (df['Canadenca resultats'] <= 11.5),
+        (df['Canadenca resultats'] >= 5) & (df['Canadenca resultats'] <= 10),
+        (df['Canadenca resultats'] <= 4.5)
+    ]
+    choices = ['Dèficit neurològic lleu', 'Dèficit neurologic moderat', 'Dèficit neurològic sever']
+    df['Canadenca categòrica'] = np.select(conditions, choices, default='Desconegut')
+    return df
+
+
+def categoritzar_barthel(df):
+    """Categoritza l'índex de Barthel en 4 categories."""
+    df['Barthel resultats'] = pd.to_numeric(df['Barthel resultats'], errors='coerce')
+    conditions = [
+        (df['Barthel resultats'] > 95),
+        (df['Barthel resultats'] > 60) & (df['Barthel resultats'] <= 95),
+        (df['Barthel resultats'] > 21) & (df['Barthel resultats'] <= 60),
+        (df['Barthel resultats'] <= 20)
+    ]
+    choices = ['Independent', 'Dependència moderada', 'Dependència severa', 'Dependència total']
+    df['Barthel categòric'] = np.select(conditions, choices, default='Desconegut')
+    return df
+
+
+def categoritzar_mna(df):
+    """Categoritza l'MNA en 3 categories."""
+    df['MNA resultats'] = pd.to_numeric(df['MNA resultats'], errors='coerce')
+    conditions = [
+        (df['MNA resultats'] >= 24),
+        (df['MNA resultats'] >= 17) & (df['MNA resultats'] <= 23.5),
+        (df['MNA resultats'] < 17)
+    ]
+    choices = ['Estat nutricional normal', 'Risc de malnutrició', 'Malnodrit']
+    df['MNA categòric'] = np.select(conditions, choices, default='Desconegut')
+    return df
+
+
+def categoritzar_emina(df):
+    """Categoritza l'EMINA en 3 categories."""
+    df['EMINA resultats'] = pd.to_numeric(df['EMINA resultats'], errors='coerce')
+    conditions = [
+        (df['EMINA resultats'] <= 5),
+        (df['EMINA resultats'] >= 6) & (df['EMINA resultats'] <= 10),
+        (df['EMINA resultats'] >= 11) & (df['EMINA resultats'] <= 15)
+    ]
+    choices = ['Risc baix', 'Risc moderat', 'Risc alt']
+    df['EMINA categòric'] = np.select(conditions, choices, default='Desconegut')
+    return df
+
+
 # Funció per generar un plot dels p-valors per variables contínues, un cop s'ha comprovat la normalitat i s'ha fet un
 # T-test o Mann-Whitney segons correspongui
 def test_indepe_plot(grups: dict, alpha=0.05):
@@ -846,7 +910,7 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                 dades_grup1 = pd.to_numeric(pd.Series(dades_grup1), errors='coerce').dropna()
                 dades_grup2 = pd.to_numeric(pd.Series(dades_grup2), errors='coerce').dropna()
 
-                # Realitza el test de Shapiro-Wilk per comprobar la normalitat d'ambdós grups
+                # Realitza el test de Shapiro-Wilk per comprovar la normalitat d'ambdós grups
                 if len(dades_grup1) > 0 and len(dades_grup2) > 0:
                     _, p_valor_shapiro1 = shapiro(dades_grup1)
                     _, p_valor_shapiro2 = shapiro(dades_grup2)
@@ -860,12 +924,10 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                 else:
                     matriu_pvalors[i, j] = np.nan  # Assignar NaN si alguna de les sèries està buïda
 
-    plotejar_matriu(matriu_pvalors, noms_grups, 'P-valors de les Comparacions de Grups')
+    plotejar_matriu(matriu_pvalors, noms_grups, 'P-valors de les Comparacions dels Grups')
 
 
-#####
-
-
+##### TODO: no funciona bien
 # Funció per fer el plot del p-valor de les variables binàries (0 o 1)
 def test_indepe_bin_plot(groups: dict, filter_func=None):
     """
@@ -990,7 +1052,7 @@ def test_indepe_bin_plot(groups: dict, filter_func=None):
 ######
 
 # Funció per calcular la mitjana i la desviació estàndard
-def mitjana_i_std_num(df, columns: list):
+def mitjana_i_std_num(df, columnes: list):
     """
     Calcula la mitjana i la desviació estàndard per a cada columna especificada en una llista.
 
@@ -1001,10 +1063,10 @@ def mitjana_i_std_num(df, columns: list):
     Retorna:
     None
     """
-    for col in columns:
-        if col in df.columns:
+    for col in columnes:
+        if col in columnes:
             try:
-                # Intenta convertir la columna a tipus numérico
+                # Intenta convertir la columna a tipus numèric
                 df.loc[:, col] = pd.to_numeric(df[col], errors='coerce')  # Els valors no convertibles s'establiran
                 # com a Nan
             except ValueError as e:
@@ -1015,16 +1077,16 @@ def mitjana_i_std_num(df, columns: list):
             mean = df[col].mean()
             std = df[col].std()
 
-            # Imprime los resultados
-            print(f"Resum per la columna {col}:")
+            # Imprimeix els resultats
+            print(f"Valors de la columna {col}:")
             print(f"Mitjana: {mean:.2f}")
-            print(f"Desviació estàdard: {std:.2f}")
+            print(f"Desviació estàndard: {std:.2f}")
             print("\n")
         else:
             print(f"Columna '{col}' absent en el DataFrame.")
 
 
-# Funció per calcular el compteig de variables categòriques i el seu percentatge
+# Funció per realitzar el compteig de variables categòriques i el seu percentatge
 def comptatge_i_percentatge_cat(df, columnes):
     """
     Calcula el compteig i percentatge de variables per a cada columna especificada en una llista.
@@ -1038,31 +1100,30 @@ def comptatge_i_percentatge_cat(df, columnes):
     """
     for col in columnes:
         if col in df.columns:
-            # Identifica les diferents variables categòriques
-            unique_values = df[col].unique()
+            # Genera una còpia independent del DataFrame original, per evitar l'error "SettingWithCopyWarning"
+            df_copy = df.copy()
 
-            # Convertimos la columna 'Creatinine' a tipo numérico
+            # Si la columna és 'Creatinine', la tracta com si fos categòrica
             if col == 'Creatinine':
-                df.loc[:, col] = pd.to_numeric(df[col], errors='coerce')
+                # Converteix els valors numèrics en 0 o 1 segons siguin menors o majors de 1.5
+                df_copy.loc[:, 'Malaltia renal crònica'] = (pd.to_numeric(df[col], errors='coerce') > 1.5).astype(int)
+                col = 'Malaltia renal crònica'  # Canviem el nom de la columna Creatinine a Malaltia renal crònica
 
-            # Si la columna es 'Creatinine', la tratamos como categórica
-            if col == 'Creatinine':
-                # Convertimos los valores numéricos en 0 o 1 según sean mayores o menores que 1.5
-                df.loc[:, 'Malaltia renal crònica'] = (df[col] > 1.5).astype(int)
-                col = 'Malaltia renal crònica'  # Cambiamos el nombre de la columna
+            # Calcula el compteig i percentatge de les variables
+            counts = df_copy[col].value_counts()
+            percentages = df_copy[col].value_counts(normalize=True) * 100
 
-            # Calcula el compteig y percentatge de las variables
-            counts = df[col].value_counts()
-            percentages = df[col].value_counts(normalize=True) * 100
+            # Formateja els percentatges per agregar el símbol '%' després del resultat
+            percentages_formatted = percentages.map("{:.2f}%".format)
 
-            # Crea un DataFrame para los resultados
+            # Crea un DataFrame pels resultats
             Resultats = pd.DataFrame({
                 'Comptatges': counts,
-                'Percentatges': percentages
+                'Percentatges': percentages_formatted
             })
 
-            # Imprime los resultados en forma de tabla
-            print(f"Resum per la columna de {col}:\n")
+            # Imprimeix els resultats en forma de taula
+            print(f"Resum per la columna {col}:\n")
             print(tabulate(Resultats, headers='keys', tablefmt='psql'))
             print("\n")
 

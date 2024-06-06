@@ -6,7 +6,8 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  dies_ingressat_total, obtenir_pes_o_mitjana, disfagia_mecvvs, sumar_barthel,
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
-                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object)
+                                 obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
+                                 columnes_tests_categorics)
 from listas import (P_list, charlson_dict, pathology_dict, laboratoris_dict)
 
 # Configuració del logging
@@ -35,9 +36,6 @@ if __name__ == "__main__":
         # Construir una columna per cada patologia.
         for key, value in pathology_dict.items():
             data = codis_ICD(data, value, key)
-
-        # Construir diverses columnes pels diferents intervals dels tests EMINA, MNA, Barthel i Canadenca
-        # data = categoritzar_puntuacions_i_analitzar(data)
 
         # Calcular índexs de Charlson
         data = index_charlson(data, 'ingressos', 'Charlson', charlson_dict)
@@ -89,6 +87,9 @@ if __name__ == "__main__":
         # Dies entre diagnòstics
         data = restar_dates(data, 'Data primer MECVV', 'Data més antiga pneumònia',
                             'Dies entre primer ICD pneumònia i primer MECVV positiu')
+
+        # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
+        data = columnes_tests_categorics(data)
 
         # Guardar DataFrame per a ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')
