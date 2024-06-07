@@ -13,13 +13,12 @@ PA_list = ['J69.0', 'J69.1', 'J69.2', 'J69.3', 'J69.4', 'J69.5', 'J69.6', 'J69.7
 
 disfagia_list = ['787.20', 'R13.0', 'R13.1', 'R13.10', 'R13.11', 'R13.12', 'R13.13', 'R13.14', 'R13.19']
 
-# Nuevas listas para tabla del word
+# Noves llistes per emplenar taules word
 Main_respiratory_infections_list = ['J20.0', 'J20.1', 'J20.2', 'J20.3', 'J20.4', 'J20.4', 'J20.5', 'J20.6', 'J20.7',
                                     'J20.8', 'J20.9', 'J21', 'J21.0', 'J21.1', 'J21.8', 'J21.9', 'J22', 'J98.8',
                                     'J43.0', 'J43.1', 'J43.2', 'J43.8', 'J43.9', 'J44', 'J44.0', 'J44.1', 'J44.9',
                                     'J84.10', 'J84.112', 'J94.1']
-
-# Esta lista contine las siguientes 3 fusionadas
+# La llista anterior conté les 3 següents fusionades 
 LRTI_list = ['J20.0', 'J20.1', 'J20.2', 'J20.3', 'J20.4', 'J20.4', 'J20.5', 'J20.6', 'J20.7', 'J20.8', 'J20.9',
              'J21', 'J21.0', 'J21.1', 'J21.8', 'J21.9', 'J22', 'J98.8']
 
@@ -27,7 +26,7 @@ COPD_exacerbations_list = ['J43.0', 'J43.1', 'J43.2', 'J43.8', 'J43.9', 'J44', '
 
 Pulmonary_fibrosis_fibrotorax_list = ['J84.10', 'J84.112', 'J94.1']
 
-# Sindromes geriatricos
+# Síndromes geriàtriques
 charlson_dict = {
     1: ['I21', 'I22', 'I23', 'I25', 'I97', 'A5206', 'I20', 'I24', 'Q245', 'A5203', 'I50', 'I70', 'I73', 'I74',
         'I71', 'I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I68', 'I69', 'G45', 'I10', 'I11', 'I12',
@@ -125,7 +124,7 @@ chrpain_list = ['G89']
 iatrog_list = ['E71.43']
 constipation_list = ['K59']
 
-# Historial medico/ comorbilidades
+# Historial mèdic/ comorbiditats
 CVdisease_list = ['I60.00', 'I60.01', 'I60.02', 'I60.10', 'I60.11', 'I60.12', 'I60.2', 'I60.3', 'I60.30', 'I60.31',
                   'I60.32',
                   'I60.4', 'I60.5', 'I60.50', 'I60.51', 'I60.52', 'I60.6', 'I60.7', 'I60.8', 'I60.9', 'I61.0', 'I61.1',
@@ -547,14 +546,13 @@ neopl_list = ['C00.0', 'C00.1', 'C00.2', 'C00.3', 'C00.4', 'C00.5', 'C00.6', 'C0
               'D05.91', 'D05.92', 'D06.0', 'D06.1', 'D06.7', 'D06.9', 'D07.0', 'D07.1', 'D07.2', 'D07.30', 'D07.39',
               'D07.4', 'D07.5', 'D07.60', 'D07.61', 'D07.69', 'D09.0', 'D09.10', 'D09.19', 'D09.20', 'D09.21', 'D09.22',
               'D09.3', 'D09.8', 'D09.9']
-# ChronicRenalD_list NO TIENE ICD, el valor es creatinina >1.5mg/dL. Primero hago columna con todos los valores de
-# creatinina serum, después en el analisis filtro por los que tengan valores >1.5 # TODO
 AcuteRenalF_list = ['N17.0', 'N17.1', 'N17.2', 'N17.8', 'N17.9']
 dizsyn_list = ['R42', 'R55', 'T67']
 VIH_list = ['Z71.7', 'B20']
 psicosis_list = ['F31', 'F20']
 nutridef_list = ['E55']
 
+# Diccionari amb totes les listes per malaltia
 pathology_dict = {
     'PA diagnosticada': PA_list,
     'DO diagnosticada': disfagia_list,
@@ -591,6 +589,7 @@ pathology_dict = {
     'Def.nutri': nutridef_list
 }
 
+# Diccionari amb totes les llistes per paràmetre de laboratori
 laboratoris_dict = {
     "Albumin": "1751-7",
     "Total Proteins": "2885-2",
@@ -603,7 +602,7 @@ laboratoris_dict = {
     "Urea": "3091-6",
     "Glomerular Filtrate": "62238-1"
 }
-# he cambiado pes por Mitjana pes xq esa columna tiene diccionarios con diferentes pesos, no se puede usar sino
+## he cambiado pes por Mitjana pes xq esa columna tiene diccionarios con diferentes pesos, no se puede usar sino
 num_var = {'edat', 'Mitjana pes', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Charlson', 'Albumin',
            'Total Proteins', 'Hemoglobin', 'Total Cholesterol', 'Leucocytes', 'Lymphocytes', 'C reactive protein',
            'Creatinine', 'Urea', 'Glomerular Filtrate'}
@@ -613,14 +612,18 @@ cat_var = ['sexe', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P 
            'Caigudes prèvies', 'Deliris', 'Demència', 'Síndrome depressiu', 'Incont.uri', 'Incont.fec',
            'Úlceres pressió', 'Immobilitat', 'Confusió', 'Osteoporosi', 'Sarcopènia', 'Probl.son', 'Dolor crònic',
            'Iatrogènic', 'Restrenyiment', 'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties', 'Neoplàsies',
-           'Creatinine', 'ARF', 'Marejos', 'VIH', 'Psicosi', 'Def.nutri'] # Creatinine está como categorica para
-                                                                          # malaltia renal cronica
+           'Malaltia renal crònica', 'ARF', 'Marejos', 'VIH', 'Psicosi', 'Def.nutri']
+num_tests = ['Barthel resultats', 'EMINA resultats', 'MNA resultats', 'Canadenca resultats']
 
-num_tests = ['Barthel resultats', 'EMINA resultats', 'MNA resultats', 'Canadenca resultats']  # fer mean sd
-
-cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canadenca categòrica'] # fer contatge i %
+cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canadenca categòrica']
 
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',
 #           'J15.211', 'J15.5', 'A48.1', 'J15.8', 'J18.0', 'J18.8', 'J69.0', 'J20', 'J10.1', 'J11.1', 'J41.8',
 #           'J44.1', 'J44.0',
+
+# per numerics --> mean sd
+# per categorics --> contatge i %
+
+# TODO: poner todo none o nan, mejor none.
+# TODO: Poner todas las variables y tests en una sola tabla (tabla de contajes i tabla de mean+-sd, i en cada una que salgan los 4 grupos)

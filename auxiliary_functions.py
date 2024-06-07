@@ -253,7 +253,7 @@ def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
     return None
 
 
-# Funció per obtenir el pes dels pacients o en el cas de que hi hagi més d'un valor, obtenir la seva mitjana
+# Funció per obtenir el pes dels pacients o en el cas que hi hagi més d'un valor, obtenir la seva mitjana
 def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per calcular la mitjana dels valors de la clau 'valor' als diccionaris d'una llista.
@@ -304,7 +304,7 @@ def calcular_mitjana(diccionaris):
     # Calcular la mitjana si s'han trobat valors numèrics
     if valors:
         mitjana = sum(valors) / len(valors)
-        return mitjana
+        return round(mitjana, 2)
     else:
         return None
 

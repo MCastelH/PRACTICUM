@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # Carregar l'arxiu json amb les dades
     try:
-        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
+        with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
             dades_raw = json.load(arxiu)
         logging.info("Arxiu carregat correctament.")
     except Exception as e:
@@ -32,6 +32,10 @@ if __name__ == "__main__":
         # Filtrar per edat >= 65
         data = data[data['edat'] >= 65]
         logging.info(f"Dades filtrades per edat: {len(data)} registres trobats.")
+
+        # Modificar columna sexe
+        data['sexe'] = data['sexe'].map({'F': 0, 'M': 1})
+        data.rename(columns={'sexe': 'sexe M'}, inplace=True)
 
         # Construir una columna per cada patologia.
         # Visualitzar el progrés de la construcció de les columnes.
@@ -105,6 +109,10 @@ if __name__ == "__main__":
         # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
         logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")
         data = columnes_tests_categorics(data)
+
+        # Construir columnna malaltia renal cronica
+        data['Creatinine'] = pd.to_numeric(data['Creatinine'], errors='coerce')
+        data['Malaltia renal crònica'] = (data['Creatinine'] > 1.5).astype(int)
 
         # Guardar DataFrame per a ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')
