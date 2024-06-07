@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 import logging
-
+from tqdm import tqdm
 from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
                                  dies_ingressat_total, obtenir_pes_o_mitjana, disfagia_mecvvs, sumar_barthel,
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # Carregar l'arxiu json amb les dades
     try:
-        with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
+        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
             dades_raw = json.load(arxiu)
         logging.info("Arxiu carregat correctament.")
     except Exception as e:
@@ -29,27 +29,35 @@ if __name__ == "__main__":
         data = pd.DataFrame(dades_raw)
         logging.info("DataFrame creat amb èxit.")
 
-        # Filtrar per edat > 65
-        data = data[data['edat'] > 65]
+        # Filtrar per edat >= 65
+        data = data[data['edat'] >= 65]
         logging.info(f"Dades filtrades per edat: {len(data)} registres trobats.")
 
         # Construir una columna per cada patologia.
-        for key, value in pathology_dict.items():
+        # Visualitzar el progrés de la construcció de les columnes.
+        logging.info("Construint columnes per a cada patologia.")
+        # Utilitzem la llibreria tqdm per a visualitzar el progrés de la construcció de les columnes.
+        for key, value in tqdm(pathology_dict.items()):
             data = codis_ICD(data, value, key)
 
         # Calcular índexs de Charlson
+        logging.info("Calculant índexs de Charlson.")
         data = index_charlson(data, 'ingressos', 'Charlson', charlson_dict)
 
         # Comptar ingressos
+        logging.info("Comptant ingressos.")
         data = nombre_ingressos(data, 'ingressos', 'Admissions', 'Emergències')
 
         # Suma dels dies ingressat
+        logging.info("Sumant dies ingressat.")
         data = dies_ingressat_total(data, 'ingressos', 'Dies totals ingressat')
 
         # Suma dels ítems del test de Barthel
+        logging.info("Sumant ítems del test de Barthel.")
         data = sumar_barthel(data, 'barthel', 'Barthel resultats')
 
         # Funcions d'extracció i obtenció de dades
+        logging.info("Extracció de dades d'interès.")
         data = obtenir_valors_clau_interes(data, 'emina', 'resultat',
                                            'EMINA resultats')
         data = obtenir_valors_clau_interes(data, 'mna', 'resultat',
@@ -63,32 +71,39 @@ if __name__ == "__main__":
         data = extreure_valors_binaritzants(data, 'mecvvs', 'alteracioSeguretat',
                                             'Alteració seguretat MECVV')
 
-        for key, value in laboratoris_dict.items():
+        logging.info("Extracció de dades de laboratoris.")
+        for key, value in tqdm(laboratoris_dict.items()):
             data = obtenir_valors_lab(data, 'labs', value, key)
 
         # Pes més antic i més nou
+        logging.info("Càlcul de pes més antic i més nou.")
         data = obtenir_pes_mes_antic(data, 'Pes més antic')
         data = obtenir_pes_mes_nou(data, 'Pes més nou')
 
         # Dates relacionades amb el pes i primer diagnòstic de MECVV
+        logging.info("Càlcul de dates relacionades amb el pes i el primer diagnòstic de MECVV.")
         data = obtenir_data_pes_mes_antic(data, 'Data pes més antic')
         data = obtenir_primera_data_mecvv(data, 'Data primer MECVV')
         data = obtenir_pes_coincident_mecvv(data, 'Pes coincident primer MECVV')
 
         # Càlcul de pèrdua de pes
+        logging.info("Càlcul de pèrdua de pes.")
         data = restar_columnes_object(data, 'Pes més antic', 'Pes coincident primer MECVV',
                                       'Pèrdua pes entre ingressos')
         data = restar_columnes_object(data, 'Pes més antic', 'Pes més nou',
                                       'Pèrdua pes total')
 
         # Data més antiga de diagnòstic de pneumònia
+        logging.info("Data més antiga de diagnòstic de pneumònia.")
         data = obtenir_data_presencia_codi(data, P_list, 'Data més antiga pneumònia')
 
         # Dies entre diagnòstics
+        logging.info("Dies entre diagnòstics.")
         data = restar_dates(data, 'Data primer MECVV', 'Data més antiga pneumònia',
                             'Dies entre primer ICD pneumònia i primer MECVV positiu')
 
         # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
+        logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")
         data = columnes_tests_categorics(data)
 
         # Guardar DataFrame per a ús en JupyterNotebook
