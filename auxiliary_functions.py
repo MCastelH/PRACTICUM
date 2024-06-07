@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency
 import numpy as np
@@ -309,6 +308,7 @@ def calcular_mitjana(diccionaris):
     else:
         return None
 
+
 # Funció que retorna un 1 en cas de que en la clau 'disfagia'o 'disfagiaConeguda' (de la llista de diccionaris 'mecvvs')
 # hi hagi un 'SI' o 'S'
 def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
@@ -424,7 +424,7 @@ def obtenir_valor(diccionaris, clau):
 
 
 # Funció que retorna els valors de les claus introduïdes, tenint en compte que no utilitza les claus com a tal sino el
-# seu contingut (la clau es 'name' pero classifica pel que contigui aquesta clau, no per la clau en si)
+# seu contingut (la clau és 'name' però classifica pel que contigui aquesta clau, no per la clau en si)
 def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per obtenir el valor associat a la paraula clau a la columna de diccionaris i emmagatzemar-ho en una nova columna.
