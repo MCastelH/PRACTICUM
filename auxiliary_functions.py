@@ -1090,18 +1090,9 @@ def comptatge_i_percentatge_cat(df, columnes):
     """
     for col in columnes:
         if col in df.columns:
-            # Genera una còpia independent del DataFrame original, per evitar l'error "SettingWithCopyWarning"
-            df_copy = df.copy()
-
-            # Si la columna és 'Creatinine', la tracta com si fos categòrica
-            if col == 'Creatinine':
-                # Converteix els valors numèrics en 0 o 1 segons siguin menors o majors de 1.5
-                df_copy.loc[:, 'Malaltia renal crònica'] = (pd.to_numeric(df[col], errors='coerce') > 1.5).astype(int)
-                col = 'Malaltia renal crònica'  # Canviem el nom de la columna Creatinine a Malaltia renal crònica
-
             # Calcula el compteig i percentatge de les variables
-            counts = df_copy[col].value_counts()
-            percentages = df_copy[col].value_counts(normalize=True) * 100
+            counts = df[col].value_counts()
+            percentages = df[col].value_counts(normalize=True) * 100
 
             # Formateja els percentatges per agregar el símbol '%' després del resultat
             percentages_formatted = percentages.map("{:.2f}%".format)
