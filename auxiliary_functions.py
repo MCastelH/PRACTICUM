@@ -261,6 +261,7 @@ def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str, nova_columna: st
     Paràmetres:
         - data: DataFrame de pandes que conté les dades.
         - nom_columna: Nom de la columna que conté les llistes de diccionaris.
+        - nova_columna: Nom per la nova columna que contindrà la mitjana dels valors.
 
     Retorna:
         - DataFrame modificat amb una nova columna que conté la mitjana dels valors.
@@ -308,16 +309,15 @@ def calcular_mitjana(diccionaris):
     else:
         return None
 
-
-# Funció que retorna un 1 en cas de que en la clau 'disfagia'o 'disfagiaConeguda' (de la llista de diccionaris 'mecvvs'
+# Funció que retorna un 1 en cas de que en la clau 'disfagia'o 'disfagiaConeguda' (de la llista de diccionaris 'mecvvs')
 # hi hagi un 'SI' o 'S'
 def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per comparar el valor de 'disfagia' en l'últim diccionari amb 'SI' o 'S' en una llista de diccionaris.
 
     Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionarios.
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: Nom de la columna que conté la llista de diccionaris.
 
     Retorna:
         - DataFrame modificat amb una nova columna que conté el resultat desitjat.
@@ -325,6 +325,9 @@ def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> 
     # Aplicar la funció obtenir_ultima_disfagia a la columna especificada del DataFrame
     data[nova_columna] = data[nom_columna].apply(
         lambda x: obtenir_ultima_disfagia(x) if isinstance(x, list) and len(x) > 0 else None)
+
+    # Convertir la columna obtinguda a tipus object
+    data[nova_columna] = data[nova_columna].astype(object)
 
     return data  # Retornar el DataFrame modificat
 
@@ -339,7 +342,7 @@ def obtenir_ultima_disfagia(diccionaris):
     Retorna:
         - 1 si el valor de 'disfagia' és 'SI' o 'S'.
         - 0 si el valor de 'disfagia' és 'NO' o 'N'.
-        - None si la clau 'disfagia' no es troba en cap diccionari vàlid.
+        - None si la clau 'disfagia' no es troba en cap diccionari vàlid o si el diccionari és buit.
     """
     if not isinstance(diccionaris, list) or not diccionaris:
         return None  # Retornar None si l'entrada no és una llista vàlida o està buida
@@ -348,6 +351,9 @@ def obtenir_ultima_disfagia(diccionaris):
 
     # Iterar cap enrere en la llista de diccionaris
     for dic in reversed(diccionaris):
+        if not dic:  # Si el diccionari està buit, retorna None
+            return None
+
         if isinstance(dic, dict):
             # Buscar la clau 'disfagia' o 'disfagiaConeguda'
             if 'disfagia' in dic:
@@ -484,7 +490,11 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
             valor_extret = extract_value(estructura, clau_interes)
             valors_extrets.append(valor_extret)
         else:
-            valors_extrets.append(None)
+            # Manejar el caso de filas vacías
+            if pd.isna(estructura) or estructura == '':
+                valors_extrets.append(None)
+            else:
+                valors_extrets.append(estructura)
 
     # Afegir els valors extrets com una nova columna al DataFrame original
     data[nova_columna] = valors_extrets
@@ -943,23 +953,6 @@ def test_indepe_bin_plot(groups: dict, filter_func=None):
     None
     """
 
-    def preprocess_data(data):
-        """
-        Preprocesa los datos para convertir valores categóricos a binarios y filtrar datos.
-
-        Parámetros:
-        data (list): Lista de datos a preprocesar.
-
-        Retorna:
-        list: Lista de datos preprocesados.
-        """
-        # Convertir datos categóricos a binarios
-        if set(data) == {'F', 'M'}:
-            data = [1 if x == 'F' else 0 if x == 'M' else None for x in data]
-        # Convertir a float y filtrar NaN
-        data = pd.to_numeric(pd.Series(data), errors='coerce').tolist()
-        return data
-
     def plot_matrix(matrix, group_names, title, filter_func):
         """
         Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
@@ -1009,9 +1002,6 @@ def test_indepe_bin_plot(groups: dict, filter_func=None):
     for i, (name1, data1) in enumerate(groups.items()):
         for j, (name2, data2) in enumerate(groups.items()):
             if i >= j:
-                data1 = preprocess_data(data1)
-                data2 = preprocess_data(data2)
-
                 # Aplicar función de filtrado si se proporciona
                 data1 = list(filter(filter_func, data1))
                 data2 = list(filter(filter_func, data2))
