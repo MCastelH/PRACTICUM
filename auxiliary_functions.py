@@ -5,6 +5,7 @@ from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency, kste
 import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+from prettytable import PrettyTable
 
 
 # TODO: comprueba que los Noms de las funciones sean descriptivos y concisos. OK
@@ -1084,74 +1085,88 @@ def plot_matrix(matrix, group_names, title, filter_func):
 ######
 
 # Funció per calcular la mitjana i la desviació estàndard
-def mitjana_i_std_num(df, columnes: list):
+def mitjana_i_std_num(lista_dfs, columnes):
     """
     Calcula la mitjana i la desviació estàndard per a cada columna especificada en una llista.
 
     Paràmetres:
-    df (DataFrame): El DataFrame que conté les dades.
+    lista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
     columnes (list): Llista de noms de columnes a analitzar.
 
     Retorna:
     None
     """
+    # Inicialitza una taula amb les columnes apropiades
+    resultats_totals = PrettyTable()
+    resultats_totals.field_names = ["Columna", "DataFrame", "Mitjana", "Desviació Estàndard"]
+
+    # Itera sobre cada columna d'interès
     for col in columnes:
-        if col in columnes:
-            try:
-                # Intenta convertir la columna a tipus numèric
-                df.loc[:, col] = pd.to_numeric(df[col], errors='coerce')  # Els valors no convertibles s'establiran
-                # com a Nan
-            except ValueError as e:
-                print(f"Error convertint la columna '{col}' a tipus numèric: {str(e)}")
-                continue  # Salta a la següent columna si hi ha un error de conversió
+        # Itera sobre cada DataFrame a la llista
+        for nom_df, df in lista_dfs:
+            if col in df.columns:
+                try:
+                    # Intenta convertir la columna a tipus numèric
+                    df[col] = pd.to_numeric(df[col],
+                                            errors='coerce')  # Els valors no convertibles s'establiran com a NaN
+                except ValueError as e:
+                    print(f"Error convertint la columna '{col}' a tipus numèric: {str(e)}")
+                    continue  # Salta a la següent columna si hi ha un error de conversió
 
-            # Calcula la mitjana i la desviació estàndard
-            mean = df[col].mean()
-            std = df[col].std()
+                # Calcula la mitjana i la desviació estàndard
+                mean = df[col].mean()
+                std = df[col].std()
 
-            # Imprimeix els resultats
-            print(f"Valors de la columna {col}:")
-            print(f"Mitjana: {mean:.2f}")
-            print(f"Desviació estàndard: {std:.2f}")
-            print("\n")
-        else:
-            print(f"Columna '{col}' absent en el DataFrame.")
+                # Afegeix una fila a la taula de resultats totals
+                resultats_totals.add_row([col, nom_df, f"{mean:.2f}", f"{std:.2f}"])
 
+                # Afegeix un espai en blanc entre els resultats de cada columna
+                resultats_totals.add_row(["", "", "", ""])
+
+    # Imprimeix els resultats totals en forma de taula
+    print(resultats_totals)
 
 # Funció per realitzar el compteig de variables categòriques i el seu percentatge
-def comptatge_i_percentatge_cat(df, columnes):
+def comptatge_i_percentatge_cat(lista_dfs, columnes):
     """
-    Calcula el compteig i percentatge de variables per a cada columna especificada en una llista.
+    Calcula el comptatge i el percentatge de variables per a cada columna especificada en una llista.
 
     Paràmetres:
-    df (DataFrame): El DataFrame que conté les dades.
-    columnes (list): Llista de noms de columnes a analitzar
+    lista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
+    columnes (list): Llista de noms de columnes a analitzar.
 
     Retorna:
     None
     """
+    # Inicialitza una taula amb les columnes apropiades
+    resultats_totals = PrettyTable()
+    resultats_totals.field_names = ["Columna", "DataFrame", "Valor", "Comptatges", "Percentatges"]
+
+    # Itera sobre cada columna d'interès
     for col in columnes:
-        if col in df.columns:
-            # Calcula el compteig i percentatge de les variables
-            counts = df[col].value_counts()
-            percentages = df[col].value_counts(normalize=True) * 100
+        # Itera sobre cada DataFrame a la llista
+        for nom_df, df in lista_dfs:
+            if col in df.columns:
+                # Calcula el comptatge i el percentatge de les variables
+                comptes = df[col].value_counts()
+                percentatges = df[col].value_counts(normalize=True) * 100
 
-            # Formateja els percentatges per agregar el símbol '%' després del resultat
-            percentages_formatted = percentages.map("{:.2f}%".format)
+                # Formateja els percentatges per afegir el símbol '%' després del resultat
+                percentatges_format = percentatges.apply(lambda x: f"{x:.2f}%")
 
-            # Crea un DataFrame pels resultats
-            Resultats = pd.DataFrame({
-                'Comptatges': counts,
-                'Percentatges': percentages_formatted
-            })
+                # Afegeix una fila a la taula de resultats totals
+                for idx, (valor, compte) in enumerate(zip(comptes.items(), percentatges_format.items())):
+                    if idx == 0:
+                        resultats_totals.add_row([col, nom_df, valor[0], valor[1], compte[1]])
+                    else:
+                        resultats_totals.add_row(["", "", valor[0], valor[1], compte[1]])
 
-            # Imprimeix els resultats en forma de taula
-            print(f"Resum per la columna {col}:\n")
-            print(tabulate(Resultats, headers='keys', tablefmt='psql'))
-            print("\n")
+                # Afegeix un espai en blanc entre els resultats de cada columna
+                resultats_totals.add_row(["", "", "", "", ""])
 
-        else:
-            print(f"Columna '{col}' absent al DataFrame.")
+    # Imprimeix els resultats totals en forma de taula
+    print(resultats_totals)
+
 
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
