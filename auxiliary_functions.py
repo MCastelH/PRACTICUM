@@ -424,8 +424,43 @@ def obtenir_valor(diccionaris, clau):
     return valor  # Retornar el valor trobat o None si la clau no s'ha trobat
 
 
+# Funció per obtenir la columna MECV-V positiu, retorna un 1 quan es compleix que el pacient té disfàgia i alteració de
+# la seguretat i/o l'eficàcia
+def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
+    """
+    Troba quan es compleixen certes condicions que indiquen que el test MECV-V ha sortit positiu
+
+    Paràmetres:
+        - data: DataFrame que conté les dades.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data que compleix per primer cop les condicions
+        esmentades.
+
+    Retorna:
+        - DataFrame modificat amb la nova columna de la data que compleix les condicions.
+    """
+    # Inicialitzar la nova columna amb None
+    data[nova_columna] = 0
+
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        mecvvs_test = row['mecvvs']
+
+        # Retornar 0 o 1 en funció de si es compleixen o no les condicions
+        for mecvv in mecvvs_test:
+            if ('disfagia' in mecvv and mecvv['disfagia'] in ['SI', 'S']) or \
+                    ('disfagiaConeguda' in mecvv and mecvv['disfagiaConeguda'] in ['SI', 'S']):
+                if ('alteracioSeguretat' in mecvv and mecvv['alteracioSeguretat'] in ['SI', 'S']) or \
+                        ('alteracioEficacia' in mecvv and mecvv['alteracioEficacia'] in ['SI', 'S']):
+                    data.at[index, nova_columna] = 1
+                    break  # Si es compleix la condició, es marca com a positiu i se surt del bucle
+        else:
+            data.at[index, nova_columna] = 0
+
+    return data
+
+
 # Funció que retorna els valors de les claus introduïdes, tenint en compte que no utilitza les claus com a tal sino el
-# seu contingut (la clau és 'name' però classifica pel que contigui aquesta clau, no per la clau en si)
+# seu contingut (la clau és 'name' però classifica pel que contingui aquesta clau, no per la clau en si)
 def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per obtenir el valor associat a la paraula clau a la columna de diccionaris i emmagatzemar-ho en una nova columna.
@@ -1115,40 +1150,6 @@ def comptatge_i_percentatge_cat(df, columnes):
 
         else:
             print(f"Columna '{col}' absent al DataFrame.")
-
-# Columna MECV-V positiu
-def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
-    """
-    Troba quan es compleixen certes condicions que indiquen que el test MECV-V ha sortit positiu
-
-    Paràmetres:
-        - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data que compleix per primer cop les condicions
-        esmentades.
-
-    Retorna:
-        - DataFrame modificat amb la nova columna de la data que compleix les condicions.
-    """
-    # Inicialitzar la nova columna amb None
-    data[nova_columna] = None
-
-    # Iterar sobre cada fila del DataFrame 'data'
-    for index, row in data.iterrows():
-        mecvvs_test = row['mecvvs']
-
-        if not mecvvs_test or len(mecvvs_test) == 0:
-            continue  # Passar a la següent fila si 'mecvvs_test' està buit
-
-        # Retornar 0 o 1 en funció de si es compleixen o no les condicions
-        for mecvv in mecvvs_test:
-            if ('disfagia' in mecvv and mecvv['disfagia'] in ['SI', 'S']) or \
-                    ('disfagiaConeguda' in mecvv and mecvv['disfagiaConeguda'] in ['SI', 'S']):
-                if ('alteracioSeguretat' in mecvv and mecvv['alteracioSeguretat'] in ['SI', 'S']) or \
-                        ('alteracioEficacia' in mecvv and mecvv['alteracioEficacia'] in ['SI', 'S']):
-                    return 1
-        else:
-            return 0
-    return data
 
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo

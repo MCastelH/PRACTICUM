@@ -75,9 +75,16 @@ if __name__ == "__main__":
         data = extreure_valors_binaritzants(data, 'mecvvs', 'alteracioSeguretat',
                                             'Alteració seguretat MECVV')
 
+        # Construir columna especial: MECV-V positiu
+        data = mecvv_positiu(data, 'MECV-V positiu')
+
         logging.info("Extracció de dades de laboratoris.")
         for key, value in tqdm(laboratoris_dict.items()):
             data = obtenir_valors_lab(data, 'labs', value, key)
+
+        # Construir columna especial: malaltia renal crònica
+        data['Creatinine'] = pd.to_numeric(data['Creatinine'], errors='coerce')
+        data['Malaltia renal crònica'] = (data['Creatinine'] > 1.5).astype(int)
 
         # Pes més antic i més nou
         logging.info("Càlcul de pes més antic i més nou.")
@@ -109,13 +116,6 @@ if __name__ == "__main__":
         # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
         logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")
         data = columnes_tests_categorics(data)
-
-        # Construir columnna malaltia renal cronica
-        data['Creatinine'] = pd.to_numeric(data['Creatinine'], errors='coerce')
-        data['Malaltia renal crònica'] = (data['Creatinine'] > 1.5).astype(int)
-
-        #
-        data = mecvv_positiu(data, 'MECV-V positiu')
 
         # Guardar DataFrame per a ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')
