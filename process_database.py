@@ -7,7 +7,7 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
                                  obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
-                                 columnes_tests_categorics)
+                                 columnes_tests_categorics, mecvv_positiu)
 from listas import (P_list, charlson_dict, pathology_dict, laboratoris_dict)
 
 # Configuració del logging
@@ -113,6 +113,9 @@ if __name__ == "__main__":
         # Construir columnna malaltia renal cronica
         data['Creatinine'] = pd.to_numeric(data['Creatinine'], errors='coerce')
         data['Malaltia renal crònica'] = (data['Creatinine'] > 1.5).astype(int)
+
+        #
+        data = mecvv_positiu(data, 'MECV-V positiu')
 
         # Guardar DataFrame per a ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')

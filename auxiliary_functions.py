@@ -1116,6 +1116,40 @@ def comptatge_i_percentatge_cat(df, columnes):
         else:
             print(f"Columna '{col}' absent al DataFrame.")
 
+# Columna MECV-V positiu
+def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
+    """
+    Troba quan es compleixen certes condicions que indiquen que el test MECV-V ha sortit positiu
+
+    Paràmetres:
+        - data: DataFrame que conté les dades.
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data que compleix per primer cop les condicions
+        esmentades.
+
+    Retorna:
+        - DataFrame modificat amb la nova columna de la data que compleix les condicions.
+    """
+    # Inicialitzar la nova columna amb None
+    data[nova_columna] = None
+
+    # Iterar sobre cada fila del DataFrame 'data'
+    for index, row in data.iterrows():
+        mecvvs_test = row['mecvvs']
+
+        if not mecvvs_test or len(mecvvs_test) == 0:
+            continue  # Passar a la següent fila si 'mecvvs_test' està buit
+
+        # Retornar 0 o 1 en funció de si es compleixen o no les condicions
+        for mecvv in mecvvs_test:
+            if ('disfagia' in mecvv and mecvv['disfagia'] in ['SI', 'S']) or \
+                    ('disfagiaConeguda' in mecvv and mecvv['disfagiaConeguda'] in ['SI', 'S']):
+                if ('alteracioSeguretat' in mecvv and mecvv['alteracioSeguretat'] in ['SI', 'S']) or \
+                        ('alteracioEficacia' in mecvv and mecvv['alteracioEficacia'] in ['SI', 'S']):
+                    return 1
+        else:
+            return 0
+    return data
+
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []
