@@ -1,6 +1,7 @@
+import matplotlib
 import pandas as pd
 from datetime import datetime, timedelta
-from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency
+from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency, kstest
 import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
@@ -868,47 +869,6 @@ def test_indepe_plot(grups: dict, alpha=0.05):
     Retorna:
     None
     """
-
-    def plotejar_matriu(matriu, noms_grups, titol):
-        """
-        Genera un gràfico d'hemi-matriu superior amb els p-valors proporcionats.
-
-        Paràmetres:
-        matriu (np.array): Matriu de p-valors a representar.
-        noms_grups (list): Llista de noms dels grups.
-        titol (str): Títol del gràfic.
-
-        Retorna:
-        None
-        """
-        fig, ax = plt.subplots()
-        cax = ax.matshow(matriu, cmap='viridis')
-
-        for (i, j), val in np.ndenumerate(matriu):
-            if i >= j:  # Només mostrar la meitat superior i la diagonal
-                if np.isnan(val):
-                    ax.text(j, i, 'nan', ha='center', va='center', color='black')
-                else:
-                    color = 'white' if val < 0.05 else 'black'
-                    ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
-        # Configuració del color de fons per fer transparent la meitat superior
-        ax.set_facecolor((0, 0, 0, 0.5))
-
-        plt.colorbar(cax)
-        ax.set_xticks(np.arange(len(noms_grups)))
-        ax.set_yticks(np.arange(len(noms_grups)))
-        ax.set_xticklabels(noms_grups, rotation=45, ha='left')
-        ax.set_yticklabels(noms_grups)
-        plt.xlabel('Grups')
-        plt.ylabel('Grups')
-        plt.title(titol)
-
-        # Ajustar la matriu per només mostrar la meitat superior i la diagonal
-        ax.set_xlim(-0.5, len(noms_grups) - 0.5)
-        ax.set_ylim(len(noms_grups) - 0.5, -0.5)
-
-        plt.show()
-
     noms_grups = list(grups.keys())
     num_grups = len(noms_grups)
     matriu_pvalors = np.zeros((num_grups, num_grups))
@@ -920,8 +880,16 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                 dades_grup1 = pd.to_numeric(pd.Series(dades_grup1), errors='coerce').dropna()
                 dades_grup2 = pd.to_numeric(pd.Series(dades_grup2), errors='coerce').dropna()
 
-                # Realitza el test de Shapiro-Wilk per comprovar la normalitat d'ambdós grups
-                if len(dades_grup1) > 0 and len(dades_grup2) > 0:
+                # Verificar el nombre de mostres
+                if len(dades_grup1) > 5000 or len(dades_grup2) > 5000:
+                    _, p_valor_ks1 = kstest(dades_grup1, 'norm')
+                    _, p_valor_ks2 = kstest(dades_grup2, 'norm')
+
+                    if p_valor_ks1 > alpha and p_valor_ks2 > alpha:  # Si ambdós grups són normals
+                        stat, p_valor = ttest_ind(dades_grup1, dades_grup2)
+                    else:  # Si almenys un dels grups no és normal
+                        stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
+                else:
                     _, p_valor_shapiro1 = shapiro(dades_grup1)
                     _, p_valor_shapiro2 = shapiro(dades_grup2)
 
@@ -930,11 +898,48 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                     else:  # Si almenys un dels grups no és normal
                         stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
 
-                    matriu_pvalors[i, j] = p_valor
-                else:
-                    matriu_pvalors[i, j] = np.nan  # Assignar NaN si alguna de les sèries està buïda
+                matriu_pvalors[i, j] = p_valor if not np.isnan(p_valor) else np.nan
 
     plotejar_matriu(matriu_pvalors, noms_grups, 'P-valors de les Comparacions dels Grups')
+
+
+def plotejar_matriu(matriu, noms_grups, titol):
+    """
+    Genera un gràfico d'hemi-matriu superior amb els p-valors proporcionats.
+
+    Paràmetres:
+    matriu (np.array): Matriu de p-valors a representar.
+    noms_grups (list): Llista de noms dels grups.
+    titol (str): Títol del gràfic.
+
+    Retorna:
+    None
+    """
+    fig, ax = plt.subplots()
+    cax = ax.matshow(matriu, cmap='viridis')
+
+    for (i, j), val in np.ndenumerate(matriu):
+        if i >= j:  # Només mostrar la meitat superior i la diagonal
+            if np.isnan(val):
+                ax.text(j, i, 'nan', ha='center', va='center', color='black')
+            else:
+                color = 'white' if val < 0.05 else 'black'
+                ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
+
+    # Configuració del color del gràfic
+    ax.set_facecolor((0.86, 0.86, 0.86, 0))
+
+    plt.colorbar(cax)
+    ax.set_xticks(np.arange(len(noms_grups)))
+    ax.set_yticks(np.arange(len(noms_grups)))
+    ax.set_xticklabels(noms_grups, rotation=45, ha='left')
+    ax.set_yticklabels(noms_grups)
+
+    # Ajustar la matriu per només mostrar la meitat superior i la diagonal
+    ax.set_xlim(-0.5, len(noms_grups) - 0.5)
+    ax.set_ylim(len(noms_grups) - 0.5, -0.5)
+
+    plt.show()
 
 
 #####
@@ -952,49 +957,6 @@ def test_indepe_bin_plot(groups: dict, filter_func=None):
     Retorna:
     None
     """
-
-    def plot_matrix(matrix, group_names, title, filter_func):
-        """
-        Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
-
-        Parámetros:
-        matrix (np.array): Matriz de p-valores a representar.
-        group_names (list): Lista de nombres de los grupos.
-        title (str): Título del gráfico.
-        filter_func (function): Una función para filtrar los datos, opcional.
-
-        Retorna:
-        None
-        """
-        fig, ax = plt.subplots()
-        cax = ax.matshow(matrix, cmap='magma')
-
-        for i in range(len(group_names)):
-            for j in range(len(group_names)):
-                if i >= j:
-                    val = matrix[i, j]
-                    if np.isnan(val):
-                        ax.text(j, i, 'nan', ha='center', va='center', color='black')
-                    else:
-                        color = 'white' if val < 0.05 else 'black'
-                        ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
-
-        ax.set_facecolor((0, 0, 0, 0.5))
-
-        plt.colorbar(cax)
-        ax.set_xticks(np.arange(len(group_names)))
-        ax.set_yticks(np.arange(len(group_names)))
-        ax.set_xticklabels(group_names, rotation=45, ha='left')
-        ax.set_yticklabels(group_names)
-        plt.xlabel('Grupos')
-        plt.ylabel('Grupos')
-        plt.title(title)
-
-        ax.set_xlim(-0.5, len(group_names) - 0.5)
-        ax.set_ylim(len(group_names) - 0.5, -0.5)
-
-        plt.show()
-
     group_names = list(groups.keys())
     num_groups = len(group_names)
     p_values_matrix = np.zeros((num_groups, num_groups))
@@ -1037,6 +999,49 @@ def test_indepe_bin_plot(groups: dict, filter_func=None):
                 p_values_matrix[i, j] = p_value
 
     plot_matrix(p_values_matrix, group_names, 'P-valors de les Comparacions de Grups', filter_func)
+
+
+def plot_matrix(matrix, group_names, title, filter_func):
+    """
+    Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
+
+    Parámetros:
+    matrix (np.array): Matriz de p-valores a representar.
+    group_names (list): Lista de nombres de los grupos.
+    title (str): Título del gráfico.
+    filter_func (function): Una función para filtrar los datos, opcional.
+
+    Retorna:
+    None
+    """
+    fig, ax = plt.subplots()
+    cax = ax.matshow(matrix, cmap='magma')
+
+    for i in range(len(group_names)):
+        for j in range(len(group_names)):
+            if i >= j:
+                val = matrix[i, j]
+                if np.isnan(val):
+                    ax.text(j, i, 'nan', ha='center', va='center', color='black')
+                else:
+                    color = 'white' if val < 0.05 else 'black'
+                    ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
+
+    ax.set_facecolor((0, 0, 0, 0.5))
+
+    plt.colorbar(cax)
+    ax.set_xticks(np.arange(len(group_names)))
+    ax.set_yticks(np.arange(len(group_names)))
+    ax.set_xticklabels(group_names, rotation=45, ha='left')
+    ax.set_yticklabels(group_names)
+    plt.xlabel('Grupos')
+    plt.ylabel('Grupos')
+    plt.title(title)
+
+    ax.set_xlim(-0.5, len(group_names) - 0.5)
+    ax.set_ylim(len(group_names) - 0.5, -0.5)
+
+    plt.show()
 
 
 ######
@@ -1117,6 +1122,6 @@ def comptatge_i_percentatge_cat(df, columnes):
 # float num enteros, int para decimales con punto
 # los tests (mna, emina, barthel...) tienen 2 "categorias":
 # - el total que es numerico (mean+-sd) --> ttest/mannwhit
-# - los diferentes intervalos que son categorico (num total/contaje) --> xi
+# - los diferentes intervalos que son categoricos (num total/contaje) --> xi
 # Filtrar valores entre 10 y 15
 # filter_func = lambda x: 10 <= x <= 15

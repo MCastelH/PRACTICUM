@@ -636,6 +636,5 @@ cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canade
    # - restar_dates: Dies entre primer ICD pneumònia i primer MECVV positiu
    # son todos float64 i todos tienen none en el codigo
 
-# TODO: modificar funciones para que queden dentro, hacer staticmode
 # TODO: hacer columna con las 3 variables: PA (ICD), MECVV (MECVV positiu), P (ICD), que devuelva 0,1. Esto servirá para hacer las tablas de contingencia, porque comparará los grupos con los parametros ("4x4")
 # TODO: Poner todas las variables y tests en una sola tabla (tabla de contajes i tabla de mean+-sd, i en cada una que salgan los 4 grupos)
