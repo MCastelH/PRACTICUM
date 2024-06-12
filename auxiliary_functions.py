@@ -916,7 +916,8 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                 dades_grup2 = pd.to_numeric(pd.Series(dades_grup2), errors='coerce').dropna()
 
                 # Verificar el nombre de mostres
-                if len(dades_grup1) > 5000 or len(dades_grup2) > 5000:
+                if len(dades_grup1) >= 5000 or len(dades_grup2) >= 5000:
+                    # Utilitzar Kolmogorov-Smirnov test si hi ha més de 5000 pacients en algun dels grups
                     _, p_valor_ks1 = kstest(dades_grup1, 'norm')
                     _, p_valor_ks2 = kstest(dades_grup2, 'norm')
 
@@ -925,6 +926,7 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                     else:  # Si almenys un dels grups no és normal
                         stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
                 else:
+                    # Utilitzar el test de Shapiro-Wilk si hi ha menys de 5000 mostres als 2 grups
                     _, p_valor_shapiro1 = shapiro(dades_grup1)
                     _, p_valor_shapiro2 = shapiro(dades_grup2)
 
