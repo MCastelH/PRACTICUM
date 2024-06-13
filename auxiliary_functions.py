@@ -729,22 +729,22 @@ def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Data
         mecvvs_data = row['mecvvs']
 
         if not mecvvs_data or len(mecvvs_data) == 0:
-            continue  # Passar a la següent fila si 'mecvvs_data' està buit
-
-        # Buscar la primera data que compleixi les condicions
-        for mecvv_data in mecvvs_data:
-            if ('disfagia' in mecvv_data and mecvv_data['disfagia'] in ['SI', 'S']) or \
-                    ('disfagiaConeguda' in mecvv_data and mecvv_data['disfagiaConeguda'] in ['SI', 'S']):
-                if ('alteracioSeguretat' in mecvv_data and mecvv_data['alteracioSeguretat'] in ['SI', 'S']) or \
-                        ('alteracioEficacia' in mecvv_data and mecvv_data['alteracioEficacia'] in ['SI', 'S']):
-                    data_primera_condicio = datetime.strptime(mecvv_data['data'][:8], '%Y%m%d').strftime('%Y-%m-%d')
-                    data.loc[index, nova_columna] = data_primera_condicio
-                    break  # Aturar la cerca un cop es troba la data
+            data.loc[index, nova_columna] = None
+        else:
+            # Buscar la primera data que compleixi les condicions
+            for mecvv_data in mecvvs_data:
+                if ('disfagia' in mecvv_data and mecvv_data['disfagia'] in ['SI', 'S']) or \
+                        ('disfagiaConeguda' in mecvv_data and mecvv_data['disfagiaConeguda'] in ['SI', 'S']):
+                    if ('alteracioSeguretat' in mecvv_data and mecvv_data['alteracioSeguretat'] in ['SI', 'S']) or \
+                            ('alteracioEficacia' in mecvv_data and mecvv_data['alteracioEficacia'] in ['SI', 'S']):
+                        data_primera_condicio = datetime.strptime(mecvv_data['data'][:8], '%Y%m%d').strftime('%Y-%m-%d')
+                        data.loc[index, nova_columna] = data_primera_condicio
+                        break  # Aturar la cerca un cop es troba la data
 
     return data
 
 
-# Funció que retorna el pes, tenint en compte la data del primer MECVV positiu. Per a que retorni el pes, la data
+# Funció que retorna el pes, tenint en compte la data del primer MECVV positiu. Perquè retorni el pes, la data
 # d'aquest ha de coincidir amb la data que hi ha en 'data primer mecvv', amb un interval de 3 dies de marge
 def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
@@ -767,7 +767,7 @@ def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Da
         pes_kg = row['pes']
 
         if not data_primer_mecvv or not pes_kg or len(pes_kg) == 0:
-            continue  # Passar a la següent fila si no  hi ha cap data en 'data_primer_mecvv', o 'pes_kg' està buit
+            continue  # Passar a la següent fila si no hi ha cap data en 'data_primer_mecvv', o 'pes_kg' està buit
 
         try:
             # Convertir la data de 'data_primer_mecvv' al format datetime
@@ -1013,46 +1013,23 @@ def plotejar_matriu(matriu, noms_grups, titol):
     plt.show()
 
 
-#####
-# Funció per fer el plot del p-valor de les variables binàries (0 o 1)
-def test_indepe_bin_plot(df, categorical_column):
+def test_indepe_bin_plot(data_1, data_2):
     """
-    Realiza el test de chi-cuadrado para comparar variables dicotómicas entre diferentes columnas y una columna categórica.
-
-    Parámetros:
-    df (DataFrame): El DataFrame que contiene los datos.
-    categorical_column (str): Nombre de la columna categórica a comparar con otras columnas.
-
+    Realiza el test de chi-cuadrado para comparar variables categòriques.
+    Parámetres:
+    data_1 (pd.Series): Serie de pandas con datos de la primera variable.
+    data_2 (pd.Series): Serie de pandas con datos de la segunda variable.
     Retorna:
     None
     """
-    column_names = ['P diagnosticada', 'PA diagnosticada', 'MECV-V positiu']
-    num_columns = len(column_names)
-    p_values_matrix = np.zeros((num_columns, 1))
+    contingency_table = pd.crosstab(data_1, data_2)
+    chi2, p, _, _ = chi2_contingency(contingency_table)
+    print(f'Chi-squared: {chi2:.4f}')
+    print(f'P-value: {p:.4f}')
 
-    for i, col in enumerate(column_names):
-        # Crear tabla de contingencia entre la columna categórica y la columna actual
-        contingency_table = pd.crosstab(index=df[categorical_column], columns=df[col])
-
-        # Calcular test de chi-cuadrado
-        chi2_stat, p_value, _, _ = chi2_contingency(contingency_table)
-
-        # Imprimir resultados del test de chi-cuadrado
-        print(f"Estadístico xi-quadrat entre {col} i {categorical_column}:")
-        print(f"{chi2_stat}")
-        print(f"P-valor entre {col} i {categorical_column}:")
-        print(f"{p_value:.4f}")
-
-        if p_value < 0.05:
-            print(f"Hi ha diferències significatives entre les distribucions de {col} i {categorical_column}.")
-        else:
-            print(f"No hi ha diferències significatives entre les distribucions de {col} i {categorical_column}.")
-        print("\n")
-
-        p_values_matrix[i, 0] = p_value
-
-    plot_matrix(p_values_matrix, column_names, categorical_column)
-
+    # Plot the contingency table
+    fig, ax = plt.subplots()
+    cax = ax.matshow(contingency_table, cmap='viridis')
 
 def plot_matrix(matrix, column_names, categorical_column):
     """
@@ -1175,6 +1152,17 @@ def comptatge_i_percentatge_cat(lista_dfs, columnes):
     # Imprimeix els resultats totals en forma de taula
     print(resultats_totals)
 
+
+def split_conditions(df):
+    conditions = [
+        (df["PA diagnosticada"] == 1.0),
+        (df["Dies entre primer ICD pneumònia i primer MECVV positiu"] < 30),
+        (df["Dies entre primer ICD pneumònia i primer MECVV positiu"] > 30) & (df['P diagnosticada'] == 1.0)
+    ]
+    choices = ['AMB_PA', 'AMB_PA_MECVV', 'SENSE_PA']
+    df['split_database'] = np.select(conditions, choices, default='Desconegut')
+    return df
+
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []
@@ -1184,103 +1172,3 @@ def comptatge_i_percentatge_cat(lista_dfs, columnes):
 # - los diferentes intervalos que son categoricos (num total/contaje) --> xi
 # Filtrar valores entre 10 y 15
 # filter_func = lambda x: 10 <= x <= 15
-
-# ANTIGUO test_indepe_bin
-# def test_indepe_bin_plot(groups: dict, filter_func=None):
-#     """
-#     Realiza el test de chi-cuadrado para comparar variables dicotómicas.
-#
-#     Parámetros:
-#     groups (dict): Un diccionario donde las claves son los nombres de los grupos
-#                    y los valores son listas de observaciones dicotómicas (0 o 1) o
-#                    variables categóricas (F/M, por ejemplo) para cada grupo.
-#     filter_func (function): Una función opcional para filtrar los datos de cada grupo.
-#
-#     Retorna:
-#     None
-#     """
-#     group_names = list(groups.keys())
-#     num_groups = len(group_names)
-#     p_values_matrix = np.zeros((num_groups, num_groups))
-#
-#     for i, (name1, data1) in enumerate(groups.items()):
-#         for j, (name2, data2) in enumerate(groups.items()):
-#             if i >= j:
-#                 # Aplicar función de filtrado si se proporciona
-#                 data1 = list(filter(filter_func, data1))
-#                 data2 = list(filter(filter_func, data2))
-#
-#                 # Validar si las listas no están vacías
-#                 if len(data1) == 0 or len(data2) == 0:
-#                     p_values_matrix[i, j] = np.nan
-#                     continue
-#
-#                 # Construir la tabla de contingencia
-#                 count_00 = sum((x == 0 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
-#                 count_01 = sum((x == 0 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
-#                 count_10 = sum((x == 1 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
-#                 count_11 = sum((x == 1 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
-#
-#                 print(f"Table for {name1} and {name2}:")
-#                 print(f"{count_00} | {count_01}")
-#                 print(f"{count_10} | {count_11}")
-#
-#                 contingency_table = np.array([[count_00, count_01], [count_10, count_11]])
-#
-#                 print(f"Contingency Table for {name1} and {name2}:")
-#                 print(contingency_table)
-#
-#                 # Validar que la tabla de contingencia tenga valores suficientes para realizar el test
-#                 if contingency_table.sum() == 0 or (contingency_table < 5).sum() > 0:
-#                     p_values_matrix[i, j] = np.nan
-#                     continue
-#
-#                 # Calcular el test de chi-cuadrado
-#                 _, p_value, _, _ = chi2_contingency(contingency_table)
-#
-#                 p_values_matrix[i, j] = p_value
-#
-#     plot_matrix(p_values_matrix, group_names, 'P-valors de les Comparacions de Grups', filter_func)
-#
-#
-# def plot_matrix(matrix, group_names, title, filter_func):
-#     """
-#     Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
-#
-#     Parámetros:
-#     matrix (np.array): Matriz de p-valores a representar.
-#     group_names (list): Lista de nombres de los grupos.
-#     title (str): Título del gráfico.
-#     filter_func (function): Una función para filtrar los datos, opcional.
-#
-#     Retorna:
-#     None
-#     """
-#     fig, ax = plt.subplots()
-#     cax = ax.matshow(matrix, cmap='magma')
-#
-#     for i in range(len(group_names)):
-#         for j in range(len(group_names)):
-#             if i >= j:
-#                 val = matrix[i, j]
-#                 if np.isnan(val):
-#                     ax.text(j, i, 'nan', ha='center', va='center', color='black')
-#                 else:
-#                     color = 'white' if val < 0.05 else 'black'
-#                     ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
-#
-#     ax.set_facecolor((0, 0, 0, 0.5))
-#
-#     plt.colorbar(cax)
-#     ax.set_xticks(np.arange(len(group_names)))
-#     ax.set_yticks(np.arange(len(group_names)))
-#     ax.set_xticklabels(group_names, rotation=45, ha='left')
-#     ax.set_yticklabels(group_names)
-#     plt.xlabel('Grupos')
-#     plt.ylabel('Grupos')
-#     plt.title(title)
-#
-#     ax.set_xlim(-0.5, len(group_names) - 0.5)
-#     ax.set_ylim(len(group_names) - 0.5, -0.5)
-#
-#     plt.show()

@@ -7,18 +7,19 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
                                  obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
-                                 columnes_tests_categorics, mecvv_positiu, categoritzar_perdua_pes)
+                                 columnes_tests_categorics, mecvv_positiu)
 from listas import (P_list, charlson_dict, pathology_dict, laboratoris_dict)
 
 # Configuració del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 if __name__ == "__main__":
     logging.info("Inici del processament de l'script.")
 
     # Carregar l'arxiu json amb les dades
     try:
-        with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
+        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
             dades_raw = json.load(arxiu)
         logging.info("Arxiu carregat correctament.")
     except Exception as e:
@@ -116,6 +117,10 @@ if __name__ == "__main__":
         # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
         logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")
         data = columnes_tests_categorics(data)
+
+        # Creem una columna categorica amb una categoria per cada condició d'estudi que esn permetra fer un anàlisi
+        # de les condicions que tenen els pacients per cada condició d'estudi.
+        data = split_conditions(data)
 
         # Construir columna pèrdua de pes entre ingressos categòrica
         logging.info("Construint columna categòrica per la pèrdua de pes entre ingressos")
