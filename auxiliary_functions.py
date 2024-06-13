@@ -1024,43 +1024,57 @@ def test_indepe_bin_plot(data_1, data_2):
     print(f'Chi-squared: {chi2:.4f}')
     print(f'P-value: {p:.4f}')
 
+    # Generate a matrix of p-values
+    p_values_matrix = np.zeros_like(contingency_table.values, dtype=float)
+    for i in range(contingency_table.shape[0]):
+        for j in range(contingency_table.shape[1]):
+            observed = contingency_table.values[i, j]
+            expected = chi2_contingency(contingency_table.iloc[[i], [j]])[3]
+            p_values_matrix[i, j] = chi2_contingency([[observed, expected]])[1]
+
     # Plot the contingency table with p-values
-    plot_matrix(contingency_table, p, data_2.name)
+    plot_matrix(p_values_matrix, contingency_table.columns, data_2.name)
 
 
-def plot_matrix(contingency_table, p_values, categorical_column):
+def plot_matrix(matrix, column_names, categorical_column):
     """
-    Genera un gráfico de matriz con los p-valores proporcionados.
+    Genera un gràfic de hemimatriu superior amb els p-valors proporcionats.
 
-    Parámetros:
-    contingency_table (pd.DataFrame): Tabla de contingencia.
-    p_values (float): P-valor calculado para el test de chi-cuadrado.
+    Paràmetres:
+    matrix (np.array): Matriz de p-valores a representar.
+    column_names (list): Lista de nombres de las columnas.
     categorical_column (str): Nombre de la columna categórica.
 
     Retorna:
     None
     """
-    num_rows, num_cols = contingency_table.shape
+    num_columns = len(column_names)
 
     fig, ax = plt.subplots()
-    cax = ax.matshow(contingency_table, cmap='magma')
+    cax = ax.matshow(matrix, cmap='magma')
 
-    for i in range(num_rows):
-        for j in range(num_cols):
-            ax.text(j, i, f'{p_values[i, j]:.4f}', ha='center', va='center', color='black')
+    for i in range(len(column_names)):
+        for j in range(len(column_names)):
+            ax.text(j, i, f'{matrix[i, j]:.4f}', ha='center', va='center', color='black')
 
     ax.set_facecolor((0, 0, 0, 0.5))
-    plt.colorbar(cax)
-    ax.set_xticks(np.arange(num_cols))
-    ax.set_yticks(np.arange(num_rows))
-    ax.set_xticklabels(contingency_table.columns, rotation=45, ha='left')
-    ax.set_yticklabels(contingency_table.index)
+
+    # Colorbar
+    cbar = plt.colorbar(cax)
+    cbar.set_label('P-value')
+    cbar.set_ticks([0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5])
+    cbar.set_ticklabels(['< 0.05', '0.05', '0.1', '0.15', '0.2', '0.25', '0.3', '0.35', '0.4', '0.45', '>= 0.5'])
+
+    ax.set_xticks(np.arange(num_columns))
+    ax.set_yticks(np.arange(num_columns))
+    ax.set_xticklabels(column_names, rotation=45, ha='left')
+    ax.set_yticklabels(column_names)
     plt.xlabel('Grups')
     plt.ylabel('Columnes')
     plt.title(f'P-valors de les Comparacions de {categorical_column}')
 
-    ax.set_xlim(-0.5, num_cols - 0.5)
-    ax.set_ylim(num_rows - 0.5, -0.5)
+    ax.set_xlim(-0.5, num_columns - 0.5)
+    ax.set_ylim(num_columns - 0.5, -0.5)
 
     plt.show()
 
