@@ -7,7 +7,7 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
                                  obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
-                                 columnes_tests_categorics, mecvv_positiu)
+                                 columnes_tests_categorics, mecvv_positiu, categoritzar_perdua_pes)
 from listas import (P_list, charlson_dict, pathology_dict, laboratoris_dict)
 
 # Configuració del logging
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         # Construir una columna per cada patologia.
         # Visualitzar el progrés de la construcció de les columnes.
         logging.info("Construint columnes per a cada patologia.")
-        # Utilitzem la llibreria tqdm per a visualitzar el progrés de la construcció de les columnes.
+        # Ús de la llibreria tqdm per a visualitzar el progrés de la construcció de les columnes.
         for key, value in tqdm(pathology_dict.items()):
             data = codis_ICD(data, value, key)
 
@@ -75,14 +75,14 @@ if __name__ == "__main__":
         data = extreure_valors_binaritzants(data, 'mecvvs', 'alteracioSeguretat',
                                             'Alteració seguretat MECVV')
 
-        # Construir columna especial: MECV-V positiu
+        # Construir columna MECV-V positiu
         data = mecvv_positiu(data, 'MECV-V positiu')
 
         logging.info("Extracció de dades de laboratoris.")
         for key, value in tqdm(laboratoris_dict.items()):
             data = obtenir_valors_lab(data, 'labs', value, key)
 
-        # Construir columna especial: malaltia renal crònica
+        # Construir columna especial de laboratoris: malaltia renal crònica
         data['Creatinine'] = pd.to_numeric(data['Creatinine'], errors='coerce')
         data['Malaltia renal crònica'] = (data['Creatinine'] > 1.5).astype(int)
 
@@ -116,6 +116,11 @@ if __name__ == "__main__":
         # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
         logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")
         data = columnes_tests_categorics(data)
+
+        # Construir columna pèrdua de pes entre ingressos categòrica
+        logging.info("Construint columna categòrica per la pèrdua de pes entre ingressos")
+        data = categoritzar_perdua_pes(data, 'Pèrdua pes entre ingressos',
+                                       'Pèrdua pes entre ingressos categòrica')
 
         # Guardar DataFrame per a ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')

@@ -891,6 +891,39 @@ def categoritzar_emina(df):
     return df
 
 
+# Funció per classificar en diferents intervals la columna de pèrdua de pes entre ingressos
+def categoritzar_perdua_pes(data, columna_origen, columna_nova):
+    """
+    Converteix els valors numèrics d'una columna de pèrdua de pes a valors categòrics en una nova columna.
+
+    Paràmetres:
+    data (DataFrame): El DataFrame que conté les dades.
+    columna_origen (str): El nom de la columna amb els valors numèrics de pèrdua de pes.
+    columna_nova (str): El nom de la nova columna per als valors categòrics.
+
+    Retorna:
+    DataFrame: El DataFrame modificat amb la nova columna categòrica.
+    """
+    # Crear una columna temporal per manejar els NaN
+    data['categoria_pes_temp'] = data[columna_origen].fillna(-1)
+
+    # Aplicar pd.cut amb els intervals especificats
+    data[columna_nova] = pd.cut(
+        data['categoria_pes_temp'],
+        bins=[-float('inf'), 0, 1, 3, 6, 10, float('inf')],
+        labels=['None', '0 kg', '1-3 kg', '3-6 kg', '6-10 kg', '>10 kg'],
+        right=False
+    )
+
+    # Restaurar els valors None en la nova columna
+    data.loc[data[columna_origen].isna(), columna_nova] = 'None'
+
+    # Eliminar la columna temporal
+    data.drop(columns=['categoria_pes_temp'], inplace=True)
+
+    return data
+
+
 # Funció per generar un plot dels p-valors per variables contínues, un cop s'ha comprovat la normalitat i s'ha fet un
 # T-test o Mann-Whitney segons correspongui
 def test_indepe_plot(grups: dict, alpha=0.05):
@@ -982,105 +1015,79 @@ def plotejar_matriu(matriu, noms_grups, titol):
 
 #####
 # Funció per fer el plot del p-valor de les variables binàries (0 o 1)
-def test_indepe_bin_plot(groups: dict, filter_func=None):
+def test_indepe_bin_plot(df, categorical_column):
     """
-    Realiza el test de chi-cuadrado para comparar variables dicotómicas.
+    Realiza el test de chi-cuadrado para comparar variables dicotómicas entre diferentes columnas y una columna categórica.
 
     Parámetros:
-    groups (dict): Un diccionario donde las claves son los nombres de los grupos
-                   y los valores son listas de observaciones dicotómicas (0 o 1) o
-                   variables categóricas (F/M, por ejemplo) para cada grupo.
-    filter_func (function): Una función opcional para filtrar los datos de cada grupo.
+    df (DataFrame): El DataFrame que contiene los datos.
+    categorical_column (str): Nombre de la columna categórica a comparar con otras columnas.
 
     Retorna:
     None
     """
-    group_names = list(groups.keys())
-    num_groups = len(group_names)
-    p_values_matrix = np.zeros((num_groups, num_groups))
+    column_names = ['P diagnosticada', 'PA diagnosticada', 'MECV-V positiu']
+    num_columns = len(column_names)
+    p_values_matrix = np.zeros((num_columns, 1))
 
-    for i, (name1, data1) in enumerate(groups.items()):
-        for j, (name2, data2) in enumerate(groups.items()):
-            if i >= j:
-                # Aplicar función de filtrado si se proporciona
-                data1 = list(filter(filter_func, data1))
-                data2 = list(filter(filter_func, data2))
+    for i, col in enumerate(column_names):
+        # Crear tabla de contingencia entre la columna categórica y la columna actual
+        contingency_table = pd.crosstab(index=df[categorical_column], columns=df[col])
 
-                # Validar si las listas no están vacías
-                if len(data1) == 0 or len(data2) == 0:
-                    p_values_matrix[i, j] = np.nan
-                    continue
+        # Calcular test de chi-cuadrado
+        chi2_stat, p_value, _, _ = chi2_contingency(contingency_table)
 
-                # Construir la tabla de contingencia
-                count_00 = sum((x == 0 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
-                count_01 = sum((x == 0 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
-                count_10 = sum((x == 1 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
-                count_11 = sum((x == 1 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
+        # Imprimir resultados del test de chi-cuadrado
+        print(f"Estadístico xi-quadrat entre {col} i {categorical_column}:")
+        print(f"{chi2_stat}")
+        print(f"P-valor entre {col} i {categorical_column}:")
+        print(f"{p_value:.4f}")
 
-                print(f"Table for {name1} and {name2}:")
-                print(f"{count_00} | {count_01}")
-                print(f"{count_10} | {count_11}")
+        if p_value < 0.05:
+            print(f"Hi ha diferències significatives entre les distribucions de {col} i {categorical_column}.")
+        else:
+            print(f"No hi ha diferències significatives entre les distribucions de {col} i {categorical_column}.")
+        print("\n")
 
-                contingency_table = np.array([[count_00, count_01], [count_10, count_11]])
+        p_values_matrix[i, 0] = p_value
 
-                print(f"Contingency Table for {name1} and {name2}:")
-                print(contingency_table)
-
-                # Validar que la tabla de contingencia tenga valores suficientes para realizar el test
-                if contingency_table.sum() == 0 or (contingency_table < 5).sum() > 0:
-                    p_values_matrix[i, j] = np.nan
-                    continue
-
-                # Calcular el test de chi-cuadrado
-                _, p_value, _, _ = chi2_contingency(contingency_table)
-
-                p_values_matrix[i, j] = p_value
-
-    plot_matrix(p_values_matrix, group_names, 'P-valors de les Comparacions de Grups', filter_func)
+    plot_matrix(p_values_matrix, column_names, categorical_column)
 
 
-def plot_matrix(matrix, group_names, title, filter_func):
+def plot_matrix(matrix, column_names, categorical_column):
     """
-    Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
+    Genera un gràfic de hemimatritz superior amb els p-valors proporcionats.
 
-    Parámetros:
+    Paràmetres:
     matrix (np.array): Matriz de p-valores a representar.
-    group_names (list): Lista de nombres de los grupos.
-    title (str): Título del gráfico.
-    filter_func (function): Una función para filtrar los datos, opcional.
+    column_names (list): Lista de nombres de las columnas.
+    categorical_column (str): Nombre de la columna categórica.
 
     Retorna:
     None
     """
+    num_columns = len(column_names)
+
     fig, ax = plt.subplots()
     cax = ax.matshow(matrix, cmap='magma')
 
-    for i in range(len(group_names)):
-        for j in range(len(group_names)):
-            if i >= j:
-                val = matrix[i, j]
-                if np.isnan(val):
-                    ax.text(j, i, 'nan', ha='center', va='center', color='black')
-                else:
-                    color = 'white' if val < 0.05 else 'black'
-                    ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
+    for i in range(len(column_names)):
+        ax.text(0, i, f'{matrix[i, 0]:.4f}', ha='center', va='center', color='black')
 
     ax.set_facecolor((0, 0, 0, 0.5))
-
     plt.colorbar(cax)
-    ax.set_xticks(np.arange(len(group_names)))
-    ax.set_yticks(np.arange(len(group_names)))
-    ax.set_xticklabels(group_names, rotation=45, ha='left')
-    ax.set_yticklabels(group_names)
-    plt.xlabel('Grupos')
-    plt.ylabel('Grupos')
-    plt.title(title)
+    ax.set_xticks(np.arange(1))
+    ax.set_yticks(np.arange(num_columns))
+    ax.set_xticklabels([categorical_column], rotation=45, ha='left')
+    ax.set_yticklabels(column_names)
+    plt.xlabel('Columnes')
+    plt.ylabel('Columnes')
+    plt.title(f'P-valors de les Comparacions de {categorical_column}')
 
-    ax.set_xlim(-0.5, len(group_names) - 0.5)
-    ax.set_ylim(len(group_names) - 0.5, -0.5)
+    ax.set_xlim(-0.5, 0.5)
+    ax.set_ylim(num_columns - 0.5, -0.5)
 
     plt.show()
-
 
 ######
 
@@ -1126,6 +1133,7 @@ def mitjana_i_std_num(lista_dfs, columnes):
     # Imprimeix els resultats totals en forma de taula
     print(resultats_totals)
 
+
 # Funció per realitzar el compteig de variables categòriques i el seu percentatge
 def comptatge_i_percentatge_cat(lista_dfs, columnes):
     """
@@ -1167,7 +1175,6 @@ def comptatge_i_percentatge_cat(lista_dfs, columnes):
     # Imprimeix els resultats totals en forma de taula
     print(resultats_totals)
 
-
 ## APUNTES
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []
@@ -1177,3 +1184,103 @@ def comptatge_i_percentatge_cat(lista_dfs, columnes):
 # - los diferentes intervalos que son categoricos (num total/contaje) --> xi
 # Filtrar valores entre 10 y 15
 # filter_func = lambda x: 10 <= x <= 15
+
+# ANTIGUO test_indepe_bin
+# def test_indepe_bin_plot(groups: dict, filter_func=None):
+#     """
+#     Realiza el test de chi-cuadrado para comparar variables dicotómicas.
+#
+#     Parámetros:
+#     groups (dict): Un diccionario donde las claves son los nombres de los grupos
+#                    y los valores son listas de observaciones dicotómicas (0 o 1) o
+#                    variables categóricas (F/M, por ejemplo) para cada grupo.
+#     filter_func (function): Una función opcional para filtrar los datos de cada grupo.
+#
+#     Retorna:
+#     None
+#     """
+#     group_names = list(groups.keys())
+#     num_groups = len(group_names)
+#     p_values_matrix = np.zeros((num_groups, num_groups))
+#
+#     for i, (name1, data1) in enumerate(groups.items()):
+#         for j, (name2, data2) in enumerate(groups.items()):
+#             if i >= j:
+#                 # Aplicar función de filtrado si se proporciona
+#                 data1 = list(filter(filter_func, data1))
+#                 data2 = list(filter(filter_func, data2))
+#
+#                 # Validar si las listas no están vacías
+#                 if len(data1) == 0 or len(data2) == 0:
+#                     p_values_matrix[i, j] = np.nan
+#                     continue
+#
+#                 # Construir la tabla de contingencia
+#                 count_00 = sum((x == 0 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
+#                 count_01 = sum((x == 0 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
+#                 count_10 = sum((x == 1 and y == 0) for x, y in zip(data1, data2) if x is not None and y is not None)
+#                 count_11 = sum((x == 1 and y == 1) for x, y in zip(data1, data2) if x is not None and y is not None)
+#
+#                 print(f"Table for {name1} and {name2}:")
+#                 print(f"{count_00} | {count_01}")
+#                 print(f"{count_10} | {count_11}")
+#
+#                 contingency_table = np.array([[count_00, count_01], [count_10, count_11]])
+#
+#                 print(f"Contingency Table for {name1} and {name2}:")
+#                 print(contingency_table)
+#
+#                 # Validar que la tabla de contingencia tenga valores suficientes para realizar el test
+#                 if contingency_table.sum() == 0 or (contingency_table < 5).sum() > 0:
+#                     p_values_matrix[i, j] = np.nan
+#                     continue
+#
+#                 # Calcular el test de chi-cuadrado
+#                 _, p_value, _, _ = chi2_contingency(contingency_table)
+#
+#                 p_values_matrix[i, j] = p_value
+#
+#     plot_matrix(p_values_matrix, group_names, 'P-valors de les Comparacions de Grups', filter_func)
+#
+#
+# def plot_matrix(matrix, group_names, title, filter_func):
+#     """
+#     Genera un gráfico de hemi-matriz superior con los p-valores proporcionados.
+#
+#     Parámetros:
+#     matrix (np.array): Matriz de p-valores a representar.
+#     group_names (list): Lista de nombres de los grupos.
+#     title (str): Título del gráfico.
+#     filter_func (function): Una función para filtrar los datos, opcional.
+#
+#     Retorna:
+#     None
+#     """
+#     fig, ax = plt.subplots()
+#     cax = ax.matshow(matrix, cmap='magma')
+#
+#     for i in range(len(group_names)):
+#         for j in range(len(group_names)):
+#             if i >= j:
+#                 val = matrix[i, j]
+#                 if np.isnan(val):
+#                     ax.text(j, i, 'nan', ha='center', va='center', color='black')
+#                 else:
+#                     color = 'white' if val < 0.05 else 'black'
+#                     ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
+#
+#     ax.set_facecolor((0, 0, 0, 0.5))
+#
+#     plt.colorbar(cax)
+#     ax.set_xticks(np.arange(len(group_names)))
+#     ax.set_yticks(np.arange(len(group_names)))
+#     ax.set_xticklabels(group_names, rotation=45, ha='left')
+#     ax.set_yticklabels(group_names)
+#     plt.xlabel('Grupos')
+#     plt.ylabel('Grupos')
+#     plt.title(title)
+#
+#     ax.set_xlim(-0.5, len(group_names) - 0.5)
+#     ax.set_ylim(len(group_names) - 0.5, -0.5)
+#
+#     plt.show()
