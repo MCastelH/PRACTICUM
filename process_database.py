@@ -7,19 +7,18 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
                                  obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
-                                 columnes_tests_categorics, mecvv_positiu)
+                                 columnes_tests_categorics, categoritzar_perdua_pes, split_conditions)
 from listas import (P_list, charlson_dict, pathology_dict, laboratoris_dict)
 
 # Configuració del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 if __name__ == "__main__":
     logging.info("Inici del processament de l'script.")
 
     # Carregar l'arxiu json amb les dades
     try:
-        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
+        with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
             dades_raw = json.load(arxiu)
         logging.info("Arxiu carregat correctament.")
     except Exception as e:
@@ -76,9 +75,6 @@ if __name__ == "__main__":
         data = extreure_valors_binaritzants(data, 'mecvvs', 'alteracioSeguretat',
                                             'Alteració seguretat MECVV')
 
-        # Construir columna MECV-V positiu
-        data = mecvv_positiu(data, 'MECV-V positiu')
-
         logging.info("Extracció de dades de laboratoris.")
         for key, value in tqdm(laboratoris_dict.items()):
             data = obtenir_valors_lab(data, 'labs', value, key)
@@ -118,16 +114,16 @@ if __name__ == "__main__":
         logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")
         data = columnes_tests_categorics(data)
 
-        # Creem una columna categorica amb una categoria per cada condició d'estudi que esn permetra fer un anàlisi
-        # de les condicions que tenen els pacients per cada condició d'estudi.
-        data = split_conditions(data)
-
         # Construir columna pèrdua de pes entre ingressos categòrica
         logging.info("Construint columna categòrica per la pèrdua de pes entre ingressos")
         data = categoritzar_perdua_pes(data, 'Pèrdua pes entre ingressos',
                                        'Pèrdua pes entre ingressos categòrica')
 
-        # Guardar DataFrame per a ús en JupyterNotebook
+        # Creem una columna categòrica amb una categoria per cada condició d'estudi que ens permetrà fer una anàlisi
+        # de les condicions que tenen els pacients per cada condició d'estudi.
+        data = split_conditions(data)
+
+        # Guardar DataFrame per a posterior ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')
         logging.info("Processament finalitzat i dades guardades.")
 

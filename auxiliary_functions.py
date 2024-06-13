@@ -4,14 +4,8 @@ from datetime import datetime, timedelta
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency, kstest
 import numpy as np
 import matplotlib.pyplot as plt
-from tabulate import tabulate
 from prettytable import PrettyTable
 
-
-# TODO: comprueba que los Noms de las funciones sean descriptivos y concisos. OK
-# TODO: Agrega una descripción de la funcionalidad de las funciones. OK
-# TODO: Comprueba si se pueden simplificar las funciones y si se pueden reutilizar partes de código. OK
-# TODO: elige un idioma y mantenlo consistente en todo el código. OK
 
 # Funció per obtenir les columnes de les malalties segons els seus ICD
 def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
@@ -1013,12 +1007,15 @@ def plotejar_matriu(matriu, noms_grups, titol):
     plt.show()
 
 
+# Funció per realitzar el test Xi-quadrat en variables categòriques i retornar un plot amb els respectius p-valor
 def test_indepe_bin_plot(data_1, data_2):
     """
     Realiza el test de chi-cuadrado para comparar variables categòriques.
-    Parámetres:
+
+    Parámetros:
     data_1 (pd.Series): Serie de pandas con datos de la primera variable.
     data_2 (pd.Series): Serie de pandas con datos de la segunda variable.
+
     Retorna:
     None
     """
@@ -1027,47 +1024,48 @@ def test_indepe_bin_plot(data_1, data_2):
     print(f'Chi-squared: {chi2:.4f}')
     print(f'P-value: {p:.4f}')
 
-    # Plot the contingency table
-    fig, ax = plt.subplots()
-    cax = ax.matshow(contingency_table, cmap='viridis')
+    # Plot the contingency table with p-values
+    plot_matrix(contingency_table, p, data_2.name)
 
-def plot_matrix(matrix, column_names, categorical_column):
+
+def plot_matrix(contingency_table, p_values, categorical_column):
     """
-    Genera un gràfic de hemimatritz superior amb els p-valors proporcionats.
+    Genera un gráfico de matriz con los p-valores proporcionados.
 
-    Paràmetres:
-    matrix (np.array): Matriz de p-valores a representar.
-    column_names (list): Lista de nombres de las columnas.
+    Parámetros:
+    contingency_table (pd.DataFrame): Tabla de contingencia.
+    p_values (float): P-valor calculado para el test de chi-cuadrado.
     categorical_column (str): Nombre de la columna categórica.
 
     Retorna:
     None
     """
-    num_columns = len(column_names)
+    num_rows, num_cols = contingency_table.shape
 
     fig, ax = plt.subplots()
-    cax = ax.matshow(matrix, cmap='magma')
+    cax = ax.matshow(contingency_table, cmap='magma')
 
-    for i in range(len(column_names)):
-        ax.text(0, i, f'{matrix[i, 0]:.4f}', ha='center', va='center', color='black')
+    for i in range(num_rows):
+        for j in range(num_cols):
+            ax.text(j, i, f'{p_values[i, j]:.4f}', ha='center', va='center', color='black')
 
     ax.set_facecolor((0, 0, 0, 0.5))
     plt.colorbar(cax)
-    ax.set_xticks(np.arange(1))
-    ax.set_yticks(np.arange(num_columns))
-    ax.set_xticklabels([categorical_column], rotation=45, ha='left')
-    ax.set_yticklabels(column_names)
-    plt.xlabel('Columnes')
+    ax.set_xticks(np.arange(num_cols))
+    ax.set_yticks(np.arange(num_rows))
+    ax.set_xticklabels(contingency_table.columns, rotation=45, ha='left')
+    ax.set_yticklabels(contingency_table.index)
+    plt.xlabel('Grups')
     plt.ylabel('Columnes')
     plt.title(f'P-valors de les Comparacions de {categorical_column}')
 
-    ax.set_xlim(-0.5, 0.5)
-    ax.set_ylim(num_columns - 0.5, -0.5)
+    ax.set_xlim(-0.5, num_cols - 0.5)
+    ax.set_ylim(num_rows - 0.5, -0.5)
 
     plt.show()
 
-######
 
+#########
 # Funció per calcular la mitjana i la desviació estàndard
 def mitjana_i_std_num(lista_dfs, columnes):
     """
@@ -1153,6 +1151,7 @@ def comptatge_i_percentatge_cat(lista_dfs, columnes):
     print(resultats_totals)
 
 
+# Funció per generar una columna que classifica les diferents files en els 3 grups: AMB_PA, AMB_PA_MECVV i SENSE_PA
 def split_conditions(df):
     conditions = [
         (df["PA diagnosticada"] == 1.0),
@@ -1172,3 +1171,58 @@ def split_conditions(df):
 # - los diferentes intervalos que son categoricos (num total/contaje) --> xi
 # Filtrar valores entre 10 y 15
 # filter_func = lambda x: 10 <= x <= 15
+
+# def test_indepe_bin_plot(data_1, data_2):
+#     """
+#     Realiza el test de chi-cuadrado para comparar variables categòriques.
+#     Parámetres:
+#     data_1 (pd.Series): Serie de pandas con datos de la primera variable.
+#     data_2 (pd.Series): Serie de pandas con datos de la segunda variable.
+#     Retorna:
+#     None
+#     """
+#     contingency_table = pd.crosstab(data_1, data_2)
+#     chi2, p, _, _ = chi2_contingency(contingency_table)
+#     print(f'Chi-squared: {chi2:.4f}')
+#     print(f'P-value: {p:.4f}')
+#
+#     # Plot the contingency table
+#     fig, ax = plt.subplots()
+#     cax = ax.matshow(contingency_table, cmap='magma')
+#
+#
+# # Funció per fer la gràfica
+# def plot_matrix(matrix, column_names, categorical_column):
+#     """
+#     Genera un gràfic de hemimatriu superior amb els p-valors proporcionats.
+#
+#     Paràmetres:
+#     matrix (np.array): Matriz de p-valores a representar.
+#     column_names (list): Lista de nombres de las columnas.
+#     categorical_column (str): Nombre de la columna categórica.
+#
+#     Retorna:
+#     None
+#     """
+#     num_columns = len(column_names)
+#
+#     fig, ax = plt.subplots()
+#     cax = ax.matshow(matrix, cmap='magma')
+#
+#     for i in range(len(column_names)):
+#         ax.text(0, i, f'{matrix[i, 0]:.4f}', ha='center', va='center', color='black')
+#
+#     ax.set_facecolor((0, 0, 0, 0.5))
+#     plt.colorbar(cax)
+#     ax.set_xticks(np.arange(1))
+#     ax.set_yticks(np.arange(num_columns))
+#     ax.set_xticklabels([categorical_column], rotation=45, ha='left')
+#     ax.set_yticklabels(column_names)
+#     plt.xlabel('Grups')
+#     plt.ylabel('Columnes')
+#     plt.title(f'P-valors de les Comparacions de {categorical_column}')
+#
+#     ax.set_xlim(-0.5, 0.5)
+#     ax.set_ylim(num_columns - 0.5, -0.5)
+#
+#     plt.show()

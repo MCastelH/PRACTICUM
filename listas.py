@@ -606,11 +606,10 @@ laboratoris_dict = {
 num_var = ['edat', 'Mitjana pes', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Albumin',
            'Total Proteins', 'Hemoglobin', 'Total Cholesterol', 'Leucocytes', 'Lymphocytes', 'C reactive protein',
            'Creatinine', 'Urea', 'Glomerular Filtrate']
-cat_var = ['sexe', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P diagnosticada',
+cat_var = ['sexe M', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', 'P diagnosticada',
            'Infeccions respiratòries principals diagnosticades', 'LRTI diagnosticada',
            'Exacerbacions de COPD diagnosticades', 'Fibrosi pulmonar i fibrotòrax diagnosticades']
 num_tests = ['Barthel resultats', 'EMINA resultats', 'MNA resultats', 'Canadenca resultats']
-
 cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canadenca categòrica']
 
 # Document síndromes geriàtrics+comorbiditats
