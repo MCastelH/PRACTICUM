@@ -952,9 +952,9 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                     _, p_valor_ks1 = kstest(dades_grup1, 'norm')
                     _, p_valor_ks2 = kstest(dades_grup2, 'norm')
 
-                    if p_valor_ks1 > alpha and p_valor_ks2 > alpha:  # Si ambdós grups són normals
+                    if p_valor_ks1 > alpha and p_valor_ks2 > alpha:  # Si ambdós grups són normals:
                         stat, p_valor = ttest_ind(dades_grup1, dades_grup2)
-                    else:  # Si almenys un dels grups no és normal
+                    else:  # Si almenys un dels grups no és normal:
                         stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
                 else:
                     # Utilitzar el test de Shapiro-Wilk si hi ha menys de 5000 mostres als 2 grups
@@ -973,7 +973,7 @@ def test_indepe_plot(grups: dict, alpha=0.05):
 
 def plotejar_matriu(matriu, noms_grups):
     """
-    Genera un gràfico d'hemi-matriu superior amb els p-valors proporcionats.
+    Genera un gràfic d'hemi-matriu superior amb els p-valors proporcionats.
 
     Paràmetres:
     matriu (np.array): Matriu de p-valors a representar.
@@ -994,15 +994,15 @@ def plotejar_matriu(matriu, noms_grups):
                 color = 'white' if val < 0.05 else 'black'
                 ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
 
-    # Configuració del color del gràfic
-    ax.set_facecolor((0, 0, 0, 0.5))
+    # Configuració del color de fons del gràfic
+    ax.set_facecolor((0, 0, 0, 0))
 
     plt.colorbar(cax)
     ax.set_xticks(np.arange(len(noms_grups)))
     ax.set_yticks(np.arange(len(noms_grups)))
-    ax.set_xticklabels(noms_grups, rotation=45, ha='left')
-    ax.set_yticklabels(noms_grups)
-    plt.title(f'P-valors de les Comparacions entre els grups')
+    ax.set_xticklabels(noms_grups, rotation=45, ha='left', color='black')
+    ax.set_yticklabels(noms_grups, color='black')
+    plt.title(f'P-valors de les comparacions entre els grups', color='black')
 
     # Ajustar la matriu per només mostrar la meitat superior i la diagonal
     ax.set_xlim(-0.5, len(noms_grups) - 0.5)
@@ -1011,87 +1011,88 @@ def plotejar_matriu(matriu, noms_grups):
     plt.show()
 
 
+
 # Funció per realitzar el test Xi-quadrat en variables categòriques i retornar un plot amb els respectius p-valor
 def test_indepe_bin_plot(data_1, data_2):
     """
-    Realiza el test de chi-cuadrado para comparar variables categòriques por cada categoría única de data_1.
+    Realitza el test de xi-quadrat per comparar variables categòriques per cada categoria única de data_1.
 
-    Parámetros:
-    data_1 (pd.Series): Serie de pandas con datos de la primera variable.
-    data_2 (pd.Series): Serie de pandas con datos de la segunda variable.
+    Paràmetres:
+    data_1 (pd.Series): Sèrie de pandas amb dades de la primera variable.
+    data_2 (pd.Series): Sèrie de pandas amb dades de la segunda variable.
 
     Retorna:
-    dict: Diccionario donde las claves son las categorías únicas de data_1 y los valores son los p-valores correspondientes.
+    dict: Diccionari on les claus són les categories úniques de data_1 i els valors són els p-valors corresponents.
     """
     categories = data_1.unique()
-    results = {}
+    resultats = {}
 
-    p_values_matrix = []
+    p_val_matriu = []
 
-    for category in categories:
-        contingency_table = pd.crosstab(data_1 == category, data_2)
+    for categoria in categories:
+        contingency_table = pd.crosstab(data_1 == categoria, data_2)
         chi2, pval, _, _ = chi2_contingency(contingency_table)
-        results[category] = pval
-        p_values_matrix.append(pval)
-        print(f'Grup: {category}')
+        resultats[categoria] = pval
+        p_val_matriu.append(pval)
+        print(f'Grup: {categoria}')
         print(f'Chi-squared: {chi2:.4f}')
         print(f'P-value: {pval:.4f}')
         print('---')
 
-    # Convertir la lista de p-valores en una matriz
-    p_values_matrix = np.array(p_values_matrix).reshape(-1, 1)
+    # Convertir la llista de p-valors en una matriu
+    p_val_matriu = np.array(p_val_matriu).reshape(-1, 1)
 
-    # Generar el gráfico
-    plot_matrix(p_values_matrix, categories, data_2.name)
+    # Generar el gràfic
+    plot_matrix(p_val_matriu, categories, data_2.name)
 
-    return results
+    return resultats
 
 
-def plot_matrix(matrix, row_names, categorical_column):
+def plot_matrix(matriu, nom_files, columna_categorica):
     """
-    Genera un gráfico de matriz con los p-valores proporcionados para una categoría específica de data_1.
+    Genera un gràfic de matriu amb els p-valors proporcionats per a una categoria específica de data_1.
 
-    Parámetros:
-    matrix (np.array): Matriz de p-valores a representar.
-    row_names (list): Lista de nombres de las filas.
-    categorical_column (str): Nombre de la columna categórica (data_2).
+    Paràmetres:
+    matriu (np.array): Matriu de p-valors a representar.
+    nom_files (list): Llista de noms de les files.
+    categorical_column (str): Nom de la columna categòrica (data_2).
 
     Retorna:
     None
     """
-    num_rows, num_columns = matrix.shape
+    num_files, num_columnes = matriu.shape
 
     fig, ax = plt.subplots()
-    cax = ax.matshow(matrix, cmap='RdPu_r')
+    cax = ax.matshow(matriu, cmap='RdPu_r')
 
-    for i in range(num_rows):
-        for j in range(num_columns):
-            color = 'black' if matrix[i, j] > 0.05 else 'white'
-            ax.text(j, i, f'{matrix[i, j]:.4f}', ha='center', va='center', color=color)
+    for i in range(num_files):
+        for j in range(num_columnes):
+            color = 'black' if matriu[i, j] > 0.05 else 'white'
+            ax.text(j, i, f'{matriu[i, j]:.4f}', ha='center', va='center', color=color)
 
-    ax.set_facecolor((0.86, 0.86, 0.86, 0.5))
+    ax.set_facecolor((0, 0, 0, 0.5))
     plt.colorbar(cax)
-    ax.set_xticks(np.arange(num_columns))
-    ax.set_yticks(np.arange(num_rows))
-    ax.set_xticklabels([categorical_column], rotation=45, ha='left')
-    ax.set_yticklabels(row_names)
+    ax.set_xticks(np.arange(num_columnes))
+    ax.set_yticks(np.arange(num_files))
+    ax.set_xticklabels([columna_categorica], rotation=45, ha='left')
+    ax.set_yticklabels(nom_files)
     plt.xlabel('Variable')
     plt.ylabel('Grups')
-    plt.title(f'P-valors de les Comparacions de {categorical_column}')
+    plt.title(f'P-valors de les comparacions de {columna_categorica}')
 
-    ax.set_xlim(-0.5, num_columns - 0.5)
-    ax.set_ylim(num_rows - 0.5, -0.5)
+    ax.set_xlim(-0.5, num_columnes - 0.5)
+    ax.set_ylim(num_files - 0.5, -0.5)
 
     plt.show()
 
 
 # Funció per calcular la mitjana i la desviació estàndard
-def mitjana_i_std_num(lista_dfs, columnes):
+def mitjana_i_std_num(llista_dfs, columnes):
     """
     Calcula la mitjana i la desviació estàndard per a cada columna especificada en una llista.
 
     Paràmetres:
-    lista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
+    llista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
     columnes (list): Llista de noms de columnes a analitzar.
 
     Retorna:
@@ -1104,7 +1105,7 @@ def mitjana_i_std_num(lista_dfs, columnes):
     # Itera sobre cada columna d'interès
     for col in columnes:
         # Itera sobre cada DataFrame a la llista
-        for nom_df, df in lista_dfs:
+        for nom_df, df in llista_dfs:
             if col in df.columns:
                 try:
                     # Intenta convertir la columna a tipus numèric
@@ -1129,12 +1130,12 @@ def mitjana_i_std_num(lista_dfs, columnes):
 
 
 # Funció per realitzar el compteig de variables categòriques i el seu percentatge
-def comptatge_i_percentatge_cat(lista_dfs, columnes):
+def comptatge_i_percentatge_cat(llista_dfs, columnes):
     """
     Calcula el comptatge i el percentatge de variables per a cada columna especificada en una llista.
 
     Paràmetres:
-    lista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
+    llista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
     columnes (list): Llista de noms de columnes a analitzar.
 
     Retorna:
@@ -1147,13 +1148,13 @@ def comptatge_i_percentatge_cat(lista_dfs, columnes):
     # Itera sobre cada columna d'interès
     for col in columnes:
         # Itera sobre cada DataFrame a la llista
-        for nom_df, df in lista_dfs:
+        for nom_df, df in llista_dfs:
             if col in df.columns:
                 # Calcula el comptatge i el percentatge de les variables
                 comptes = df[col].value_counts()
                 percentatges = df[col].value_counts(normalize=True) * 100
 
-                # Formateja els percentatges per afegir el símbol '%' després del resultat
+                # Dona format als percentatges per afegir el símbol '%' després del resultat
                 percentatges_format = percentatges.apply(lambda x: f"{x:.2f}%")
 
                 # Afegeix una fila a la taula de resultats totals
@@ -1181,67 +1182,14 @@ def split_conditions(df):
     df['split_database'] = np.select(conditions, choices, default='Desconegut')
     return df
 
-## APUNTES
+
+
+
+
+## APUNTES ##
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []
 # float num enteros, int para decimales con punto
 # los tests (mna, emina, barthel...) tienen 2 "categorias":
 # - el total que es numerico (mean+-sd) --> ttest/mannwhit
 # - los diferentes intervalos que son categoricos (num total/contaje) --> xi
-# Filtrar valores entre 10 y 15
-# filter_func = lambda x: 10 <= x <= 15
-
-# def test_indepe_bin_plot(data_1, data_2):
-#     """
-#     Realiza el test de chi-cuadrado para comparar variables categòriques.
-#     Parámetres:
-#     data_1 (pd.Series): Serie de pandas con datos de la primera variable.
-#     data_2 (pd.Series): Serie de pandas con datos de la segunda variable.
-#     Retorna:
-#     None
-#     """
-#     contingency_table = pd.crosstab(data_1, data_2)
-#     chi2, p, _, _ = chi2_contingency(contingency_table)
-#     print(f'Chi-squared: {chi2:.4f}')
-#     print(f'P-value: {p:.4f}')
-#
-#     # Plot the contingency table
-#     fig, ax = plt.subplots()
-#     cax = ax.matshow(contingency_table, cmap='magma')
-#
-#
-# # Funció per fer la gràfica
-# def plot_matrix(matrix, column_names, categorical_column):
-#     """
-#     Genera un gràfic de hemimatriu superior amb els p-valors proporcionats.
-#
-#     Paràmetres:
-#     matrix (np.array): Matriz de p-valores a representar.
-#     column_names (list): Lista de nombres de las columnas.
-#     categorical_column (str): Nombre de la columna categórica.
-#
-#     Retorna:
-#     None
-#     """
-#     num_columns = len(column_names)
-#
-#     fig, ax = plt.subplots()
-#     cax = ax.matshow(matrix, cmap='magma')
-#
-#     for i in range(len(column_names)):
-#         ax.text(0, i, f'{matrix[i, 0]:.4f}', ha='center', va='center', color='black')
-#
-#     ax.set_facecolor((0, 0, 0, 0.5))
-#     plt.colorbar(cax)
-#     ax.set_xticks(np.arange(1))
-#     ax.set_yticks(np.arange(num_columns))
-#     ax.set_xticklabels([categorical_column], rotation=45, ha='left')
-#     ax.set_yticklabels(column_names)
-#     plt.xlabel('Grups')
-#     plt.ylabel('Columnes')
-#     plt.title(f'P-valors de les Comparacions de {categorical_column}')
-#
-#     ax.set_xlim(-0.5, 0.5)
-#     ax.set_ylim(num_columns - 0.5, -0.5)
-#
-#     plt.show()
