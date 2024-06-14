@@ -965,10 +965,10 @@ def test_indepe_plot(grups: dict, alpha=0.05):
 
                 matriu_pvalors[i, j] = p_valor if not np.isnan(p_valor) else np.nan
 
-    plotejar_matriu(matriu_pvalors, noms_grups, 'P-valors de les Comparacions dels Grups')
+    plotejar_matriu(matriu_pvalors, noms_grups)
 
 
-def plotejar_matriu(matriu, noms_grups, titol):
+def plotejar_matriu(matriu, noms_grups):
     """
     Genera un gràfico d'hemi-matriu superior amb els p-valors proporcionats.
 
@@ -981,7 +981,7 @@ def plotejar_matriu(matriu, noms_grups, titol):
     None
     """
     fig, ax = plt.subplots()
-    cax = ax.matshow(matriu, cmap='viridis')
+    cax = ax.matshow(matriu, cmap='rainbow')
 
     for (i, j), val in np.ndenumerate(matriu):
         if i >= j:  # Només mostrar la meitat superior i la diagonal
@@ -999,6 +999,7 @@ def plotejar_matriu(matriu, noms_grups, titol):
     ax.set_yticks(np.arange(len(noms_grups)))
     ax.set_xticklabels(noms_grups, rotation=45, ha='left')
     ax.set_yticklabels(noms_grups)
+    plt.title(f'P-valors de les Comparacions entre els grups')
 
     # Ajustar la matriu per només mostrar la meitat superior i la diagonal
     ax.set_xlim(-0.5, len(noms_grups) - 0.5)
@@ -1010,73 +1011,76 @@ def plotejar_matriu(matriu, noms_grups, titol):
 # Funció per realitzar el test Xi-quadrat en variables categòriques i retornar un plot amb els respectius p-valor
 def test_indepe_bin_plot(data_1, data_2):
     """
-    Realiza el test de chi-cuadrado para comparar variables categòriques.
+    Realiza el test de chi-cuadrado para comparar variables categòriques por cada categoría única de data_1.
 
     Parámetros:
     data_1 (pd.Series): Serie de pandas con datos de la primera variable.
     data_2 (pd.Series): Serie de pandas con datos de la segunda variable.
 
     Retorna:
-    None
+    dict: Diccionario donde las claves son las categorías únicas de data_1 y los valores son los p-valores correspondientes.
     """
-    contingency_table = pd.crosstab(data_1, data_2)
-    chi2, p, _, _ = chi2_contingency(contingency_table)
-    print(f'Chi-squared: {chi2:.4f}')
-    print(f'P-value: {p:.4f}')
+    categories = data_1.unique()
+    results = {}
 
-    # Generate a matrix of p-values
-    p_values_matrix = np.zeros_like(contingency_table.values, dtype=float)
-    for i in range(contingency_table.shape[0]):
-        for j in range(contingency_table.shape[1]):
-            observed = contingency_table.values[i, j]
-            expected = chi2_contingency(contingency_table.iloc[[i], [j]])[3]
-            p_values_matrix[i, j] = chi2_contingency([[observed, expected]])[1]
+    p_values_matrix = []
 
-    # Plot the contingency table with p-values
-    plot_matrix(p_values_matrix, contingency_table.columns, data_2.name)
+    for category in categories:
+        contingency_table = pd.crosstab(data_1 == category, data_2)
+        chi2, pval, _, _ = chi2_contingency(contingency_table)
+        results[category] = pval
+        p_values_matrix.append(pval)
+        print(f'Grup: {category}')
+        print(f'Chi-squared: {chi2:.4f}')
+        print(f'P-value: {pval:.4f}')
+        print('---')
+
+    # Convertir la lista de p-valores en una matriz
+    p_values_matrix = np.array(p_values_matrix).reshape(-1, 1)
+
+    # Generar el gráfico
+    plot_matrix(p_values_matrix, categories, data_2.name)
+
+    return results
 
 
-def plot_matrix(matrix, column_names, categorical_column):
+def plot_matrix(matrix, row_names, categorical_column):
     """
-    Genera un gràfic de hemimatriu superior amb els p-valors proporcionats.
+    Genera un gráfico de matriz con los p-valores proporcionados para una categoría específica de data_1.
 
-    Paràmetres:
+    Parámetros:
     matrix (np.array): Matriz de p-valores a representar.
-    column_names (list): Lista de nombres de las columnas.
-    categorical_column (str): Nombre de la columna categórica.
+    row_names (list): Lista de nombres de las filas.
+    categorical_column (str): Nombre de la columna categórica (data_2).
 
     Retorna:
     None
     """
-    num_columns = len(column_names)
+    num_rows, num_columns = matrix.shape
 
     fig, ax = plt.subplots()
-    cax = ax.matshow(matrix, cmap='magma')
+    cax = ax.matshow(matrix, cmap='turbo')
 
-    for i in range(len(column_names)):
-        for j in range(len(column_names)):
-            ax.text(j, i, f'{matrix[i, j]:.4f}', ha='center', va='center', color='black')
+    for i in range(num_rows):
+        for j in range(num_columns):
+            color = 'black' if matrix[i, j] > 0.05 else 'white'
+            ax.text(j, i, f'{matrix[i, j]:.4f}', ha='center', va='center', color=color)
 
-    ax.set_facecolor((0, 0, 0, 0.5))
-
-    # Colorbar
-    cbar = plt.colorbar(cax)
-    cbar.set_label('P-value')
-    cbar.set_ticks([0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5])
-    cbar.set_ticklabels(['< 0.05', '0.05', '0.1', '0.15', '0.2', '0.25', '0.3', '0.35', '0.4', '0.45', '>= 0.5'])
-
+    ax.set_facecolor((0.86, 0.86, 0.86, 0.5))
+    plt.colorbar(cax)
     ax.set_xticks(np.arange(num_columns))
-    ax.set_yticks(np.arange(num_columns))
-    ax.set_xticklabels(column_names, rotation=45, ha='left')
-    ax.set_yticklabels(column_names)
-    plt.xlabel('Grups')
-    plt.ylabel('Columnes')
+    ax.set_yticks(np.arange(num_rows))
+    ax.set_xticklabels([categorical_column], rotation=45, ha='left')
+    ax.set_yticklabels(row_names)
+    plt.xlabel('Variable')
+    plt.ylabel('Grups')
     plt.title(f'P-valors de les Comparacions de {categorical_column}')
 
     ax.set_xlim(-0.5, num_columns - 0.5)
-    ax.set_ylim(num_columns - 0.5, -0.5)
+    ax.set_ylim(num_rows - 0.5, -0.5)
 
     plt.show()
+
 
 
 #########
