@@ -908,12 +908,12 @@ def categoritzar_perdua_pes(data, columna_origen, columna_nova):
     data[columna_nova] = pd.cut(
         data['categoria_pes_temp'],
         bins=[-float('inf'), 0, 1, 3, 6, 10, float('inf')],
-        labels=['None', '0 kg', '1-3 kg', '3-6 kg', '6-10 kg', '>10 kg'],
+        labels=['No disponible', '0 kg', '1-3 kg', '3-6 kg', '6-10 kg', '>10 kg'],
         right=False
     )
 
     # Restaurar els valors None en la nova columna
-    data.loc[data[columna_origen].isna(), columna_nova] = 'None'
+    data.loc[data[columna_origen].isna(), columna_nova] = 'No disponible'
 
     # Eliminar la columna temporal
     data.drop(columns=['categoria_pes_temp'], inplace=True)
