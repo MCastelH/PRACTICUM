@@ -704,12 +704,12 @@ def obtenir_data_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.Data
 # seguretat o eficàcia)
 def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba la data en la llista de diccionaris 'mecvvs' quan es compleixen certes condicions i la guarda en una
+    Troba la data més antiga en la llista de diccionaris 'mecvvs' quan es compleixen certes condicions i la guarda en una
     nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data que compleix per primer cop les condicions
+        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data més antiga que compleixi les condicions
         esmentades.
 
     Retorna:
@@ -721,19 +721,22 @@ def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Data
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
         mecvvs_data = row['mecvvs']
+        dates = []
 
-        if not mecvvs_data or len(mecvvs_data) == 0:
-            data.loc[index, nova_columna] = None
-        else:
-            # Buscar la primera data que compleixi les condicions
+        if mecvvs_data and len(mecvvs_data) > 0:
+            # Buscar todas las datas que compleixin les condicions
             for mecvv_data in mecvvs_data:
                 if ('disfagia' in mecvv_data and mecvv_data['disfagia'] in ['SI', 'S']) or \
                         ('disfagiaConeguda' in mecvv_data and mecvv_data['disfagiaConeguda'] in ['SI', 'S']):
                     if ('alteracioSeguretat' in mecvv_data and mecvv_data['alteracioSeguretat'] in ['SI', 'S']) or \
                             ('alteracioEficacia' in mecvv_data and mecvv_data['alteracioEficacia'] in ['SI', 'S']):
-                        data_primera_condicio = datetime.strptime(mecvv_data['data'][:8], '%Y%m%d').strftime('%Y-%m-%d')
-                        data.loc[index, nova_columna] = data_primera_condicio
-                        break  # Aturar la cerca un cop es troba la data
+                        date = datetime.strptime(mecvv_data['data'][:8], '%Y%m%d')
+                        dates.append(date)
+
+            # Si hi ha dates que compleixen les condicions, triar la més antiga
+            if dates:
+                earliest_date = min(dates).strftime('%Y-%m-%d')
+                data.loc[index, nova_columna] = earliest_date
 
     return data
 
@@ -992,7 +995,7 @@ def plotejar_matriu(matriu, noms_grups):
                 ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
 
     # Configuració del color del gràfic
-    ax.set_facecolor((0.86, 0.86, 0.86, 0))
+    ax.set_facecolor((0, 0, 0, 0.5))
 
     plt.colorbar(cax)
     ax.set_xticks(np.arange(len(noms_grups)))
@@ -1082,8 +1085,6 @@ def plot_matrix(matrix, row_names, categorical_column):
     plt.show()
 
 
-
-#########
 # Funció per calcular la mitjana i la desviació estàndard
 def mitjana_i_std_num(lista_dfs, columnes):
     """
