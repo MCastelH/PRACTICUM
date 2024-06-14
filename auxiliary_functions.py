@@ -981,7 +981,7 @@ def plotejar_matriu(matriu, noms_grups):
     None
     """
     fig, ax = plt.subplots()
-    cax = ax.matshow(matriu, cmap='rainbow')
+    cax = ax.matshow(matriu, cmap='cool')
 
     for (i, j), val in np.ndenumerate(matriu):
         if i >= j:  # Només mostrar la meitat superior i la diagonal
@@ -1059,7 +1059,7 @@ def plot_matrix(matrix, row_names, categorical_column):
     num_rows, num_columns = matrix.shape
 
     fig, ax = plt.subplots()
-    cax = ax.matshow(matrix, cmap='turbo')
+    cax = ax.matshow(matrix, cmap='RdPu_r')
 
     for i in range(num_rows):
         for j in range(num_columns):
