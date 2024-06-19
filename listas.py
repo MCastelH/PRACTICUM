@@ -1,4 +1,4 @@
-# Llistes cerca de codis
+# Llistes de cerca de codis
 
 P_list = ['481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
           '466.0', '487.1', '491.8', '491.21', '491.22', 'A48.1', 'J09.X1', 'J10.00', 'J10.01', 'J10.02',
@@ -602,7 +602,7 @@ laboratoris_dict = {
     "Urea": "3091-6",
     "Glomerular Filtrate": "62238-1"
 }
-# Document general
+# Document tests + lab
 num_var = ['edat', 'Mitjana pes', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Albumin',
            'Total Proteins', 'Hemoglobin', 'Total Cholesterol', 'Leucocytes', 'Lymphocytes', 'C reactive protein',
            'Creatinine', 'Urea', 'Glomerular Filtrate']
@@ -627,16 +627,3 @@ cat_var_pes = {'Pèrdua pes entre ingressos categòrica'}
 #           'J15.211', 'J15.5', 'A48.1', 'J15.8', 'J18.0', 'J18.8', 'J69.0', 'J20', 'J10.1', 'J11.1', 'J41.8',
 #           'J44.1', 'J44.0',
 
-# per numerics --> mean sd
-# per categorics --> contatge i %
-
-# TODO: poner todo none o nan, mejor none:
-# - obtenir_valors_clau_interes: EMINA resultat, MNA resultats, Canadenca resultats
-# - obtenir_pes_o_mitjana: Mitjana pes
-# - disfagia_mecvvs: Disfàgia MECVV
-# - extreure_valors_binaritzants: Alteració eficàcia MECVV, Alteració seguretat MECVV
-# - obtenir_valors_lab: Creatinine
-# - obtenir_primera_data_mecvv: Data primer MECVV (NaT)
-# - obtenir_data_presencia_codi: Data més antiga pneumònia
-# - restar_dates: Dies entre primer ICD pneumònia i primer MECVV positiu
-# son todos float64 i todos tienen none en el codigo

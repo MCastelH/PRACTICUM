@@ -1193,3 +1193,17 @@ def split_conditions(df):
 # los tests (mna, emina, barthel...) tienen 2 "categorias":
 # - el total que es numerico (mean+-sd) --> ttest/mannwhit
 # - los diferentes intervalos que son categoricos (num total/contaje) --> xi
+
+# per numerics --> mean sd
+# per categorics --> contatge i %
+
+# TODO: poner todo none o nan, mejor none:
+# - obtenir_valors_clau_interes: EMINA resultat, MNA resultats, Canadenca resultats
+# - obtenir_pes_o_mitjana: Mitjana pes
+# - disfagia_mecvvs: Disfàgia MECVV
+# - extreure_valors_binaritzants: Alteració eficàcia MECVV, Alteració seguretat MECVV
+# - obtenir_valors_lab: Creatinine
+# - obtenir_primera_data_mecvv: Data primer MECVV (NaT)
+# - obtenir_data_presencia_codi: Data més antiga pneumònia
+# - restar_dates: Dies entre primer ICD pneumònia i primer MECVV positiu
+# son todos float64 i todos tienen none en el codigo
