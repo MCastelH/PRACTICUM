@@ -88,7 +88,7 @@ if __name__ == "__main__":
         data = obtenir_pes_mes_antic(data, 'Pes més antic')
         data = obtenir_pes_mes_nou(data, 'Pes més nou')
 
-        # Dates relacionades amb el pes i primer diagnòstic de MECVV
+        # Dates relacionades amb el pes i primer diagnòstic de MECV-V
         logging.info("Càlcul de dates relacionades amb el pes i el primer diagnòstic de MECVV.")
         data = obtenir_data_pes_mes_antic(data, 'Data pes més antic')
         data = obtenir_primera_data_mecvv(data, 'Data primer MECVV')

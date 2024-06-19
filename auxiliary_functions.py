@@ -843,7 +843,7 @@ def categoritzar_canadenca(df):
         (df['Canadenca resultats'] >= 5) & (df['Canadenca resultats'] <= 10),
         (df['Canadenca resultats'] <= 4.5)
     ]
-    choices = ['Dèficit neurològic lleu', 'Dèficit neurologic moderat', 'Dèficit neurològic sever']
+    choices = ['Dèficit neurològic lleu', 'Dèficit neurològic moderat', 'Dèficit neurològic sever']
     df['Canadenca categòrica'] = np.select(conditions, choices, default='Desconegut')
     return df
 
