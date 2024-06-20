@@ -591,16 +591,16 @@ pathology_dict = {
 
 # Diccionari amb totes les llistes per paràmetre de laboratori
 laboratoris_dict = {
-    "Albumin": "1751-7",
-    "Total Proteins": "2885-2",
-    "Hemoglobin": "718-7",
-    "Total Cholesterol": "2093-3",
-    "Leucocytes": "6690-2",
-    "Lymphocytes": "737-7",
-    "C reactive protein": "1988-5",
-    "Creatinine": "2160-0",
+    "Albúmina": "1751-7",
+    "Proteïnes totals sèrum": "2885-2",
+    "Hemoglobina": "718-7",
+    "Colesterol total": "2093-3",
+    "Leucòcits": "6690-2",
+    "Limfòcits": "737-7",
+    "Proteïna C reactiva": "1988-5",
+    "Creatinina": "2160-0",
     "Urea": "3091-6",
-    "Glomerular Filtrate": "62238-1"
+    "Filtrat glomerular": "62238-1"
 }
 # Document tests + lab
 num_var = ['edat', 'Mitjana pes', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Albumin',

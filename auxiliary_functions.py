@@ -946,6 +946,12 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                 dades_grup1 = pd.to_numeric(pd.Series(dades_grup1), errors='coerce').dropna()
                 dades_grup2 = pd.to_numeric(pd.Series(dades_grup2), errors='coerce').dropna()
 
+                # Comprobar si hi ha suficients dades després d'eliminar NaN
+                if len(dades_grup1) <= 3 or len(dades_grup2) <= 3:
+                    print(f"No hi ha prou dades per comparar {nom_grup1} i {nom_grup2}")
+                    matriu_pvalors[i, j] = np.nan
+                    continue
+
                 # Verificar el nombre de mostres
                 if len(dades_grup1) >= 5000 or len(dades_grup2) >= 5000:
                     # Utilitzar Kolmogorov-Smirnov test si hi ha més de 5000 pacients en algun dels grups

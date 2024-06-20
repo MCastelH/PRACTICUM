@@ -80,8 +80,8 @@ if __name__ == "__main__":
             data = obtenir_valors_lab(data, 'labs', value, key)
 
         # Construir columna especial de laboratoris: malaltia renal crònica
-        data['Creatinine'] = pd.to_numeric(data['Creatinine'], errors='coerce')
-        data['Malaltia renal crònica'] = (data['Creatinine'] > 1.5).astype(int)
+        data['Creatinina'] = pd.to_numeric(data['Creatinina'], errors='coerce')
+        data['Malaltia renal crònica'] = (data['Creatinina'] > 1.5).astype(int)
 
         # Pes més antic i més nou
         logging.info("Càlcul de pes més antic i més nou.")
