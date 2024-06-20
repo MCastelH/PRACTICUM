@@ -1121,6 +1121,9 @@ def mitjana_i_std_num(llista_dfs, columnes):
     resultats_totals = PrettyTable()
     resultats_totals.field_names = ["Columna", "DataFrame", "Mitjana", "Desviació Estàndard"]
 
+    # Comptador per controlar les files per a cada grup de 4
+    comptador_fila = 0
+
     # Itera sobre cada columna d'interès
     for col in columnes:
         # Itera sobre cada DataFrame a la llista
@@ -1144,6 +1147,11 @@ def mitjana_i_std_num(llista_dfs, columnes):
                 # Afegeix un espai en blanc entre els resultats de cada columna
                 resultats_totals.add_row(["", "", "", ""])
 
+                # Incrementa el comptador de files i afegeix un espai addicional si el comptador és múltiple de 4
+                comptador_fila += 1
+                if comptador_fila % 4 == 0:
+                    resultats_totals.add_row(["", "", "", ""])  # Afegeix una fila en blanc després de cada grup de 4
+
     # Imprimeix els resultats totals en forma de taula
     print(resultats_totals)
 
@@ -1164,27 +1172,36 @@ def comptatge_i_percentatge_cat(llista_dfs, columnes):
     resultats_totals = PrettyTable()
     resultats_totals.field_names = ["Columna", "DataFrame", "Valor", "Comptatges", "Percentatges"]
 
+    # Variable para controlar la columna anterior
+    col_anterior = None
+    primer_passatge = True
+
     # Itera sobre cada columna d'interès
     for col in columnes:
-        # Itera sobre cada DataFrame a la llista
+        # Itera sobre cada DataFrame a la lista
         for nom_df, df in llista_dfs:
             if col in df.columns:
+                # Afegeix un espai doble si no és el primer passatge i la columna anterior és diferent
+                if not primer_passatge and col != col_anterior:
+                    resultats_totals.add_row(["", "", "", "", ""])
+
                 # Calcula el comptatge i el percentatge de les variables
-                comptes = df[col].value_counts()
+                comptatges = df[col].value_counts()
                 percentatges = df[col].value_counts(normalize=True) * 100
 
                 # Dona format als percentatges per afegir el símbol '%' després del resultat
                 percentatges_format = percentatges.apply(lambda x: f"{x:.2f}%")
 
-                # Afegeix una fila a la taula de resultats totals
-                for idx, (valor, compte) in enumerate(zip(comptes.items(), percentatges_format.items())):
-                    if idx == 0:
-                        resultats_totals.add_row([col, nom_df, valor[0], valor[1], compte[1]])
-                    else:
-                        resultats_totals.add_row(["", "", valor[0], valor[1], compte[1]])
+                # Afegeix les files a la taula de resultats totals
+                for valor, compte, percentatge in zip(comptatges.index, comptatges.values, percentatges_format.values):
+                    resultats_totals.add_row([col, nom_df, valor, compte, percentatge])
 
-                # Afegeix un espai en blanc entre els resultats de cada columna
-                resultats_totals.add_row(["", "", "", "", ""])
+                    # Afegeix un espai simple entre les files d'una mateixa columna
+                    resultats_totals.add_row(["", "", "", "", ""])
+
+                # Actualitza la columna anterior i marca que ja no és el primer passatge
+                col_anterior = col
+                primer_passatge = False
 
     # Imprimeix els resultats totals en forma de taula
     print(resultats_totals)
