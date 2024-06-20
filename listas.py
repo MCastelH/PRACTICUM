@@ -564,7 +564,7 @@ pathology_dict = {
     'Caigudes prèvies': priorfalls_list,
     'Deliris': delirium_list,
     'Demència': dementia_list,
-    'Síndrome depressiu': depresyndr_list,
+    'Síndrome depressiva': depresyndr_list,
     'Incont.uri': uriincont_list,
     'Incont.fec': fecincont_list,
     'Úlceres pressió': pressulc_list,
