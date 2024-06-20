@@ -69,11 +69,11 @@ if __name__ == "__main__":
         data = obtenir_valors_clau_interes(data, 'canadenca', 'total',
                                            'Canadenca resultats')
         data = obtenir_pes_o_mitjana(data, 'pes', 'Mitjana pes')
-        data = disfagia_mecvvs(data, 'mecvvs', 'Disfàgia MECVV')
+        data = disfagia_mecvvs(data, 'mecvvs', 'Disfàgia MECV-V')
         data = extreure_valors_binaritzants(data, 'mecvvs', 'alteracioEficacia',
-                                            'Alteració eficàcia MECVV')
+                                            'Alteració eficàcia MECV-V')
         data = extreure_valors_binaritzants(data, 'mecvvs', 'alteracioSeguretat',
-                                            'Alteració seguretat MECVV')
+                                            'Alteració seguretat MECV-V')
 
         logging.info("Extracció de dades de laboratoris.")
         for key, value in tqdm(laboratoris_dict.items()):
@@ -89,14 +89,14 @@ if __name__ == "__main__":
         data = obtenir_pes_mes_nou(data, 'Pes més nou')
 
         # Dates relacionades amb el pes i primer diagnòstic de MECV-V
-        logging.info("Càlcul de dates relacionades amb el pes i el primer diagnòstic de MECVV.")
+        logging.info("Càlcul de dates relacionades amb el pes i el primer diagnòstic de MECV-V.")
         data = obtenir_data_pes_mes_antic(data, 'Data pes més antic')
-        data = obtenir_primera_data_mecvv(data, 'Data primer MECVV')
-        data = obtenir_pes_coincident_mecvv(data, 'Pes coincident primer MECVV')
+        data = obtenir_primera_data_mecvv(data, 'Data primer MECV-V')
+        data = obtenir_pes_coincident_mecvv(data, 'Pes coincident primer MECV-V')
 
         # Càlcul de pèrdua de pes
         logging.info("Càlcul de pèrdua de pes.")
-        data = restar_columnes_object(data, 'Pes més antic', 'Pes coincident primer MECVV',
+        data = restar_columnes_object(data, 'Pes més antic', 'Pes coincident primer MECV-V',
                                       'Pèrdua pes entre ingressos')
         data = restar_columnes_object(data, 'Pes més antic', 'Pes més nou',
                                       'Pèrdua pes total')
@@ -107,8 +107,8 @@ if __name__ == "__main__":
 
         # Dies entre diagnòstics
         logging.info("Dies entre diagnòstics.")
-        data = restar_dates(data, 'Data primer MECVV', 'Data més antiga pneumònia',
-                            'Dies entre primer ICD pneumònia i primer MECVV positiu')
+        data = restar_dates(data, 'Data primer MECV-V', 'Data més antiga pneumònia',
+                            'Dies entre primer ICD pneumònia i primer MECV-V positiu')
 
         # Construir columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca
         logging.info("Construint columnes categòriques pels tests EMINA, MNA, Barthel i Canadenca.")

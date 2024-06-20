@@ -1,4 +1,3 @@
-import matplotlib
 import pandas as pd
 from datetime import datetime, timedelta
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency, kstest
@@ -54,8 +53,8 @@ def nombre_ingressos(data: pd.DataFrame, nom_columna: str = 'ingressos', admissi
         num_admissions = 0
         num_emergencies = 0
         for ingres in fila[nom_columna]:
-            # Si en el diccionari hi ha la clau 'codiDiagnosticPrincipal' vol dir que és un ingrés per admissions, sino
-            # és un ingrés per urgències.
+            # Si en el diccionari hi ha la clau 'codiDiagnosticPrincipal' vol dir que és un ingrés per admissions,
+            # si no, és un ingrés per urgències.
             if 'codiDiagnosticPrincipal' in ingres:
                 num_admissions += 1
             else:
@@ -119,18 +118,21 @@ def trobar_data_mes_antiga(ingressos, llista):
     codi_data_mes_antiga = {}
 
     for ingres in ingressos:
-        codis_diagnostics = ingres.get('codiDiagnostics', [])
-        data_ingres = ingres.get('dataIngres', '')
+        codis_diagnostics = ingres.get('codiDiagnostics', [])  # Obtenir la llista de codis de diagnòstic per a aquest
+        # ingrés
+        data_ingres = ingres.get('dataIngres', '')  # Obtenir la data d'ingrés per a aquest ingrés
 
         for codi in codis_diagnostics:
-            if codi in llista:
+            if codi in llista:  # Comprovar si el codi de diagnòstic és a la llista d'interès
                 if codi not in codi_data_mes_antiga or data_ingres < codi_data_mes_antiga[codi]:
+                    # Si el codi no està al diccionari o la data d'ingrés actual és més antiga que la registrada,
+                    # actualitza la data més antiga per a aquest codi de diagnòstic.
                     codi_data_mes_antiga[codi] = data_ingres
 
     # Obtenir només les dates més antigues per codi
     dates_mes_antigues = {codi: data for codi, data in codi_data_mes_antiga.items()}
 
-    # Encontrar la data más antigua de todas las datas encontradas
+    # Trobar la data més antiga de totes les dates trobades
     data_mes_antiga = min(dates_mes_antigues.values()) if dates_mes_antigues else None
 
     return data_mes_antiga
@@ -192,7 +194,7 @@ def suma_sense_data(diccionari):
         - Suma total dels valors excloent la clau 'data'.
     """
     suma_parcial = 0
-    # Comprovem que el diccionari no estigui buit
+    # Comprovar que el diccionari no estigui buit
     if not diccionari or not isinstance(diccionari, dict):
         return None
     for clau, valor in diccionari.items():
@@ -419,8 +421,8 @@ def obtenir_valor(diccionaris, clau):
     return valor  # Retornar el valor trobat o None si la clau no s'ha trobat
 
 
-# Funció per obtenir la columna MECV-V positiu, retorna un 1 quan es compleix que el pacient té disfàgia i alteració de
-# la seguretat i/o l'eficàcia
+# Funció per obtenir la columna MECV-V positiu que es dona quan el pacient té disfàgia i alteració de la seguretat i/o
+# l'eficàcia. Retorna un 1 en cas que es donin aquestes condicions
 def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Troba quan es compleixen certes condicions que indiquen que el test MECV-V ha sortit positiu
@@ -458,7 +460,8 @@ def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
 # seu contingut (la clau és 'name' però classifica pel que contingui aquesta clau, no per la clau en si)
 def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, nova_columna: str) -> pd.DataFrame:
     """
-    Funció per obtenir el valor associat a la paraula clau a la columna de diccionaris i emmagatzemar-ho en una nova columna.
+    Funció per obtenir el valor associat a la paraula clau a la columna de diccionaris i emmagatzemar-ho en una nova
+    columna.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
@@ -518,10 +521,10 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
     valors_extrets = []
     for estructura in data[nom_columna]:
         if isinstance(estructura, (dict, list)) and estructura:
-            valor_extret = extract_value(estructura, clau_interes)
+            valor_extret = extreu_valor(estructura, clau_interes)
             valors_extrets.append(valor_extret)
         else:
-            # Manejar el caso de filas vacías
+            # Manejar el cas de files buides
             if pd.isna(estructura) or estructura == '':
                 valors_extrets.append(None)
             else:
@@ -533,21 +536,23 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
     return data
 
 
-def extract_value(d, key):
-    if isinstance(d, dict):
-        if key in d:
-            return d[key]
+def extreu_valor(d, clau):
+    if isinstance(d, dict):  # Comprovar si d és un diccionari
+        if clau in d:  # Comprovar si la clau existeix al diccionari
+            return d[clau]  # Retornar el valor associat a la clau
         else:
-            for v in d.values():
-                result = extract_value(v, key)
-                if result is not None:
-                    return result
-    elif isinstance(d, list):
-        for item in d:
-            result = extract_value(item, key)
-            if result is not None:
-                return result
-    return None
+            for v in d.values():  # Iterar pels valors del diccionari
+                resultat = extreu_valor(v, clau)  # Cercar recursivament cada valor per la clau
+                if resultat is not None:
+                    return resultat  # Retornar el resultat si es troba
+
+    elif isinstance(d, list):  # Comprovar si d és una llista
+        for item in d:  # Iterar per cada element de la llista
+            resultat = extreu_valor(item, clau)  # Cercar recursivament cada element per la clau
+            if resultat is not None:
+                return resultat  # Retornar el resultat si es troba
+
+    return None  # Retorna None si la clau no es troba al diccionari o llista
 
 
 # Funció per calcular el valor de l'índex de Charlson per a un pacient, tenint en compte que cada codi representa un
@@ -626,7 +631,7 @@ def obtenir_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame
             oldest_pes_weight = oldest_data_pes['valor']
             data.loc[index, nova_columna] = oldest_pes_weight
         except ValueError:
-            # En caso d'error  al parsejar la data, continuar amb la següent fila
+            # En cas d'error al parsejar la data, continuar amb la següent fila
             continue
 
     return data
@@ -700,12 +705,12 @@ def obtenir_data_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.Data
     return data
 
 
-# Funció que retorna la primera data en la qual es compleix que hi ha un test MECVV positiu (disfagia+alteració
+# Funció que retorna la primera data en la qual es compleix que hi ha un test MECV-V positiu (disfagia+alteració
 # seguretat o eficàcia)
 def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba la data més antiga en la llista de diccionaris 'mecvvs' quan es compleixen certes condicions i la guarda en una
-    nova columna.
+    Troba la data més antiga en la llista de diccionaris 'mecvvs' quan es compleixen certes condicions i la guarda en
+    una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
@@ -724,7 +729,7 @@ def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Data
         dates = []
 
         if mecvvs_data and len(mecvvs_data) > 0:
-            # Buscar todas las datas que compleixin les condicions
+            # Buscar totes les dates que compleixin les condicions
             for mecvv_data in mecvvs_data:
                 if ('disfagia' in mecvv_data and mecvv_data['disfagia'] in ['SI', 'S']) or \
                         ('disfagiaConeguda' in mecvv_data and mecvv_data['disfagiaConeguda'] in ['SI', 'S']):
@@ -735,14 +740,14 @@ def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Data
 
             # Si hi ha dates que compleixen les condicions, triar la més antiga
             if dates:
-                earliest_date = min(dates).strftime('%Y-%m-%d')
-                data.loc[index, nova_columna] = earliest_date
+                oldest_date = min(dates).strftime('%Y-%m-%d')
+                data.loc[index, nova_columna] = oldest_date
 
     return data
 
 
-# Funció que retorna el pes, tenint en compte la data del primer MECVV positiu. Perquè retorni el pes, la data
-# d'aquest ha de coincidir amb la data que hi ha en 'data primer mecvv', amb un interval de 3 dies de marge
+# Funció que retorna el pes, tenint en compte la data del primer MECV-V positiu. Perquè retorni el pes, la data
+# d'aquest ha de coincidir amb la data que hi ha en 'Data primer MECV-V', amb un interval de 3 dies de marge
 def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
     Troba el pes en la llista de diccionaris 'pes' que coincideix amb la data de 'data primer mecvv' dins d'un rang de
@@ -753,14 +758,14 @@ def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Da
         - nova_columna: Nom de la nova columna on s'emmagatzemarà el pes trobat.
 
     Retorna:
-        - DataFrame modificat amb la nova columna del peso que coincideixi amb la data del primer MECVV positiu
+        - DataFrame modificat amb la nova columna del peso que coincideixi amb la data del primer MECV-V positiu
     """
     # Inicialitzar la nova columna amb None
     data[nova_columna] = None
 
     # Iterar sobre cada fila del DataFrame 'data'
     for index, row in data.iterrows():
-        data_primer_mecvv = row['Data primer MECVV']
+        data_primer_mecvv = row['Data primer MECV-V']
         pes_kg = row['pes']
 
         if not data_primer_mecvv or not pes_kg or len(pes_kg) == 0:
@@ -770,7 +775,7 @@ def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Da
             # Convertir la data de 'data_primer_mecvv' al format datetime
             mecvv_datetime = datetime.strptime(data_primer_mecvv, '%Y-%m-%d')
 
-            # Definir els límits del rang de dates (±3 días)
+            # Definir els límits del rang de dates (±3 dies)
             date_start = mecvv_datetime - timedelta(days=3)
             date_end = mecvv_datetime + timedelta(days=3)
 
@@ -828,6 +833,7 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
 # Funció per generar les columnes dels tests MNA, EMINA, Barthel i Canadenca
 def columnes_tests_categorics(df):
     """Categoritza resultats i afegeix nous resultats amb valors categòrics al DataFrame."""
+    # Generar els DataFrame dels diferents tests
     df = categoritzar_barthel(df)
     df = categoritzar_mna(df)
     df = categoritzar_emina(df)
@@ -838,53 +844,61 @@ def columnes_tests_categorics(df):
 def categoritzar_canadenca(df):
     """Categoritza l'escala neurològica canadenca en 3 categories."""
     df['Canadenca resultats'] = pd.to_numeric(df['Canadenca resultats'], errors='coerce')
-    conditions = [
+    # Definir els intervals
+    condicions = [
         (df['Canadenca resultats'] > 10) & (df['Canadenca resultats'] <= 11.5),
         (df['Canadenca resultats'] >= 5) & (df['Canadenca resultats'] <= 10),
         (df['Canadenca resultats'] <= 4.5)
     ]
-    choices = ['Dèficit neurològic lleu', 'Dèficit neurològic moderat', 'Dèficit neurològic sever']
-    df['Canadenca categòrica'] = np.select(conditions, choices, default='Desconegut')
+    # Definir els noms dels intervals anteriors
+    termes = ['Dèficit neurològic lleu', 'Dèficit neurològic moderat', 'Dèficit neurològic sever']
+    df['Canadenca categòrica'] = np.select(condicions, termes, default='Desconegut')
     return df
 
 
 def categoritzar_barthel(df):
     """Categoritza l'índex de Barthel en 4 categories."""
     df['Barthel resultats'] = pd.to_numeric(df['Barthel resultats'], errors='coerce')
-    conditions = [
+    # Definir els intervals
+    condicions = [
         (df['Barthel resultats'] > 95),
         (df['Barthel resultats'] > 60) & (df['Barthel resultats'] <= 95),
         (df['Barthel resultats'] > 21) & (df['Barthel resultats'] <= 60),
         (df['Barthel resultats'] <= 20)
     ]
-    choices = ['Independent', 'Dependència moderada', 'Dependència severa', 'Dependència total']
-    df['Barthel categòric'] = np.select(conditions, choices, default='Desconegut')
+    # Definir els noms dels intervals anteriors
+    termes = ['Independent', 'Dependència moderada', 'Dependència severa', 'Dependència total']
+    df['Barthel categòric'] = np.select(condicions, termes, default='Desconegut')
     return df
 
 
 def categoritzar_mna(df):
     """Categoritza l'MNA en 3 categories."""
     df['MNA resultats'] = pd.to_numeric(df['MNA resultats'], errors='coerce')
-    conditions = [
+    # Definir els intervals
+    condicions = [
         (df['MNA resultats'] >= 24),
         (df['MNA resultats'] >= 17) & (df['MNA resultats'] <= 23.5),
         (df['MNA resultats'] < 17)
     ]
-    choices = ['Estat nutricional normal', 'Risc de malnutrició', 'Malnodrit']
-    df['MNA categòric'] = np.select(conditions, choices, default='Desconegut')
+    # Definir els noms dels intervals anteriors
+    termes = ['Estat nutricional normal', 'Risc de malnutrició', 'Malnodrit']
+    df['MNA categòric'] = np.select(condicions, termes, default='Desconegut')
     return df
 
 
 def categoritzar_emina(df):
     """Categoritza l'EMINA en 3 categories."""
     df['EMINA resultats'] = pd.to_numeric(df['EMINA resultats'], errors='coerce')
-    conditions = [
+    # Definir els intervals
+    condicions = [
         (df['EMINA resultats'] <= 5),
         (df['EMINA resultats'] >= 6) & (df['EMINA resultats'] <= 10),
         (df['EMINA resultats'] >= 11) & (df['EMINA resultats'] <= 15)
     ]
-    choices = ['Risc baix', 'Risc moderat', 'Risc alt']
-    df['EMINA categòric'] = np.select(conditions, choices, default='Desconegut')
+    # Definir els noms dels intervals anteriors
+    termes = ['Risc baix', 'Risc moderat', 'Risc alt']
+    df['EMINA categòric'] = np.select(condicions, termes, default='Desconegut')
     return df
 
 
@@ -941,12 +955,12 @@ def test_indepe_plot(grups: dict, alpha=0.05):
 
     for i, (nom_grup1, dades_grup1) in enumerate(grups.items()):
         for j, (nom_grup2, dades_grup2) in enumerate(grups.items()):
-            if i >= j:  # Només calcular per la meitat superior i la diagonal
+            if i >= j:  # Només calcular per la meitat inferior i la diagonal
                 # Convertir les dades a sèrie de pandas i intentar de convertir a float
                 dades_grup1 = pd.to_numeric(pd.Series(dades_grup1), errors='coerce').dropna()
                 dades_grup2 = pd.to_numeric(pd.Series(dades_grup2), errors='coerce').dropna()
 
-                # Comprobar si hi ha suficients dades després d'eliminar NaN
+                # Comprovar si hi ha suficients dades després d'eliminar NaN
                 if len(dades_grup1) <= 3 or len(dades_grup2) <= 3:
                     print(f"No hi ha prou dades per comparar {nom_grup1} i {nom_grup2}")
                     matriu_pvalors[i, j] = np.nan
@@ -979,7 +993,7 @@ def test_indepe_plot(grups: dict, alpha=0.05):
 
 def plotejar_matriu(matriu, noms_grups):
     """
-    Genera un gràfic d'hemi-matriu superior amb els p-valors proporcionats.
+    Genera un gràfic d'hemi-matriu inferior amb els p-valors proporcionats.
 
     Paràmetres:
     matriu (np.array): Matriu de p-valors a representar.
@@ -993,7 +1007,7 @@ def plotejar_matriu(matriu, noms_grups):
     cax = ax.matshow(matriu, cmap='cool')
 
     for (i, j), val in np.ndenumerate(matriu):
-        if i >= j:  # Només mostrar la meitat superior i la diagonal
+        if i >= j:  # Només mostrar la meitat inferior i la diagonal
             if np.isnan(val):
                 ax.text(j, i, 'nan', ha='center', va='center', color='black')
             else:
@@ -1010,12 +1024,11 @@ def plotejar_matriu(matriu, noms_grups):
     ax.set_yticklabels(noms_grups, color='black')
     plt.title(f'P-valors de les comparacions entre els grups', color='black')
 
-    # Ajustar la matriu per només mostrar la meitat superior i la diagonal
+    # Ajustar la matriu per només mostrar la meitat inferior i la diagonal
     ax.set_xlim(-0.5, len(noms_grups) - 0.5)
     ax.set_ylim(len(noms_grups) - 0.5, -0.5)
 
     plt.show()
-
 
 
 # Funció per realitzar el test Xi-quadrat en variables categòriques i retornar un plot amb els respectius p-valor
@@ -1181,16 +1194,12 @@ def comptatge_i_percentatge_cat(llista_dfs, columnes):
 def split_conditions(df):
     conditions = [
         (df["PA diagnosticada"] == 1.0),
-        (df["Dies entre primer ICD pneumònia i primer MECVV positiu"] < 30),
-        (df["Dies entre primer ICD pneumònia i primer MECVV positiu"] > 30) & (df['P diagnosticada'] == 1.0)
+        (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] < 30),
+        (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] > 30) & (df['P diagnosticada'] == 1.0)
     ]
     choices = ['AMB_PA', 'AMB_PA_MECVV', 'SENSE_PA']
     df['split_database'] = np.select(conditions, choices, default='Desconegut')
     return df
-
-
-
-
 
 ## APUNTES ##
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
@@ -1202,6 +1211,9 @@ def split_conditions(df):
 
 # per numerics --> mean sd
 # per categorics --> contatge i %
+
+# min() --> fecha más antigua
+# max() --> fecha más reciente
 
 # TODO: poner todo none o nan, mejor none:
 # - obtenir_valors_clau_interes: EMINA resultat, MNA resultats, Canadenca resultats
