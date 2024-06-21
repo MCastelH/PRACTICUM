@@ -10,13 +10,13 @@ from prettytable import PrettyTable
 def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
     """
     Funció que realitza una cerca en una llista de diccionaris d'una columna present en un DataFrame de pandas. Busca un
-    conjunt de codis específics i assigna 1 si algun d'aquests codis està present a la llista 'codiDiagnostics' de cada
+    conjunt de codis específics i assigna 1 si algun d'aquests codis estan present a la llista 'codiDiagnostics' de cada
     fila 'ingres', i 0 si cap dels codis està present. El resultat s'emmagatzema en una nova columna del DataFrame.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades
-        - llista: Llista de codi que es busquen en la llista de 'codiDiagnostics'.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el resultat.
+        - llista: llista de codis que es busquen en la llista de 'codiDiagnostics'.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el resultat.
 
     Retorna:
         - DataFrame modificat amb la nova columna que indica la presència dels codis buscats en 'codiDiagnostics'
@@ -34,17 +34,17 @@ def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFra
     return data
 
 
-# Funció per calcular el nombre d'ingressos que ha tingut cada pacient
+# Funció per calcular el nombre d'ingressos que cada pacient ha sigut ingressat
 def nombre_ingressos(data: pd.DataFrame, nom_columna: str = 'ingressos', admissions: str = 'Admissions',
                      emergencies: str = 'Emergencies') -> pd.DataFrame:
     """
-    Funció per comptar el nombre de diccionaris en una llista de diccionaris d'una columna i emmagatzemar-ho en una
-    nova columna.
+    Funció per comptar el nombre de diccionaris presents en una llista de diccionaris d'una columna i emmagatzemar-ho
+    en una nova columna.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el nombre de diccionaris.
+        - nom_columna: nom de la columna que conté la llista de diccionaris.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el nombre de diccionaris.
 
     Retorna:
         - DataFrame modificat amb la nova columna que conté el nombre de diccionaris.
@@ -54,7 +54,7 @@ def nombre_ingressos(data: pd.DataFrame, nom_columna: str = 'ingressos', admissi
         num_emergencies = 0
         for ingres in fila[nom_columna]:
             # Si en el diccionari hi ha la clau 'codiDiagnosticPrincipal' vol dir que és un ingrés per admissions,
-            # si no, és un ingrés per urgències.
+            # si no, indica que és un ingrés per urgències.
             if 'codiDiagnosticPrincipal' in ingres:
                 num_admissions += 1
             else:
@@ -64,15 +64,15 @@ def nombre_ingressos(data: pd.DataFrame, nom_columna: str = 'ingressos', admissi
     return data
 
 
-# Funció que fa un sumatori de tots els dies en total que el pacient ha estat ingressat
+# Funció que fa un sumatori i retorna el total de dies que el pacient ha estat ingressat
 def dies_ingressat_total(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per calcular el total de dies ingressat per cada fila i emmagatzemar-ho en una nova columna.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista d'ingressos.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el total de dies ingressat.
+        - nom_columna: nom de la columna que conté la llista d'ingressos.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el total de dies ingressat.
 
     Retorna:
         - DataFrame modificat amb la nova columna que conté el total de dies ingressat.
@@ -97,13 +97,13 @@ def dies_ingressat_total(data: pd.DataFrame, nom_columna: str, nova_columna: str
 # la data més antiga
 def obtenir_data_presencia_codi(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
     """
-    Troba la data més antiga ('dataIngres') associada a un codi de diagnòstic de la llista 'llista' a la llista de
-    diccionaris 'ingressos' de cada fila del DataFrame 'data' i crea una nova columna amb els resultats.
+    Troba la data més antiga (de la clau 'dataIngres') associada a un codi de diagnòstic de la llista 'llista', a la
+    llista de diccionaris 'ingressos' de cada fila del DataFrame 'data' i crea una nova columna amb els resultats.
 
     Paràmetres:
      -data: DataFrame que conté les dades.
     -llista: llista de codis de diagnòstic a cercar.
-    -nova_columna: Nom de la nova columna on s'emmagatzemaran les dates més antigues per codi.
+    -nova_columna: nom de la nova columna on s'emmagatzemaran les dates més antigues si el codi era present.
 
     Retorna:
     DataFrame modificat amb la nova columna que conté les dates més antigues per codi.
@@ -125,7 +125,7 @@ def trobar_data_mes_antiga(ingressos, llista):
         for codi in codis_diagnostics:
             if codi in llista:  # Comprovar si el codi de diagnòstic és a la llista d'interès
                 if codi not in codi_data_mes_antiga or data_ingres < codi_data_mes_antiga[codi]:
-                    # Si el codi no està al diccionari o la data d'ingrés actual és més antiga que la registrada,
+                    # Si el codi no és present al diccionari, o la data d'ingrés actual és més antiga que la registrada,
                     # actualitza la data més antiga per a aquest codi de diagnòstic.
                     codi_data_mes_antiga[codi] = data_ingres
 
@@ -145,9 +145,9 @@ def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna:
 
     Paràmetres:
     -data: DataFrame que conté les dades.
-    -columna1: Nom de la primera columna amb dates.
-    -columna2: Nom de la segona columna amb dates.
-    -nova_columna: Nom de la nova columna on s'emmagatzemaran els resultats de la resta.
+    -columna1: nom de la primera columna amb dates.
+    -columna2: nom de la segona columna amb dates.
+    -nova_columna: nom de la nova columna on s'emmagatzemaran els resultats de la resta.
 
     Retorna:
     DataFrame modificat amb la nova columna que conté la diferència entre les dates.
@@ -156,28 +156,26 @@ def restar_dates(data: pd.DataFrame, columna1: str, columna2: str, nova_columna:
     data[columna1] = pd.to_datetime(data[columna1])
     data[columna2] = pd.to_datetime(data[columna2])
 
-    # Restar las datas y calcular la diferencia en valores absolutos
+    # Restar les dates i calcular la diferència en valors absoluts
     data[nova_columna] = (data[columna1] - data[columna2]).dt.days.abs()
 
     return data
 
 
-# Funció per realitzar la suma de resultats de la columna 'barthel' sense agafar el valor de la clau 'data'. No pot
-# ser comparada amb cap clau que contingui resultat/total de la prova (com és el cas de la EMINA o la Canadenca),
-# ja que no existeix aquesta clau
+# Funció per realitzar la suma de resultats de la columna 'barthel' sense agafar el valor de la clau 'data'
 def sumar_barthel(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per sumar els valors de la columna especificada excloent la clau 'data' i emmagatzemar-ho en una nova columna.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà la suma dels valors excloent 'data'.
+        - nom_columna: nom de la columna que conté la llista de diccionaris.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà la suma dels valors excloent 'data'.
 
     Retorna:
         - DataFrame modificat amb la nova columna de suma total excloent la clau 'data'.
     """
-    # Aplicar la funció suma_sense_data a la columna especificada per fer la suma
+    # Aplicar la funció suma_sense_data a la columna especificada
     data[nova_columna] = data[nom_columna].apply(suma_sense_data)
 
     return data
@@ -188,7 +186,7 @@ def suma_sense_data(diccionari):
     Funció interna per sumar els valors del diccionari excloent la clau 'data'.
 
     Paràmetres:
-        - diccionari: Diccionari del qual es vol sumar els valors.
+        - diccionari: diccionari del qual es volen sumar els valors.
 
     Retorna:
         - Suma total dels valors excloent la clau 'data'.
@@ -202,12 +200,11 @@ def suma_sense_data(diccionari):
             suma_parcial += int(valor)
     return suma_parcial
 
-
-# Funció aplicable a EMINA i Canadenca (a Barthel no es pot aplicar, ja que no conté clau amb resultat/total). Realitza
-# un sumatori de les claus del test, obviant algunes quan sigui necessari, i aquest sumatori ho compara amb la clau que
-# conté el resultat/total del test. Si els valors coincideixen, retorna el sumatori.
-def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list, clau_comparacio: str,
-                     nova_columna: str) -> pd.DataFrame:
+    # Funció aplicable a EMINA i Canadenca (a Barthel no es pot aplicar, ja que no conté clau amb resultat/total). Realitza
+    # un sumatori de les claus del test, obviant algunes quan sigui necessari. Aquest sumatori el compara amb la clau que
+    # conté el resultat/total del test. Si els valors coincideixen, retorna el sumatori. NO SE USA
+    #def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list, clau_comparacio: str,
+    #                     nova_columna: str) -> pd.DataFrame:
     """
     Funció per sumar els valors d'una llista de diccionaris en una columna i comparar el resultat amb una clau específica.
 
@@ -222,32 +219,34 @@ def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list,
         - DataFrame modificat amb una nova columna que conté el resultat de la comparació.
     """
     # Aplicar la funció a la columna especificada per fer el sumatori i comparar
-    data[nova_columna] = data[nom_columna].apply(
-        lambda x: suma_compara_diccionaris(x, claus_excloure, clau_comparacio) if isinstance(x, list) else None)
 
-    return data
+
+#    data[nova_columna] = data[nom_columna].apply(
+#        lambda x: suma_compara_diccionaris(x, claus_excloure, clau_comparacio) if isinstance(x, list) else None)
+
+#    return data
 
 
 # Funció per sumar i comparar els valors dels diccionaris
-def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
-    if not diccionaris or not isinstance(diccionaris, list):
-        return None
+#def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
+#    if not diccionaris or not isinstance(diccionaris, list):
+#        return None
 
-    suma_parcial = 0
+#    suma_parcial = 0
 
-    for diccionari in diccionaris:
-        if isinstance(diccionari, dict):
-            for clau, valor in diccionari.items():
-                if clau not in claus_excloure and isinstance(valor, str) and ',' in valor:
-                    valor = valor.replace(',', '.')  # Reemplaçar la coma per un punt per a nombres decimals
-                if clau not in claus_excloure and isinstance(valor, str) and valor.replace('.', '', 1).isdigit():
-                    suma_parcial += float(valor)
+#    for diccionari in diccionaris:
+#       if isinstance(diccionari, dict):
+#            for clau, valor in diccionari.items():
+#                if clau not in claus_excloure and isinstance(valor, str) and ',' in valor:
+#                    valor = valor.replace(',', '.')  # Reemplaçar la coma per un punt per a nombres decimals
+#                if clau not in claus_excloure and isinstance(valor, str) and valor.replace('.', '', 1).isdigit():
+#                    suma_parcial += float(valor)
 
-            if clau_comparacio in diccionari:
-                if suma_parcial == float(diccionari[clau_comparacio]):
-                    return suma_parcial
+#            if clau_comparacio in diccionari:
+#                if suma_parcial == float(diccionari[clau_comparacio]):
+#                    return suma_parcial
 
-    return None
+#    return None
 
 
 # Funció per obtenir el pes dels pacients o en el cas que hi hagi més d'un valor, obtenir la seva mitjana
@@ -256,14 +255,14 @@ def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str, nova_columna: st
     Funció per calcular la mitjana dels valors de la clau 'valor' als diccionaris d'una llista.
 
     Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
-        - nom_columna: Nom de la columna que conté les llistes de diccionaris.
-        - nova_columna: Nom per la nova columna que contindrà la mitjana dels valors.
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: nom de la columna que conté les llistes de diccionaris.
+        - nova_columna: nom per la nova columna que recollirà la mitjana dels valors.
 
     Retorna:
         - DataFrame modificat amb una nova columna que conté la mitjana dels valors.
     """
-    # Aplica el mètode estàtic calcular_mitjana a la columna especificada del DataFrame
+    # Aplica la funció interna calcular_mitjana a la columna especificada del DataFrame
     data[nova_columna] = data[nom_columna].apply(calcular_mitjana)
 
     return data
@@ -307,15 +306,16 @@ def calcular_mitjana(diccionaris):
         return None
 
 
-# Funció que retorna un 1 en cas de que en la clau 'disfagia'o 'disfagiaConeguda' (de la llista de diccionaris 'mecvvs')
+# Funció que retorna un 1 en cas que en la clau 'disfagia'o 'disfagiaConeguda' (de la llista de diccionaris 'mecvvs')
 # hi hagi un 'SI' o 'S'
 def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
     """
-    Funció per comparar el valor de 'disfagia' en l'últim diccionari amb 'SI' o 'S' en una llista de diccionaris.
+    Funció per comparar el valor de 'disfagia' o 'disfagiaConeguda' en l'últim diccionari amb 'SI' o 'S' en una llista
+    de diccionaris.
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
+        - nom_columna: nom de la columna que conté la llista de diccionaris.
 
     Retorna:
         - DataFrame modificat amb una nova columna que conté el resultat desitjat.
@@ -324,7 +324,7 @@ def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> 
     data[nova_columna] = data[nom_columna].apply(
         lambda x: obtenir_ultima_disfagia(x) if isinstance(x, list) and len(x) > 0 else None)
 
-    # Convertir la columna obtinguda a tipus object
+    # Convertir la columna obtinguda a tipus "object"
     data[nova_columna] = data[nova_columna].astype(object)
 
     return data  # Retornar el DataFrame modificat
@@ -332,7 +332,8 @@ def disfagia_mecvvs(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> 
 
 def obtenir_ultima_disfagia(diccionaris):
     """
-    Obté el valor de la clau 'disfagia' o 'disfagiaConeguda' de l'últim diccionari vàlid que conté aquesta clau.
+    Funció per obtenir el valor de la clau 'disfagia' o 'disfagiaConeguda' de l'últim diccionari vàlid que conté
+    aquesta clau.
 
     Paràmetres:
         - diccionaris: llista de diccionaris.
@@ -340,10 +341,10 @@ def obtenir_ultima_disfagia(diccionaris):
     Retorna:
         - 1 si el valor de 'disfagia' és 'SI' o 'S'.
         - 0 si el valor de 'disfagia' és 'NO' o 'N'.
-        - None si la clau 'disfagia' no es troba en cap diccionari vàlid o si el diccionari és buit.
+        - None si la clau 'disfagia' no es troba en cap diccionari vàlid o si el diccionari està buit.
     """
     if not isinstance(diccionaris, list) or not diccionaris:
-        return None  # Retornar None si l'entrada no és una llista vàlida o està buida
+        return None  # Retornar None si l'entrada no és una llista vàlida o es troba buida
 
     valor_disfagia = None  # Valor per defecte
 
@@ -370,15 +371,16 @@ def obtenir_ultima_disfagia(diccionaris):
 
 
 # Funció que retorna el valor (paraula) de la clau introduïda de l'últim diccionari. Binaritza valors SI/NO a 1/0
+# respectivament
 def extreure_valors_binaritzants(data: pd.DataFrame, nom_columna: str, clau: str, nova_columna: str) -> pd.DataFrame:
     """
-    Funció per extreure el valor d'una clau específica en l'últim diccionari d'una llista de diccionaris.
+    Funció per extreure el valor d'una clau específica de l'últim diccionari d'una llista de diccionaris.
 
     Paràmetres:
-        - data: DataFrame de pandes que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - clau: Clau el valor de la qual es desitja extreure de cada diccionari.
-        - nova_columna: Nom de la nova columna on s'emmagatzemaran els valors extrets.
+        - data: DataFrame de pandas que conté les dades.
+        - nom_columna: nom de la columna que conté la llista de diccionaris.
+        - clau: clau el valor de la qual es desitja extreure de cada diccionari.
+        - nova_columna: nom de la nova columna on s'emmagatzemaran els valors extrets.
 
     Retorna:
         - DataFrame modificat amb una nova columna que conté els valors extrets.
@@ -396,11 +398,11 @@ def extreure_valors_binaritzants(data: pd.DataFrame, nom_columna: str, clau: str
 
 def obtenir_valor(diccionaris, clau):
     """
-    Obté el valor d'una clau específica de l'últim diccionari vàlid que conté aquesta clau.
+    Funció interna que obté el valor d'una clau específica de l'últim diccionari vàlid que conté aquesta clau.
 
     Paràmetres:
         - diccionaris: llista de diccionaris.
-        - clau: Clau el valor de la qual es desitja extreure de cada diccionari.
+        - clau: clau el valor de la qual es desitja extreure de cada diccionari.
 
     Retorna:
         - Valor de la clau especificada si aquesta es troba en l'últim diccionari vàlid.
@@ -422,14 +424,14 @@ def obtenir_valor(diccionaris, clau):
 
 
 # Funció per obtenir la columna MECV-V positiu que es dona quan el pacient té disfàgia i alteració de la seguretat i/o
-# l'eficàcia. Retorna un 1 en cas que es donin aquestes condicions
+# de l'eficàcia. Retorna un 1 en cas que es donin aquestes condicions
 def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba quan es compleixen certes condicions que indiquen que el test MECV-V ha sortit positiu
+    Funció que troba quan es compleixen certes condicions que indiquen que el test MECV-V ha sortit positiu
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data que compleix per primer cop les condicions
+        - nova_columna: nom de la nova columna on s'emmagatzemarà la primera data que compleix les condicions
         esmentades.
 
     Retorna:
@@ -456,8 +458,8 @@ def mecvv_positiu(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     return data
 
 
-# Funció que retorna els valors de les claus introduïdes, tenint en compte que no utilitza les claus com a tal sino el
-# seu contingut (la clau és 'name' però classifica pel que contingui aquesta clau, no per la clau en si)
+# Funció que retorna els valors de les claus introduïdes, tenint en compte que no utilitza les claus com a tal sinó el
+# seu contingut (la clau és 'name' però classifica els valors pel que contingui aquesta clau, no per la clau en si)
 def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, nova_columna: str) -> pd.DataFrame:
     """
     Funció per obtenir el valor associat a la paraula clau a la columna de diccionaris i emmagatzemar-ho en una nova
@@ -465,9 +467,9 @@ def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, 
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - paraula_clau: Paraula clau a buscar dins de la columna 'name' dels diccionaris.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà els valors obtinguts.
+        - nom_columna: nom de la columna que conté la llista de diccionaris.
+        - paraula_clau: paraula clau a buscar dins de la columna 'name' dels diccionaris.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà els valors obtinguts.
 
     Retorna:
         - DataFrame amb la nova columna afegida que conté els valors obtinguts.
@@ -479,7 +481,7 @@ def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, 
     for estructura in data[nom_columna]:
         valor_trobat = None
 
-        # Verificar si l'estructura és una llista de diccionaris no buida
+        # Verificar si l'estructura és una llista de diccionaris que no està buida
         if isinstance(estructura, list) and len(estructura) > 0:
             # Iterar sobre cada diccionari a la llista
             for diccionari in estructura:
@@ -499,10 +501,10 @@ def obtenir_valors_lab(data: pd.DataFrame, nom_columna: str, paraula_clau: str, 
     return data
 
 
-# Funció que retorna els valors que conté la clau que introdueixis, mitjançant l'ús de la clau_interés, el valor de la
-# qual conté el resultat. No és aplicable a la columna de labs, ja que aquesta té un format diferent i la clau no conté
+# Funció que retorna els valors de la clau que s'introdueixi, mitjançant l'ús de la 'clau_interés', el valor de la
+# qual conté el valor. No és aplicable a la columna de labs, ja que aquesta té un format diferent i la clau no conté
 # el valor sinó que hi ha les claus 'name' i 'value' que contenen respectivament el nom de la prova i el resultat, per
-# tant, no es pot aplicar aquesta funció.
+# tant, no es pot aplicar a aquest diccionari.
 def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_interes: str,
                                 nova_columna: str) -> pd.DataFrame:
     """
@@ -510,9 +512,9 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
 
     Paràmetres:
         - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - clau_interes: Clau d'interès per filtrar l'extracció de valors.
-        - nova_columna: Nom per la nova columna que contindrà els valors extrets.
+        - nom_columna: nom de la columna que conté la llista de diccionaris.
+        - clau_interes: clau d'interès per filtrar l'extracció de valors.
+        - nova_columna: nom per la nova columna que contindrà els valors extrets.
 
     Retorna:
         - DataFrame amb una nova columna que conté els valors de la clau d'interès.
@@ -537,6 +539,18 @@ def obtenir_valors_clau_interes(data: pd.DataFrame, nom_columna: str, clau_inter
 
 
 def extreu_valor(d, clau):
+    """
+    Funció interna que extreu el valor associat a una clau específica d'una estructura de dades,
+    la qual pot contenir diccionaris i/o llistes imbricades.
+
+    Paràmetres:
+        - d: estructura de dades que pot ser un diccionari o una llista de diccionaris.
+        - clau: clau el valor de la qual es desitja extreure.
+
+    Retorna:
+        - El valor associat a la clau especificada si es troba.
+        - None si la clau no es troba en cap diccionari vàlid.
+    """
     if isinstance(d, dict):  # Comprovar si d és un diccionari
         if clau in d:  # Comprovar si la clau existeix al diccionari
             return d[clau]  # Retornar el valor associat a la clau
@@ -559,14 +573,14 @@ def extreu_valor(d, clau):
 # valor i que aquests valors es poden anar sumant si el pacient en té més d'un
 def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, charlson_dict: dict) -> pd.DataFrame:
     """
-    Calcula l'índex de Charlson per a cada entrada en la llista de 'codiDiagnostics' en la columna especificada
-    i afegeix el resultat a una nova columna en el DataFrame.
+    Funció que calcula l'índex de Charlson per a cada entrada en la llista de 'codiDiagnostics' en la columna
+    especificada i afegeix el resultat a una nova columna en el DataFrame.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - columna_entrada: Nom de la columna que conté la llista de codis diagnòstics.
-        - nova_columna: Nom de la nova columna on s'emmagatzemaran els resultats.
-        - charlson_dict: Diccionari que conté els diferents codis ICD amb els seus respectius valors.
+        - columna_entrada: nom de la columna que conté la llista de codis diagnòstics.
+        - nova_columna: nom de la nova columna on s'emmagatzemaran els resultats.
+        - charlson_dict: diccionari que conté els diferents codis ICD amb els seus respectius valors.
 
     Retorna:
         - DataFrame modificat amb la nova columna d'índex de Charlson.
@@ -581,7 +595,7 @@ def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, 
         diagnostics_llista = row[columna_interes]
 
         if diagnostics_llista is None or not isinstance(diagnostics_llista, list):
-            continue  # Saltar a la següent fila si no hi ha llista de codis diagnòstics válida
+            continue  # Saltar a la següent fila si no hi ha llista de codis diagnòstics vàlida
 
         # Iterar sobre cada diccionari en la llista de codis diagnòstics
         for diagnostic_dic in diagnostics_llista:
@@ -591,7 +605,7 @@ def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, 
             # Iterar sobre cada codi de diagnòstic en la llista
             for codi_diagnostic in codis_diagnostics:
                 if isinstance(codi_diagnostic, str) and codi_diagnostic:
-                    # Buscar el codi en el diccionari de Charlson (charlson_dict)
+                    # Buscar el codi en el diccionari de Charlson anomenat charlson_dict
                     for value, codes in charlson_dict.items():
                         if any(codi_diagnostic.startswith(code) for code in codes):
                             charlson_value += value
@@ -606,11 +620,11 @@ def index_charlson(data: pd.DataFrame, columna_interes: str, nova_columna: str, 
 # Funció que retorna el pes més antic a partir de mirar la clau 'data' que conté el diccionari a cada fila 
 def obtenir_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba el pes més antic en la llista de diccionaris 'pes' de cada fila i ho guarda en una nova columna.
+    Funció que troba el pes més antic en la llista de diccionaris 'pes' de cada fila i ho guarda en una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el pes més antic    
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el pes més antic
         
     Retorna:
         - DataFrame modificat amb la nova columna del pes més antic.
@@ -640,11 +654,11 @@ def obtenir_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame
 # Funció que retorna el pes més actual, com en el cas anterior revisant la clau 'data'
 def obtenir_pes_mes_nou(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba el pes més nou en la llista de diccionaris 'pes' de cada fila i ho guarda en una nova columna.
+    Funció que troba el pes més nou en la llista de diccionaris 'pes' de cada fila i ho guarda en una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el pes més nou.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el pes més nou.
 
     Retorna:
         - DataFrame modificat amb la nova columna del peso més nou.
@@ -674,11 +688,11 @@ def obtenir_pes_mes_nou(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
 # Funció que retorna la data que correspon al pes més antic
 def obtenir_data_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba la data més antiga en la llista de diccionaris 'pes' de cada fila i la guarda en una nova columna.
+    Funció que troba la data més antiga en la llista de diccionaris 'pes' de cada fila i la guarda en una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data més antiga.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà la data més antiga.
 
     Retorna:
         - DataFrame modificat amb la nova columna de la data més antiga.
@@ -705,16 +719,16 @@ def obtenir_data_pes_mes_antic(data: pd.DataFrame, nova_columna: str) -> pd.Data
     return data
 
 
-# Funció que retorna la primera data en la qual es compleix que hi ha un test MECV-V positiu (disfagia+alteració
-# seguretat o eficàcia)
+# Funció que retorna la primera data en la qual es compleix que hi ha un test MECV-V positiu (presència de disfàgia +
+# alteració seguretat o eficàcia)
 def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba la data més antiga en la llista de diccionaris 'mecvvs' quan es compleixen certes condicions i la guarda en
+    Funció que troba la data més antiga en la llista de diccionaris 'mecvvs' quan es compleixen certes condicions i la guarda en
     una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà la data més antiga que compleixi les condicions
+        - nova_columna: nom de la nova columna on s'emmagatzemarà la data més antiga que compleixi les condicions
         esmentades.
 
     Retorna:
@@ -747,18 +761,18 @@ def obtenir_primera_data_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Data
 
 
 # Funció que retorna el pes, tenint en compte la data del primer MECV-V positiu. Perquè retorni el pes, la data
-# d'aquest ha de coincidir amb la data que hi ha en 'Data primer MECV-V', amb un interval de 3 dies de marge
+# d'aquest ha d'haver coincidit amb la data que hi ha en 'Data primer MECV-V', amb un rang de 3 dies de marge
 def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.DataFrame:
     """
-    Troba el pes en la llista de diccionaris 'pes' que coincideix amb la data de 'data primer mecvv' dins d'un rang de
-     ±3 dies i guarda el pes corresponent en una nova columna.
+    Funció que troba el pes en la llista de diccionaris 'pes' que coincideix amb la data de 'Data primer MECV-V' dins
+    d'un rang de ±3 dies i guarda el pes corresponent en una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el pes trobat.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el pes trobat.
 
     Retorna:
-        - DataFrame modificat amb la nova columna del peso que coincideixi amb la data del primer MECV-V positiu
+        - DataFrame modificat amb la nova columna del pes que coincideixi amb la data del primer MECV-V positiu
     """
     # Inicialitzar la nova columna amb None
     data[nova_columna] = None
@@ -769,10 +783,10 @@ def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Da
         pes_kg = row['pes']
 
         if not data_primer_mecvv or not pes_kg or len(pes_kg) == 0:
-            continue  # Passar a la següent fila si no hi ha cap data en 'data_primer_mecvv', o 'pes_kg' està buit
+            continue  # Passar a la següent fila si no hi ha cap data en 'Data primer MECV-V', o 'pes_kg' està buit
 
         try:
-            # Convertir la data de 'data_primer_mecvv' al format datetime
+            # Convertir la data de 'Data primer MECV-V' al format datetime
             mecvv_datetime = datetime.strptime(data_primer_mecvv, '%Y-%m-%d')
 
             # Definir els límits del rang de dates (±3 dies)
@@ -794,16 +808,16 @@ def obtenir_pes_coincident_mecvv(data: pd.DataFrame, nova_columna: str) -> pd.Da
     return data
 
 
-# Funció per obtenir la resta de dues columnes que contenen valors de tipus object
+# Funció per obtenir la resta de dues columnes que contenen valors de tipus "object"
 def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nova_columna: str) -> pd.DataFrame:
     """
-    Resta els valors de dues columnas d'un DataFrame i emmagatzema el resultat en una nova columna.
+    Funció que resta els valors de dues columnes d'un DataFrame i emmagatzema el resultat en una nova columna.
 
     Paràmetres:
         - data: DataFrame que conté les dades.
-        - columna1: Nom de la primera columna per restar.
-        - columna2: Nom de la segona columna per restar.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el resultat de la resta.
+        - columna1: nom de la primera columna a restar.
+        - columna2: nom de la segona columna a restar.
+        - nova_columna: nom de la nova columna on s'emmagatzemarà el resultat de la resta.
 
     Retorna:
         - DataFrame modificat amb la nova columna del resultat de la resta.
@@ -817,7 +831,7 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
         valor2 = row[columna2]
 
         try:
-            # Intentar convertir els valors a tipus numéricos (flotantes (float) o enteros (int))
+            # Intentar convertir els valors a tipus numèric (flotants (float))
             valor1 = float(valor1)
             valor2 = float(valor2)
 
@@ -830,9 +844,18 @@ def restar_columnes_object(data: pd.DataFrame, columna1: str, columna2: str, nov
     return data
 
 
-# Funció per generar les columnes dels tests MNA, EMINA, Barthel i Canadenca
+# Funció per generar les columnes dels tests MNA, EMINA, Barthel i Canadenca. Posa nom als diferents intervals numèrics
+# que els tests poden tenir
 def columnes_tests_categorics(df):
-    """Categoritza resultats i afegeix nous resultats amb valors categòrics al DataFrame."""
+    """
+    Funció que categoritza resultats de diferents tests i afegeix noves columnes amb valors categòrics al DataFrame.
+
+    Paràmetres:
+        - df: DataFrame que conté les dades dels tests.
+
+    Retorna:
+        - DataFrame amb noves columnes categòriques basades en els resultats dels tests.
+    """
     # Generar els DataFrame dels diferents tests
     df = categoritzar_barthel(df)
     df = categoritzar_mna(df)
@@ -842,7 +865,15 @@ def columnes_tests_categorics(df):
 
 
 def categoritzar_canadenca(df):
-    """Categoritza l'escala neurològica canadenca en 3 categories."""
+    """
+    Funció interna que categoritza l'escala neurològica canadenca en 3 categories.
+
+    Paràmetres:
+        - df: DataFrame que conté els resultats de l'escala neurològica canadenca.
+
+    Retorna:
+        - DataFrame amb una nova columna categòrica basada en els resultats de l'escala neurològica canadenca.
+    """
     df['Canadenca resultats'] = pd.to_numeric(df['Canadenca resultats'], errors='coerce')
     # Definir els intervals
     condicions = [
@@ -857,7 +888,15 @@ def categoritzar_canadenca(df):
 
 
 def categoritzar_barthel(df):
-    """Categoritza l'índex de Barthel en 4 categories."""
+    """
+    Funció interna que categoritza l'índex de Barthel en 4 categories.
+
+    Paràmetres:
+        - df: DataFrame que conté els resultats de l'índex de Barthel.
+
+    Retorna:
+        - DataFrame amb una nova columna categòrica basada en els resultats de l'índex de Barthel.
+    """
     df['Barthel resultats'] = pd.to_numeric(df['Barthel resultats'], errors='coerce')
     # Definir els intervals
     condicions = [
@@ -873,7 +912,15 @@ def categoritzar_barthel(df):
 
 
 def categoritzar_mna(df):
-    """Categoritza l'MNA en 3 categories."""
+    """
+    Funció interna que categoritza l'MNA en 3 categories.
+
+    Paràmetres:
+        - df: DataFrame que conté els resultats de l'MNA.
+
+    Retorna:
+        - DataFrame amb una nova columna categòrica basada en els resultats de l'MNA.
+    """
     df['MNA resultats'] = pd.to_numeric(df['MNA resultats'], errors='coerce')
     # Definir els intervals
     condicions = [
@@ -888,7 +935,15 @@ def categoritzar_mna(df):
 
 
 def categoritzar_emina(df):
-    """Categoritza l'EMINA en 3 categories."""
+    """
+    Funció interna que categoritza l'EMINA en 3 categories.
+
+    Paràmetres:
+        - df: DataFrame que conté els resultats de l'EMINA.
+
+    Retorna:
+        - DataFrame amb una nova columna categòrica basada en els resultats de l'EMINA.
+    """
     df['EMINA resultats'] = pd.to_numeric(df['EMINA resultats'], errors='coerce')
     # Definir els intervals
     condicions = [
@@ -905,15 +960,14 @@ def categoritzar_emina(df):
 # Funció per classificar en diferents intervals la columna de pèrdua de pes entre ingressos
 def categoritzar_perdua_pes(data, columna_origen, columna_nova):
     """
-    Converteix els valors numèrics d'una columna de pèrdua de pes a valors categòrics en una nova columna.
+    Funció que converteix els valors numèrics d'una columna de pèrdua de pes a valors categòrics, en una nova columna.
 
     Paràmetres:
-    data (DataFrame): El DataFrame que conté les dades.
-    columna_origen (str): El nom de la columna amb els valors numèrics de pèrdua de pes.
-    columna_nova (str): El nom de la nova columna per als valors categòrics.
+        - data (DataFrame): DataFrame que conté les dades.
+        - columna_origen (str): nom de la columna amb els valors numèrics de pèrdua de pes.
+        - columna_nova (str): nom de la nova columna per als valors categòrics.
 
-    Retorna:
-    DataFrame: El DataFrame modificat amb la nova columna categòrica.
+    Retorna: DataFrame modificat amb la nova columna categòrica.
     """
     # Crear una columna temporal per manejar els NaN
     data['categoria_pes_temp'] = data[columna_origen].fillna(-1)
@@ -935,19 +989,21 @@ def categoritzar_perdua_pes(data, columna_origen, columna_nova):
     return data
 
 
-# Funció per generar un plot dels p-valors per variables contínues, un cop s'ha comprovat la normalitat i s'ha fet un
-# T-test o Mann-Whitney segons correspongui
+# Funció per variables contínues. Comprova si hi ha distribució normal, amb el test de Shapiro-Wilks si és una mida
+# mostral de <5.000 o amb el test de Kolmogorov-Smirnov si és >5.000. Si segueix distribució normal farà el test de
+# T-test, si no, el test de Mann-Whitney. Finalment, els p-valors obtinguts s'expressen en una hemi-matriu inferior
 def test_indepe_plot(grups: dict, alpha=0.05):
     """
-    Compara grups utilitzant proves t-test o Mann-Whitney U segons la normalitat de les dades.
+    Funció que compara grups utilitzant proves T-test o Mann-Whitney U segons la normalitat de les dades i retorna una
+    gràfica com a resultat final.
 
     Paràmetres:
-    grupos (dict): Un diccionari on les claus són els noms dels grups
-                   i els valors són llistes d'observacions per a cada grup.
-    alpha (float): Nivell de significància pel test de Shapiro-Wilk. Per defecte és 0.05.
+        - grups (dict): diccionari on les claus són els noms dels grups i els valors són llistes d'observacions per a
+                        cada grup.
+        - alpha (float): nivell de significància pel test de Shapiro-Wilk. Per defecte és 0.05.
 
     Retorna:
-    None
+        - None (gràfica de la matriu de p-valors)
     """
     noms_grups = list(grups.keys())
     num_grups = len(noms_grups)
@@ -993,15 +1049,15 @@ def test_indepe_plot(grups: dict, alpha=0.05):
 
 def plotejar_matriu(matriu, noms_grups):
     """
-    Genera un gràfic d'hemi-matriu inferior amb els p-valors proporcionats.
+    Funció interna que genera una gràfica d'hemi-matriu inferior amb els p-valors proporcionats.
 
     Paràmetres:
-    matriu (np.array): Matriu de p-valors a representar.
-    noms_grups (list): Llista de noms dels grups.
-    titol (str): Títol del gràfic.
+        - matriu (np.array): matriu de p-valors a representar.
+        - noms_grups (list): llista de noms dels grups.
+        - titol (str): títol de la gràfica.
 
     Retorna:
-    None
+        - None (gràfica)
     """
     fig, ax = plt.subplots()
     cax = ax.matshow(matriu, cmap='cool')
@@ -1014,9 +1070,10 @@ def plotejar_matriu(matriu, noms_grups):
                 color = 'white' if val < 0.05 else 'black'
                 ax.text(j, i, f'{val:.4f}', ha='center', va='center', color=color)
 
-    # Configuració del color de fons del gràfic
+    # Configuració del color de fons de la gràfica
     ax.set_facecolor((0, 0, 0, 0))
 
+    # Configuració de colors i etiquetes de la gràfica
     plt.colorbar(cax)
     ax.set_xticks(np.arange(len(noms_grups)))
     ax.set_yticks(np.arange(len(noms_grups)))
@@ -1034,14 +1091,14 @@ def plotejar_matriu(matriu, noms_grups):
 # Funció per realitzar el test Xi-quadrat en variables categòriques i retornar un plot amb els respectius p-valor
 def test_indepe_bin_plot(data_1, data_2):
     """
-    Realitza el test de xi-quadrat per comparar variables categòriques per cada categoria única de data_1.
+    Funció que realitza el test de xi-quadrat per comparar variables categòriques per cada categoria única de data_1.
 
     Paràmetres:
-    data_1 (pd.Series): Sèrie de pandas amb dades de la primera variable.
-    data_2 (pd.Series): Sèrie de pandas amb dades de la segunda variable.
+        - data_1 (pd.Series): sèrie de pandas amb dades de la primera variable.
+        - data_2 (pd.Series): sèrie de pandas amb dades de la segona variable.
 
     Retorna:
-    dict: Diccionari on les claus són les categories úniques de data_1 i els valors són els p-valors corresponents.
+    dict: diccionari on les claus són les categories úniques de data_1 i els valors són els p-valors corresponents.
     """
     categories = data_1.unique()
     resultats = {}
@@ -1061,7 +1118,7 @@ def test_indepe_bin_plot(data_1, data_2):
     # Convertir la llista de p-valors en una matriu
     p_val_matriu = np.array(p_val_matriu).reshape(-1, 1)
 
-    # Generar el gràfic
+    # Generar la gràfica
     plot_matrix(p_val_matriu, categories, data_2.name)
 
     return resultats
@@ -1069,15 +1126,16 @@ def test_indepe_bin_plot(data_1, data_2):
 
 def plot_matrix(matriu, nom_files, columna_categorica):
     """
-    Genera un gràfic de matriu amb els p-valors proporcionats per a una categoria específica de data_1.
+    Funció interna que genera una gràfica de matriu amb els p-valors proporcionats per a una categoria específica de
+    data_1.
 
     Paràmetres:
-    matriu (np.array): Matriu de p-valors a representar.
-    nom_files (list): Llista de noms de les files.
-    categorical_column (str): Nom de la columna categòrica (data_2).
+        - matriu (np.array): matriu de p-valors a representar.
+        - nom_files (list): llista de noms de les files.
+        - categorical_column (str): nom de la columna categòrica (data_2).
 
     Retorna:
-    None
+        - None (gràfica)
     """
     num_files, num_columnes = matriu.shape
 
@@ -1089,7 +1147,10 @@ def plot_matrix(matriu, nom_files, columna_categorica):
             color = 'black' if matriu[i, j] > 0.05 else 'white'
             ax.text(j, i, f'{matriu[i, j]:.4f}', ha='center', va='center', color=color)
 
+    # Configuració del color de fons de la gràfica
     ax.set_facecolor((0, 0, 0, 0.5))
+
+    # Configuració de colors i etiquetes de la gràfica
     plt.colorbar(cax)
     ax.set_xticks(np.arange(num_columnes))
     ax.set_yticks(np.arange(num_files))
@@ -1099,25 +1160,26 @@ def plot_matrix(matriu, nom_files, columna_categorica):
     plt.ylabel('Grups')
     plt.title(f'P-valors de les comparacions de {columna_categorica}')
 
+    # Ajustar la matriu per només mostrar la meitat inferior i la diagonal
     ax.set_xlim(-0.5, num_columnes - 0.5)
     ax.set_ylim(num_files - 0.5, -0.5)
 
     plt.show()
 
 
-# Funció per calcular la mitjana i la desviació estàndard
+# Funció per calcular la mitjana i la desviació estàndard i retornar-les en una taula
 def mitjana_i_std_num(llista_dfs, columnes):
     """
-    Calcula la mitjana i la desviació estàndard per a cada columna especificada en una llista.
+    Funció que calcula la mitjana i la desviació estàndard per a cada columna especificada en una llista.
 
     Paràmetres:
-    llista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
-    columnes (list): Llista de noms de columnes a analitzar.
+        - llista_dfs (list): llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
+        - columnes (list): llista de noms de columnes a analitzar.
 
     Retorna:
-    None
+        - None (valors en una taula)
     """
-    # Inicialitza una taula amb les columnes apropiades
+    # Inicialitza una taula amb les columnes adequades
     resultats_totals = PrettyTable()
     resultats_totals.field_names = ["Columna", "DataFrame", "Mitjana", "Desviació Estàndard"]
 
@@ -1156,23 +1218,23 @@ def mitjana_i_std_num(llista_dfs, columnes):
     print(resultats_totals)
 
 
-# Funció per realitzar el compteig de variables categòriques i el seu percentatge
+# Funció per realitzar el compteig de variables categòriques i el seu percentatge, i retornat-ho en una taula
 def comptatge_i_percentatge_cat(llista_dfs, columnes):
     """
-    Calcula el comptatge i el percentatge de variables per a cada columna especificada en una llista.
+    Funció que calcula el comptatge i el percentatge de variables per a cada columna especificada en una llista.
 
     Paràmetres:
-    llista_dfs (list): Llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
-    columnes (list): Llista de noms de columnes a analitzar.
+        - llista_dfs (list): llista de tuples on el primer element és el nom del DataFrame i el segon és el DataFrame.
+        - columnes (list): llista de noms de columnes a analitzar.
 
     Retorna:
-    None
+        - None (taula amb els valors)
     """
-    # Inicialitza una taula amb les columnes apropiades
+    # Inicialitza una taula amb les columnes adequades
     resultats_totals = PrettyTable()
     resultats_totals.field_names = ["Columna", "DataFrame", "Valor", "Comptatges", "Percentatges"]
 
-    # Variable para controlar la columna anterior
+    # Variable per controlar la columna anterior
     col_anterior = None
     primer_passatge = True
 
@@ -1208,16 +1270,29 @@ def comptatge_i_percentatge_cat(llista_dfs, columnes):
 
 
 # Funció per generar una columna que classifica les diferents files en els 3 grups: AMB_PA, AMB_PA_MECVV i SENSE_PA
-def split_conditions(df):
+def segmentacio_bd(df):
+    """
+    Funció que categoritza les dades en funció de diferents condicions i afegeix una nova columna anomenada
+    'split_database' amb les categories corresponents.
+
+    Paràmetres:
+        - df (pd.DataFrame): DataFrame de pandas que conté les dades a categoritzar.
+
+    Retorna:
+        - pd.DataFrame: DataFrame original amb una nova columna 'split_database' que conté les categories resultants.
+    """
     conditions = [
         (df["PA diagnosticada"] == 1.0),
         (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] < 30),
         (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] > 30) & (df['P diagnosticada'] == 1.0)
     ]
     choices = ['AMB_PA', 'AMB_PA_MECVV', 'SENSE_PA']
-    df['split_database'] = np.select(conditions, choices, default='Desconegut')
+    df['Classificació pacient'] = np.select(conditions, choices, default='Desconegut')
     return df
 
+
+
+#######################################################################################################################
 ## APUNTES ##
 # Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
 # pes es llista de diccionarios []

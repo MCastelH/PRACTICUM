@@ -1,5 +1,4 @@
 # Llistes de cerca de codis
-
 P_list = ['481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
           '466.0', '487.1', '491.8', '491.21', '491.22', 'A48.1', 'J09.X1', 'J10.00', 'J10.01', 'J10.02',
           'J10.03', 'J10.04', 'J10.05', 'J10.06', 'J10.07', 'J10.08', 'J11.01', 'J11.02', 'J11.03', 'J11.04', 'J11.05',
@@ -13,18 +12,21 @@ PA_list = ['J69.0', 'J69.1', 'J69.8', '507.0']
 
 disfagia_list = ['787.20', 'R13.0', 'R13.1', 'R13.10', 'R13.11', 'R13.12', 'R13.13', 'R13.14', 'R13.19']
 
-# Noves llistes per emplenar taules word
+
+# Noves llistes per emplenar les taules word
+# La llista següent conté LRTI_list, COPD_exacerbations_list i Pulmonary_fibrosis_fibrotorax_list fusionades
 Main_respiratory_infections_list = ['J20.0', 'J20.1', 'J20.2', 'J20.3', 'J20.4', 'J20.4', 'J20.5', 'J20.6', 'J20.7',
                                     'J20.8', 'J20.9', 'J21', 'J21.0', 'J21.1', 'J21.8', 'J21.9', 'J22', 'J98.8',
                                     'J43.0', 'J43.1', 'J43.2', 'J43.8', 'J43.9', 'J44', 'J44.0', 'J44.1', 'J44.9',
                                     'J84.10', 'J84.112', 'J94.1']
-# La llista anterior conté les 3 següents fusionades 
+
 LRTI_list = ['J20.0', 'J20.1', 'J20.2', 'J20.3', 'J20.4', 'J20.4', 'J20.5', 'J20.6', 'J20.7', 'J20.8', 'J20.9',
              'J21', 'J21.0', 'J21.1', 'J21.8', 'J21.9', 'J22', 'J98.8']
 
 COPD_exacerbations_list = ['J43.0', 'J43.1', 'J43.2', 'J43.8', 'J43.9', 'J44', 'J44.0', 'J44.1', 'J44.9']
 
 Pulmonary_fibrosis_fibrotorax_list = ['J84.10', 'J84.112', 'J94.1']
+
 
 # Síndromes geriàtriques
 charlson_dict = {
@@ -45,7 +47,9 @@ charlson_dict = {
     6: ['C77', 'C78', 'C79', 'B20', 'B21', 'B22', 'B23', 'B24']
 }
 priorfalls_list = ['Z91.81', 'R29.6']
+
 delirium_list = ['F05', 'R41.0']
+
 dementia_list = ['I69.010', 'I69.011', 'I69.012', 'I69.013', 'I69.014', 'I69.015', 'I69.016', 'I69.017', 'I69.018',
                  'I69.019',
                  'I69.110', 'I69.111', 'I69.112', 'I69.113', 'I69.114', 'I69.115', 'I69.116', 'I69.117', 'I69.118',
@@ -67,6 +71,7 @@ dementia_list = ['I69.010', 'I69.011', 'I69.012', 'I69.013', 'I69.014', 'I69.015
                  'F02.B3', 'F02.B4', 'F02.C0', 'F02.C1', 'F02.C2', 'F02.C3', 'F02.C4', 'F03.90', 'F03.91', 'F10.97',
                  'F10.27',
                  'A52.17', 'G93.7', 'G30.0', 'G32.89']
+
 depresyndr_list = ['F20', 'F20.0', 'F20.1', 'F20.2', 'F20.3', 'F20.4', 'F20.5', 'F20.6', 'F20.7', 'F20.8', 'F20.9',
                    'F21', 'F22',
                    'F23', 'F24', 'F25', 'F25.0', 'F25.1', 'F25.8', 'F25.9', 'F28', 'F29', 'F30', 'F30.1', 'F30.2',
@@ -78,8 +83,11 @@ depresyndr_list = ['F20', 'F20.0', 'F20.1', 'F20.2', 'F20.3', 'F20.4', 'F20.5', 
                    'F33.2', 'F33.3', 'F33.4', 'F33.8', 'F33.9', 'F34', 'F34.0', 'F34.1', 'F34.8', 'F34.9', 'F39',
                    'F41.0', 'F41.1',
                    'F41.3', 'F41.8', 'F41.9']
+
 uriincont_list = ['R32', 'N39.44', 'N39.46']
+
 fecincont_list = ['R15.9']
+
 pressulc_list = ['L89.000', 'L89.001', 'L89.002', 'L89.003', 'L89.004', 'L89.006', 'L89.009', 'L89.010', 'L89.011',
                  'L89.012',
                  'L89.013', 'L89.014', 'L89.016', 'L89.019', 'L89.020', 'L89.021', 'L89.22', 'L89.23', 'L89.24',
@@ -115,14 +123,23 @@ pressulc_list = ['L89.000', 'L89.001', 'L89.002', 'L89.003', 'L89.004', 'L89.006
                  'L89.814', 'L89.816', 'L89.819', 'L89.890', 'L89.891', 'L89.892', 'L89.893', 'L89.894', 'L89.896',
                  'L89.899',
                  'L89.90', 'L89.91', 'L89.92', 'L89.93', 'L89.94', 'L89.95']
+
 immob_list = ["R26.2", "M62.81", "Z74.01"]
+
 conf_list = ["R41.0", "F05", "R41.82", "R41.3"]
+
 osteopor_list = ['M81']
+
 sarcopenia_list = ['M62.84']
+
 sleepdisturb_list = ['G47', 'F51']
+
 chrpain_list = ['G89']
+
 iatrog_list = ['E71.43']
+
 constipation_list = ['K59']
+
 
 # Historial mèdic/ comorbiditats
 CVdisease_list = ['I60.00', 'I60.01', 'I60.02', 'I60.10', 'I60.11', 'I60.12', 'I60.2', 'I60.3', 'I60.30', 'I60.31',
@@ -274,6 +291,7 @@ CVdisease_list = ['I60.00', 'I60.01', 'I60.02', 'I60.10', 'I60.11', 'I60.12', 'I
                   'S06.9X4D', 'S06.9X4S', 'S06.9X5A', 'S06.9X5D', 'S06.9X5S', 'S06.9X6A', 'S06.9X6D', 'S06.9X6S',
                   'S06.9X7A',
                   'S06.9X8A', 'S06.9XAA', 'S06.9XAD', 'S06.9XAS', 'S06.9X9A', 'S06.9X9D', 'S06.9X9S']
+
 heartdisease_list = ['I20.0', 'I20.1', 'I20.2', 'I20.8', 'I20.9', 'I21.01', 'I21.02', 'I21.09', 'I21.11', 'I21.19',
                      'I21.21', 'I21.29', 'I21.3', 'I21.4', 'I21.9', 'I21.A1', 'I21.A9', 'I22.0', 'I22.1', 'I22.2',
                      'I22.8', 'I23.0', 'I23.1', 'I23.2', 'I23.3', 'I23.4', 'I23.5', 'I23.6', 'I23.7', 'I23.8', 'I24.0',
@@ -287,6 +305,7 @@ heartdisease_list = ['I20.0', 'I20.1', 'I20.2', 'I20.8', 'I20.9', 'I21.01', 'I21
                      'I25.82', 'I25.83', 'I25.84', 'I25.89', 'I25.9', 'I40.0', 'I40.1', 'I40.8', 'I40.9', 'I41',
                      'I42.0',
                      'I42.1', 'I42.2', 'I42.3', 'I42.4', 'I42.5', 'I42.6', 'I42.7', 'I42.8', 'I42.9']
+
 ND_list = ['G10', 'G11.0', 'G11.1', 'G11.10', 'G11.11', 'G11.19', 'G11.2', 'G11.3', 'G11.4', 'G11.8', 'G11.9', 'G12.0',
            'G12.1', 'G12.2', 'G12.20', 'G12.21', 'G12.22', 'G12.23', 'G12.24', 'G12.25', 'G12.29', 'G12.8', 'G12.9',
            'G13.0', 'G13.1', 'G13.2', 'G13.8', 'G20', 'G21', 'G21.0', 'G21.1', 'G21.11', 'G21.19', 'G21.2', 'G21.3',
@@ -295,6 +314,7 @@ ND_list = ['G10', 'G11.0', 'G11.1', 'G11.10', 'G11.11', 'G11.19', 'G11.2', 'G11.
            'G24.2', 'G24.3', 'G24.4', 'G24.5', 'G24.8', 'G24.9', 'G25.0', 'G25.1', 'G25.2', 'G25.3', 'G25.4', 'G25.5',
            'G25.6', 'G25.61', 'G25.69', 'G25.70', 'G25.71', 'G25.79', 'G26', 'G35', 'G36.0', 'G36.1', 'G36.8', 'G36.9',
            'G37.0', 'G37.1', 'G37.2', 'G37.3', 'G37.4', 'G37.5', 'G37.8', 'G37.9']
+
 DM_list = ['E08.00', 'E08.01', 'E08.10', 'E08.11', 'E08.21', 'E08.22', 'E08.29', 'E08.311', 'E08.319', 'E08.3211',
            'E08.3212', 'E08.3213', 'E08.3219', 'E08.3291', 'E08.3292', 'E08.3293', 'E08.3299', 'E08.3311', 'E08.3312',
            'E08.3313', 'E08.3319', 'E08.3391', 'E08.3392', 'E08.3393', 'E08.3399', 'E08.3411', 'E08.3412', 'E08.3413',
@@ -346,6 +366,7 @@ DM_list = ['E08.00', 'E08.01', 'E08.10', 'E08.11', 'E08.21', 'E08.22', 'E08.29',
            'E13.37X2', 'E13.37X3', 'E13.37X9', 'E13.39', 'E13.40', 'E13.41', 'E13.42', 'E13.43', 'E13.44', 'E13.49',
            'E13.51', 'E13.52', 'E13.59', 'E13.610', 'E13.618', 'E13.620', 'E13.621', 'E13.622', 'E13.628', 'E13.630',
            'E13.638', 'E13.641', 'E13.649', 'E13.65', 'E13.69', 'E13.8', 'E13.9']
+
 hepatopat_list = ['B15.0', 'B15.9', 'B16.0', 'B16.1', 'B16.2', 'B16.9', 'B17.0', 'B17.1', 'B17.10', 'B17.11', 'B17.2',
                   'B17.8', 'B17.9', 'B18.0', 'B18.1', 'B18.2', 'B18.8', 'B18.9', 'B19.0', 'B19.1', 'B19.10', 'B19.11',
                   'B19.2', 'B19.20', 'B19.21', 'B19.9', 'K70.0', 'K70.10', 'K70.11', 'K70.2', 'K70.30', 'K70.31',
@@ -358,6 +379,7 @@ hepatopat_list = ['B15.0', 'B15.9', 'B16.0', 'B16.1', 'B16.2', 'B16.9', 'B17.0',
                   'K74.5', 'K74.60', 'K74.69', 'K75.0', 'K75.1', 'K75.2', 'K75.3', 'K75.4', 'K75.81', 'K75.89', 'K75.9',
                   'K76.0', 'K76.1', 'K76.2', 'K76.3', 'K76.4', 'K76.5', 'K76.6', 'K76.7', 'K76.81', 'K76.82', 'K76.89',
                   'K76.9', 'K77']
+
 neopl_list = ['C00.0', 'C00.1', 'C00.2', 'C00.3', 'C00.4', 'C00.5', 'C00.6', 'C00.8', 'C00.9', 'C01', 'C02.0', 'C02.1',
               'C02.3', 'C02.4', 'C02.8', 'C02.9', 'C03.0', 'C03.1', 'C03.9', 'C04.0', 'C04.1', 'C04.8', 'C04.9',
               'C05.0',
@@ -546,13 +568,19 @@ neopl_list = ['C00.0', 'C00.1', 'C00.2', 'C00.3', 'C00.4', 'C00.5', 'C00.6', 'C0
               'D05.91', 'D05.92', 'D06.0', 'D06.1', 'D06.7', 'D06.9', 'D07.0', 'D07.1', 'D07.2', 'D07.30', 'D07.39',
               'D07.4', 'D07.5', 'D07.60', 'D07.61', 'D07.69', 'D09.0', 'D09.10', 'D09.19', 'D09.20', 'D09.21', 'D09.22',
               'D09.3', 'D09.8', 'D09.9']
+
 AcuteRenalF_list = ['N17.0', 'N17.1', 'N17.2', 'N17.8', 'N17.9']
+
 dizsyn_list = ['R42', 'R55', 'T67']
+
 VIH_list = ['Z71.7', 'B20']
+
 psicosis_list = ['F31', 'F20']
+
 nutridef_list = ['E55']
 
-# Diccionari amb totes les listes per malaltia
+
+# Diccionari amb totes les corresponents listes per cadascuna de les malalties
 pathology_dict = {
     'PA diagnosticada': PA_list,
     'DO diagnosticada': disfagia_list,
@@ -589,6 +617,7 @@ pathology_dict = {
     'Def.nutri': nutridef_list
 }
 
+
 # Diccionari amb totes les llistes per paràmetre de laboratori
 laboratoris_dict = {
     "Albúmina": "1751-7",
@@ -602,6 +631,8 @@ laboratoris_dict = {
     "Urea": "3091-6",
     "Filtrat glomerular": "62238-1"
 }
+
+
 # Document tests + lab
 num_var = ['edat', 'Mitjana pes', 'Admissions', 'Emergències', 'Dies totals ingressat', 'Albumin',
            'Total Proteins', 'Hemoglobin', 'Total Cholesterol', 'Leucocytes', 'Lymphocytes', 'C reactive protein',
@@ -612,16 +643,21 @@ cat_var = ['sexe M', 'visitaDietista', 'PA diagnosticada', 'DO diagnosticada', '
 num_tests = ['Barthel resultats', 'EMINA resultats', 'MNA resultats', 'Canadenca resultats']
 cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canadenca categòrica']
 
+
 # Document síndromes geriàtrics+comorbiditats
 num_var_ger = ['Charlson']
 cat_var_ger = ['Caigudes prèvies', 'Deliris', 'Demència', 'Síndrome depressiu', 'Incont.uri', 'Incont.fec',
                'Úlceres pressió', 'Immobilitat', 'Confusió', 'Osteoporosi', 'Sarcopènia', 'Probl.son', 'Dolor crònic',
                'Iatrogènic', 'Restrenyiment', 'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties',
                'Neoplàsies', 'Malaltia renal crònica', 'ARF', 'Marejos', 'VIH', 'Psicosi', 'Def.nutri']
+
+
 # Document pes
 num_var_pes = {'Pèrdua pes entre ingressos', 'Pèrdua pes total'}
 cat_var_pes = {'Pèrdua pes entre ingressos categòrica'}
 
+
+#######################################################################################################################
 # antigua p_list: '481', '483.8', '482.1', '482.2', '482.42', '482.41', '482.82', '482.84', '482.89', '485', '486',
 #           '507.0', '466.0', '487.1', '491.8', '491.21', '491.22', 'J13', 'J18.1', 'J15.1', 'J14', 'J15.4',
 #           'J15.211', 'J15.5', 'A48.1', 'J15.8', 'J18.0', 'J18.8', 'J69.0', 'J20', 'J10.1', 'J11.1', 'J41.8',

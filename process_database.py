@@ -7,7 +7,7 @@ from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codi
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
                                  obtenir_primera_data_mecvv, obtenir_pes_coincident_mecvv, restar_columnes_object,
-                                 columnes_tests_categorics, categoritzar_perdua_pes, split_conditions)
+                                 columnes_tests_categorics, categoritzar_perdua_pes, segmentacio_bd)
 from listas import (P_list, charlson_dict, pathology_dict, laboratoris_dict)
 
 # Configuració del logging
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         data = data[data['edat'] >= 65]
         logging.info(f"Dades filtrades per edat: {len(data)} registres trobats.")
 
-        # Modificar columna sexe
+        # Modificar la columna del sexe
         data['sexe'] = data['sexe'].map({'F': 0, 'M': 1})
         data.rename(columns={'sexe': 'sexe M'}, inplace=True)
 
@@ -119,9 +119,9 @@ if __name__ == "__main__":
         data = categoritzar_perdua_pes(data, 'Pèrdua pes entre ingressos',
                                        'Pèrdua pes entre ingressos categòrica')
 
-        # Creem una columna categòrica amb una categoria per cada condició d'estudi que ens permetrà fer una anàlisi
+        # Crear una columna categòrica amb una categoria per cada condició d'estudi que ens permetrà fer una anàlisi
         # de les condicions que tenen els pacients per cada condició d'estudi.
-        data = split_conditions(data)
+        data = segmentacio_bd(data)
 
         # Guardar DataFrame per a posterior ús en JupyterNotebook
         data.to_pickle('./data/processed/dataframe.pkl')
