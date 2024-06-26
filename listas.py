@@ -602,7 +602,7 @@ pathology_dict = {
     'Sarcopènia': sarcopenia_list,
     'Probl.son': sleepdisturb_list,
     'Dolor crònic': chrpain_list,
-    'Iatrogènic': iatrog_list,
+    'Iatrogènia': iatrog_list,
     'Restrenyiment': constipation_list,
     'CV': CVdisease_list,
     'Probl.cor': heartdisease_list,
@@ -648,7 +648,7 @@ cat_tests = ['Barthel categòric', 'EMINA categòric', 'MNA categòric', 'Canade
 num_var_ger = ['Charlson']
 cat_var_ger = ['Caigudes prèvies', 'Deliris', 'Demència', 'Síndrome depressiu', 'Incont.uri', 'Incont.fec',
                'Úlceres pressió', 'Immobilitat', 'Confusió', 'Osteoporosi', 'Sarcopènia', 'Probl.son', 'Dolor crònic',
-               'Iatrogènic', 'Restrenyiment', 'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties',
+               'Iatrogènia', 'Restrenyiment', 'CV', 'Probl.cor', 'Neurodegeneratives', 'DM', 'Hepatopaties',
                'Neoplàsies', 'Malaltia renal crònica', 'ARF', 'Marejos', 'VIH', 'Psicosi', 'Def.nutri']
 
 
