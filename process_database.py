@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import logging
 from tqdm import tqdm
-from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_ICD, nombre_ingressos,
+from auxiliary_functions import (obtenir_data_presencia_codi, restar_dates, codis_icd, nombre_ingressos,
                                  dies_ingressat_total, obtenir_pes_o_mitjana, disfagia_mecvvs, sumar_barthel,
                                  obtenir_valors_lab, extreure_valors_binaritzants, obtenir_valors_clau_interes,
                                  index_charlson, obtenir_pes_mes_antic, obtenir_pes_mes_nou, obtenir_data_pes_mes_antic,
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # Carregar l'arxiu json amb les dades
     try:
-        with open('data/origin/bbdd_pneumonia_aspirativa.json', encoding='utf-8') as arxiu:
+        with open('data/origin/pacientsPneumoniaAspirativaTotal.json', encoding='utf-8') as arxiu:
             dades_raw = json.load(arxiu)
         logging.info("Arxiu carregat correctament.")
     except Exception as e:
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         logging.info("Construint columnes per a cada patologia.")
         # Ús de la llibreria tqdm per a visualitzar el progrés de la construcció de les columnes.
         for key, value in tqdm(pathology_dict.items()):
-            data = codis_ICD(data, value, key)
+            data = codis_icd(data, value, key)
 
         # Calcular índexs de Charlson
         logging.info("Calculant índexs de Charlson.")
@@ -130,3 +130,5 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"Error durant el processament de les dades: {e}")
         raise
+
+#%%

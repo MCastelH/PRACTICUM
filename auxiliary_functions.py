@@ -1,3 +1,5 @@
+import itertools
+
 import pandas as pd
 from datetime import datetime, timedelta
 from scipy.stats import shapiro, ttest_ind, mannwhitneyu, chi2_contingency, kstest
@@ -7,7 +9,7 @@ from prettytable import PrettyTable
 
 
 # Funció per obtenir les columnes de les malalties segons els seus ICD
-def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
+def codis_icd(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFrame:
     """
     Funció que realitza una cerca en una llista de diccionaris d'una columna present en un DataFrame de pandas. Busca un
     conjunt de codis específics i assigna 1 si algun d'aquests codis estan present a la llista 'codiDiagnostics' de cada
@@ -21,16 +23,22 @@ def codis_ICD(data: pd.DataFrame, llista: list, nova_columna: str) -> pd.DataFra
     Retorna:
         - DataFrame modificat amb la nova columna que indica la presència dels codis buscats en 'codiDiagnostics'
     """
+    data[nova_columna] = 0  # Inicialitzar la nova columna amb 0
+
     for index, fila in data.iterrows():  # Iterar sobre cada fila del DataFrame
+        found = False
+        if not fila['ingressos']:
+            continue
         for ingres in fila['ingressos']:  # Iterar sobre cada ingrés en 'ingressos'
+            if not ingres['codiDiagnostics']:
+                continue
             for valor in ingres['codiDiagnostics']:  # Iterar sobre cada valor en 'codiDiagnostics'
-                if valor in llista:  # Verificar si el valor està a la llista de codis a buscar
-                    data.at[index, nova_columna] = 1  # Assignar 1 si el valor està present
-                    break  # Aturar el bucle si es troba el valor per aquesta fila
-                else:
-                    data.at[index, nova_columna] = 0  # Assignar 0 si el valor no està present
-            if data.at[index, nova_columna] == 1:  # Verificar si el valor està en la llista de codis a buscar
-                break  # Aturar el bucle si es troba el valor per aquesta fila
+                if valor and any(codi and valor[:3] == codi[:3] for codi in llista):  # Verificar si els primers tres dígits del valor estan a la llista
+                    data.at[index, nova_columna] = 1  # Assignar 1 si els primers tres dígits estan presents
+                    found = True
+                    break  # Aturar el bucle si es troben els primers tres dígits per aquesta fila
+            if found:
+                break  # Aturar el bucle si es troben els primers tres dígits per aquesta fila
     return data
 
 
@@ -199,55 +207,6 @@ def suma_sense_data(diccionari):
         if clau != 'data':
             suma_parcial += int(valor)
     return suma_parcial
-
-    # Funció aplicable a EMINA i Canadenca (a Barthel no es pot aplicar, ja que no conté clau amb resultat/total). Realitza
-    # un sumatori de les claus del test, obviant algunes quan sigui necessari. Aquest sumatori el compara amb la clau que
-    # conté el resultat/total del test. Si els valors coincideixen, retorna el sumatori. NO SE USA
-    #def sumar_i_comparar(data: pd.DataFrame, nom_columna: str, claus_excloure: list, clau_comparacio: str,
-    #                     nova_columna: str) -> pd.DataFrame:
-    """
-    Funció per sumar els valors d'una llista de diccionaris en una columna i comparar el resultat amb una clau específica.
-
-    Paràmetres:
-        - data: DataFrame de pandas que conté les dades.
-        - nom_columna: Nom de la columna que conté la llista de diccionaris.
-        - claus_excloure: Llista de claus a excloure del sumatori.
-        - clau_comparacio: Clau amb la qual vols comparar el sumatori.
-        - nova_columna: Nom de la nova columna on s'emmagatzemarà el resultat de la comparació.
-
-    Retorna:
-        - DataFrame modificat amb una nova columna que conté el resultat de la comparació.
-    """
-    # Aplicar la funció a la columna especificada per fer el sumatori i comparar
-
-
-#    data[nova_columna] = data[nom_columna].apply(
-#        lambda x: suma_compara_diccionaris(x, claus_excloure, clau_comparacio) if isinstance(x, list) else None)
-
-#    return data
-
-
-# Funció per sumar i comparar els valors dels diccionaris
-#def suma_compara_diccionaris(diccionaris, claus_excloure, clau_comparacio):
-#    if not diccionaris or not isinstance(diccionaris, list):
-#        return None
-
-#    suma_parcial = 0
-
-#    for diccionari in diccionaris:
-#       if isinstance(diccionari, dict):
-#            for clau, valor in diccionari.items():
-#                if clau not in claus_excloure and isinstance(valor, str) and ',' in valor:
-#                    valor = valor.replace(',', '.')  # Reemplaçar la coma per un punt per a nombres decimals
-#                if clau not in claus_excloure and isinstance(valor, str) and valor.replace('.', '', 1).isdigit():
-#                    suma_parcial += float(valor)
-
-#            if clau_comparacio in diccionari:
-#                if suma_parcial == float(diccionari[clau_comparacio]):
-#                    return suma_parcial
-
-#    return None
-
 
 # Funció per obtenir el pes dels pacients o en el cas que hi hagi més d'un valor, obtenir la seva mitjana
 def obtenir_pes_o_mitjana(data: pd.DataFrame, nom_columna: str, nova_columna: str) -> pd.DataFrame:
@@ -883,7 +842,7 @@ def categoritzar_canadenca(df):
     ]
     # Definir els noms dels intervals anteriors
     termes = ['Dèficit neurològic lleu', 'Dèficit neurològic moderat', 'Dèficit neurològic sever']
-    df['Canadenca categòrica'] = np.select(condicions, termes, default='Desconegut')
+    df['Canadenca categòrica'] = np.select(condicions, termes, default=None)
     return df
 
 
@@ -907,7 +866,7 @@ def categoritzar_barthel(df):
     ]
     # Definir els noms dels intervals anteriors
     termes = ['Independent', 'Dependència moderada', 'Dependència severa', 'Dependència total']
-    df['Barthel categòric'] = np.select(condicions, termes, default='Desconegut')
+    df['Barthel categòric'] = np.select(condicions, termes, default=None)
     return df
 
 
@@ -930,7 +889,7 @@ def categoritzar_mna(df):
     ]
     # Definir els noms dels intervals anteriors
     termes = ['Estat nutricional normal', 'Risc de malnutrició', 'Malnodrit']
-    df['MNA categòric'] = np.select(condicions, termes, default='Desconegut')
+    df['MNA categòric'] = np.select(condicions, termes, default=None)
     return df
 
 
@@ -953,7 +912,7 @@ def categoritzar_emina(df):
     ]
     # Definir els noms dels intervals anteriors
     termes = ['Risc baix', 'Risc moderat', 'Risc alt']
-    df['EMINA categòric'] = np.select(condicions, termes, default='Desconegut')
+    df['EMINA categòric'] = np.select(condicions, termes, default=None)
     return df
 
 
@@ -992,19 +951,22 @@ def categoritzar_perdua_pes(data, columna_origen, columna_nova):
 # Funció per variables contínues. Comprova si hi ha distribució normal, amb el test de Shapiro-Wilks si és una mida
 # mostral de <5.000 o amb el test de Kolmogorov-Smirnov si és >5.000. Si segueix distribució normal farà el test de
 # T-test, si no, el test de Mann-Whitney. Finalment, els p-valors obtinguts s'expressen en una hemi-matriu inferior
-def test_indepe_plot(grups: dict, alpha=0.05):
+def test_indepe_plot(category_labels, numeric_values, alpha=0.05):
     """
     Funció que compara grups utilitzant proves T-test o Mann-Whitney U segons la normalitat de les dades i retorna una
     gràfica com a resultat final.
 
     Paràmetres:
-        - grups (dict): diccionari on les claus són els noms dels grups i els valors són llistes d'observacions per a
-                        cada grup.
+        - category_labels (Series): columa de classificació dels pacients.
+        - numeric_values (Series): columna de valors numèrics (edats).
         - alpha (float): nivell de significància pel test de Shapiro-Wilk. Per defecte és 0.05.
 
     Retorna:
         - None (gràfica de la matriu de p-valors)
     """
+    # Agrupar les dades per les etiquetes de categories
+    grups = {category: numeric_values[category_labels == category].tolist() for category in category_labels.unique()}
+
     noms_grups = list(grups.keys())
     num_grups = len(noms_grups)
     matriu_pvalors = np.zeros((num_grups, num_grups))
@@ -1029,18 +991,18 @@ def test_indepe_plot(grups: dict, alpha=0.05):
                     _, p_valor_ks2 = kstest(dades_grup2, 'norm')
 
                     if p_valor_ks1 > alpha and p_valor_ks2 > alpha:  # Si ambdós grups són normals:
-                        stat, p_valor = ttest_ind(dades_grup1, dades_grup2)
+                        _, p_valor = ttest_ind(dades_grup1, dades_grup2)
                     else:  # Si almenys un dels grups no és normal:
-                        stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
+                        _, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
                 else:
                     # Utilitzar el test de Shapiro-Wilk si hi ha menys de 5000 mostres als 2 grups
                     _, p_valor_shapiro1 = shapiro(dades_grup1)
                     _, p_valor_shapiro2 = shapiro(dades_grup2)
 
                     if p_valor_shapiro1 > alpha and p_valor_shapiro2 > alpha:  # Si ambdós grups són normals
-                        stat, p_valor = ttest_ind(dades_grup1, dades_grup2)
+                        _, p_valor = ttest_ind(dades_grup1, dades_grup2)
                     else:  # Si almenys un dels grups no és normal
-                        stat, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
+                        _, p_valor = mannwhitneyu(dades_grup1, dades_grup2, alternative='two-sided')
 
                 matriu_pvalors[i, j] = p_valor if not np.isnan(p_valor) else np.nan
 
@@ -1088,83 +1050,66 @@ def plotejar_matriu(matriu, noms_grups):
     plt.show()
 
 
-# Funció per realitzar el test Xi-quadrat en variables categòriques i retornar un plot amb els respectius p-valor
+def pairwise_chi2(data_1, data_2):
+    """
+    Realitza proves de xi-quadrat de manera pairwise entre categories de data_1 contra data_2.
+
+    Paràmetres:
+        - data_1 (pd.Series): sèrie de pandas amb dades de la primera variable (categòrica).
+        - data_2 (pd.Series): sèrie de pandas amb dades de la segona variable (categòrica).
+
+    Retorna:
+    pd.DataFrame: DataFrame amb els resultats del p-valor per cada comparació pairwise.
+    """
+    categories = data_1.unique()
+    results = []
+
+    for cat1, cat2 in itertools.combinations(categories, 2):
+        # Filtrar las filas correspondientes a las categorías actuales
+        filtered_data = data_1.isin([cat1, cat2])
+        contingency_table = pd.crosstab(data_1[filtered_data], data_2[filtered_data])
+
+        chi2, pval, _, _ = chi2_contingency(contingency_table)
+
+        results.append({
+            'Categoria 1': cat1,
+            'Categoria 2': cat2,
+            'Chi-squared': chi2,
+            'P-value': pval
+        })
+
+    results_df = pd.DataFrame(results)
+
+    return results_df
+
+
 def test_indepe_bin_plot(data_1, data_2):
     """
-    Funció que realitza el test de xi-quadrat per comparar variables categòriques per cada categoria única de data_1.
+    Funció que realitza el test de xi-quadrat per comparar variables categòriques.
 
     Paràmetres:
         - data_1 (pd.Series): sèrie de pandas amb dades de la primera variable.
         - data_2 (pd.Series): sèrie de pandas amb dades de la segona variable.
 
     Retorna:
-    dict: diccionari on les claus són les categories úniques de data_1 i els valors són els p-valors corresponents.
+    float: p-valor del test Chi-cuadrado global.
     """
-    categories = data_1.unique()
-    resultats = {}
+    # Crear la tabla de contingencia
+    contingency_table = pd.crosstab(data_1, data_2)
+    chi2, pval, _, _ = chi2_contingency(contingency_table)
 
-    p_val_matriu = []
+    # Mostrar los resultados
+    print(f'Chi-squared: {chi2:.4f}')
+    print(f'P-value: {pval:.4f}')
+    print('---')
 
-    for categoria in categories:
-        contingency_table = pd.crosstab(data_1 == categoria, data_2)
-        chi2, pval, _, _ = chi2_contingency(contingency_table)
-        resultats[categoria] = pval
-        p_val_matriu.append(pval)
-        print(f'Grup: {categoria}')
-        print(f'Chi-squared: {chi2:.4f}')
-        print(f'P-value: {pval:.4f}')
-        print('---')
-
-    # Convertir la llista de p-valors en una matriu
-    p_val_matriu = np.array(p_val_matriu).reshape(-1, 1)
-
-    # Generar la gràfica
-    plot_matrix(p_val_matriu, categories, data_2.name)
-
-    return resultats
-
-
-def plot_matrix(matriu, nom_files, columna_categorica):
-    """
-    Funció interna que genera una gràfica de matriu amb els p-valors proporcionats per a una categoria específica de
-    data_1.
-
-    Paràmetres:
-        - matriu (np.array): matriu de p-valors a representar.
-        - nom_files (list): llista de noms de les files.
-        - categorical_column (str): nom de la columna categòrica (data_2).
-
-    Retorna:
-        - None (gràfica)
-    """
-    num_files, num_columnes = matriu.shape
-
-    fig, ax = plt.subplots()
-    cax = ax.matshow(matriu, cmap='RdPu_r')
-
-    for i in range(num_files):
-        for j in range(num_columnes):
-            color = 'black' if matriu[i, j] > 0.05 else 'white'
-            ax.text(j, i, f'{matriu[i, j]:.4f}', ha='center', va='center', color=color)
-
-    # Configuració del color de fons de la gràfica
-    ax.set_facecolor((0, 0, 0, 0.5))
-
-    # Configuració de colors i etiquetes de la gràfica
-    plt.colorbar(cax)
-    ax.set_xticks(np.arange(num_columnes))
-    ax.set_yticks(np.arange(num_files))
-    ax.set_xticklabels([columna_categorica], rotation=45, ha='left')
-    ax.set_yticklabels(nom_files)
-    plt.xlabel('Variable')
-    plt.ylabel('Grups')
-    plt.title(f'P-valors de les comparacions de {columna_categorica}')
-
-    # Ajustar la matriu per només mostrar la meitat inferior i la diagonal
-    ax.set_xlim(-0.5, num_columnes - 0.5)
-    ax.set_ylim(num_files - 0.5, -0.5)
-
-    plt.show()
+    if pval < 0.05:
+        # Realizar comparaciones pairwise si el p-valor global es significativo
+        pairwise_results = pairwise_chi2(data_1, data_2)
+        # print(pairwise_results)
+        return pval, pairwise_results
+    else:
+        return pval
 
 
 # Funció per calcular la mitjana i la desviació estàndard i retornar-les en una taula
@@ -1283,11 +1228,11 @@ def segmentacio_bd(df):
     """
     conditions = [
         (df["PA diagnosticada"] == 1.0),
-        (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] < 30),
+        (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] < 30) & (df['P diagnosticada'] == 1.0),
         (df["Dies entre primer ICD pneumònia i primer MECV-V positiu"] > 30) & (df['P diagnosticada'] == 1.0)
     ]
-    choices = ['AMB_PA', 'AMB_PA_MECVV', 'SENSE_PA']
-    df['Classificació pacient'] = np.select(conditions, choices, default='Desconegut')
+    choices = ['AMB_PA', 'AMB_PA_MECVV']
+    df['Classificació pacient'] = np.select(conditions, choices, default='SENSE_PA')
     return df
 
 
