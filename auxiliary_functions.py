@@ -1234,31 +1234,3 @@ def segmentacio_bd(df):
     choices = ['AMB_PA', 'AMB_PA_MECVV']
     df['Classificació pacient'] = np.select(conditions, choices, default='SENSE_PA')
     return df
-
-
-
-#######################################################################################################################
-## APUNTES ##
-# Los que tienen PA vs los que creemos que la tienen vs los que no. X fenotipo
-# pes es llista de diccionarios []
-# float num enteros, int para decimales con punto
-# los tests (mna, emina, barthel...) tienen 2 "categorias":
-# - el total que es numerico (mean+-sd) --> ttest/mannwhit
-# - los diferentes intervalos que son categoricos (num total/contaje) --> xi
-
-# per numerics --> mean sd
-# per categorics --> contatge i %
-
-# min() --> fecha más antigua
-# max() --> fecha más reciente
-
-# TODO: poner todo none o nan, mejor none:
-# - obtenir_valors_clau_interes: EMINA resultat, MNA resultats, Canadenca resultats
-# - obtenir_pes_o_mitjana: Mitjana pes
-# - disfagia_mecvvs: Disfàgia MECVV
-# - extreure_valors_binaritzants: Alteració eficàcia MECVV, Alteració seguretat MECVV
-# - obtenir_valors_lab: Creatinine
-# - obtenir_primera_data_mecvv: Data primer MECVV (NaT)
-# - obtenir_data_presencia_codi: Data més antiga pneumònia
-# - restar_dates: Dies entre primer ICD pneumònia i primer MECVV positiu
-# son todos float64 i todos tienen none en el codigo
